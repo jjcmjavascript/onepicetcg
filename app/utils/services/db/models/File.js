@@ -1,6 +1,4 @@
-module.exports = (() => {
-    const { db, DataTypes } = require('../services/db');
-
+module.exports = (db, DataTypes) => {
     return db.define('files', {
         id: {
             type: DataTypes.INTEGER,
@@ -16,4 +14,4 @@ module.exports = (() => {
             allowNull: false
         }
     })
-})();
+};
