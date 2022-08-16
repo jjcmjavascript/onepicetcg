@@ -76,8 +76,8 @@ module.exports = (db, DataTypes) => {
         
     });
 
-    card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id'});
-    card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id'});
+    card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id', as: '_image'});
+    card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id', as : '_image_full'});
 
     return card;
 };

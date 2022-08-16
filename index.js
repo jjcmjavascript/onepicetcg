@@ -6,7 +6,6 @@ const manualSeeed = require('./app/utils/services/db/manualSeed');
 
 (async ()=>{
     try {
-        manualSeeed();
         server.use(express.static('public'));
         server.use('/v1', routerV1);
         server.use(errorHandler);

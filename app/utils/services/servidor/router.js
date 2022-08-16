@@ -1,5 +1,7 @@
 module.exports = (servidor) => {
     const routerV1 = servidor.Router();
+    const { db } = require('../../services/db');
+
     const { green, red, blue, purple, dons
         , leaders
         , characters
@@ -13,9 +15,18 @@ module.exports = (servidor) => {
         });
     });
 
-    routerV1.use('/leaders', (req, res) => {
+    routerV1.use('/leaders', async (req, res) => {
+        const cards = await db.cards.findAll({
+            where: {
+                type_id: 5,
+            },
+            include: ['_image', '_image_full'],
+        }, {
+            
+        });
+
         return res.json({
-            'cards': leaders,
+            cards
         });
     });
 

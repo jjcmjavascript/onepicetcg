@@ -14,18 +14,13 @@ module.exports = async () => {
     let db_colors = await db.colors.findAll();
     let db_types = await db.types.findAll();
     let db_packs = await db.packs.findAll();
-    let db_cards = await db.cards.findAll();
-
-    let db_cards_colors = await db.pivot_cards_colors.findAll();
-    let db_cards_types = await db.pivot_cards_types.findAll();
-    let db_cards_packs = await db.pivot_cards_packs.findAll();
 
     //CREATE COLORS
     const createColors = async () => {
-        const colors = ['sin color', 'rojo', 'azul', 'morado', 'verde'];
+        const colors = ['no color', 'red', 'blue', 'purple', 'green'];
         while (colors.length > 0) {
             const color = colors.shift();
-            const exists = db_colors.exists(_color => _color.name == color);
+            const exists = db_colors.find(_color => _color.name == color);
 
             if (!exists) {
                 const newColor = await db.colors.create({
@@ -52,39 +47,49 @@ module.exports = async () => {
     };
 
     //CREATE PACK
-    const createPack = async (pack) => {
-        const exists = db_packs.find(_pack => _pack.name == pack.name);
+    const getOrCreatePack = async (pack) => {
+        let newpack = null; 
+        const exists = db_packs.find(_pack => _pack.code == pack);
 
         if (!exists) {
-            const newpack = await db.packs.create({
+            newpack = await db.packs.create({
                 name: pack,
                 code: pack,
             });
             db_packs.push(newpack);
         }
+        
+        return newpack || exists;
     };
 
     //CREATE FILE
-    const createFile = async (file, route) => {
-        const exists = db_files.find(_file => _file.name == file);
+    const getOrCreateFile = async (file, route) => {
+        let newfile = null;
+        const exists = db_files.find(_file => _file.route == route);
+
         if (!exists) {
-            const newfile = await db.files.create({
+            newfile = await db.files.create({
                 name: file,
                 route: route,
             });
             db_files.push(newfile);
         }
+
+        return exists || newfile;
     };
     
     //CREATE CARD 
     const getAndCreateCard = async (card) => {
-        const exists = db_files.map(_card => _card.other_name == card.other_name);
+        let new_card = null;
+        const exists = await db.cards.findOne({
+            where: card
+        });
+
         if (!exists) {
-            const newcard = await db.cards.create(card);
-            db_cards.push(newcard);
+            new_card = await db.cards.create(card);9
         }
 
-        return exists;
+        return {exists, new_card};
     }; 
     
     const getNameFromOtherPage = async (name_without_alt, full_name)=>{
@@ -97,7 +102,8 @@ module.exports = async () => {
 
         if(htmlName){
             other_name = htmlName.name;
-            final_name = htmlName.name.match(/.*-(.*)/)[1]; 
+            final_name = htmlName.name.match(/.*-(.*)/);
+            final_name = final_name && final_name[1] ? final_name[1] : final_name; 
             final_name = final_name ? final_name : htmlName.name;
         }
 
@@ -110,7 +116,7 @@ module.exports = async () => {
     const getTypeFromName = (url) =>{
         let type_name = null; 
 
-        if(dons.includes(url)){
+        if(don_name.includes(url)){
             type_name = 'don';
         }
         else if(leaders.includes(url)){
@@ -131,20 +137,6 @@ module.exports = async () => {
         return type ? type.id : null;
     };
 
-    const getPackFromName = async (pack_code) =>{
-        await createPack(pack_code); 
-        const pack = db_packs.find(pack => pack.code === pack_code);
-
-        return pack ? pack.id : null;
-    };
-
-    const getFileFromName = async (name, route) =>{
-        await createFile(name, route); 
-        const pack = db_packs.find(pack => pack.code === pack_code);
-
-        return pack ? pack.id : null;
-    };
-
     const formatAndInsertCards = async (arr, color)=>{
         while(arr.length > 0){
             const url = arr.shift();
@@ -153,18 +145,29 @@ module.exports = async () => {
             const is_alt = /alt/i.test(name);
             const name_without_alt = name.replace(/_alt\d?/i, ''); 
             const pack_code_name = name.split('-')[0];
+            const split_numero = name_without_alt.split('-');
+            const card_numero = split_numero[1] ? split_numero[1] : split_numero[0];
 
+            //get name from other page
             const {name : _name, other_name} = await getNameFromOtherPage(name_without_alt, name);
+            //search for color
+            const color_id = db_colors.find(_color => _color.name == color).id; 
+            //search for card type
             const type_id = getTypeFromName(url_name);
-            const pack_id = await getPackFromName(pack_code_name);
-            const card_numero = name_without_alt.split('-')[1];
+            //search for pack or create it
+            const _pack = await getOrCreatePack(pack_code_name);
+            const pack_id = _pack ? _pack.id : null;
             
-            const _color = color == 'sin color' ? 'don' : color;
+            //search for file or create it
+            const _color = color == 'no color' ? 'don' : color;
             const img_url = `images/${_color}/${name_without_alt}/${url_name}`;
-            const img_url_full = `images/${_color}/${name_without_alt}/full_${url_name}`;
+            const img_url_full = `images/${_color}/cards/${name_without_alt}/full_${url_name}`;
 
-            const image_id = await getFileFromName(name, img_url);
-            const full_image_id = await getFileFromName(`full_${url_name}`, img_url_full);
+            const _image = await getOrCreateFile(name, img_url);
+            const image_id = _image ? _image.id : null;
+
+            const _full_image = await getOrCreateFile(`full_${url_name}`, img_url_full);
+            const full_image_id = _full_image ? _full_image.id : null; 
 
             const card = {
                 cost : 0 ,	
@@ -181,11 +184,32 @@ module.exports = async () => {
                 full_image_id,
             };
 
-            const new_card = await getAndCreateCard(card);
+            const {exist, new_card} = await getAndCreateCard(card);
+
+            if(new_card){
+                const  db_pivot_colors = await db.pivot_cards_colors.create({
+                    card_id: new_card.id,
+                    color_id
+                });
+    
+                const  db_pivot_types = await db.pivot_cards_types.create({
+                    card_id: new_card.id,
+                    type_id,
+                });
+
+                const  db_pivot_packs = await db.pivot_cards_packs.create({
+                    card_id: new_card.id,
+                    pack_id,
+                });
+            }
         }
     }
 
-    // await createColors();
-    // await createTypes();
-    // await formatAndInsertCards(green , 'green');
+    await createColors();
+    await createTypes();
+    await formatAndInsertCards(green , 'green');
+    await formatAndInsertCards(red , 'red');
+    await formatAndInsertCards(blue , 'blue');
+    await formatAndInsertCards(purple , 'purple');
+    await formatAndInsertCards(dons , 'no color');
 }; 
