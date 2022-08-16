@@ -14,6 +14,11 @@ module.exports = {
             },
             name: {
                 type: Sequelize.STRING,
+                allowNull: false,
+                comment: 'Nombre de la carta'
+            },
+            other_name: {
+                type: Sequelize.STRING,
                 allowNull: true,
                 comment: 'Nombre de la carta'
             },

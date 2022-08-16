@@ -23,5 +23,7 @@ module.exports = (db, DataTypes) => {
                 key: 'id'
             }
         }
+    },{
+        timestamps: false,
     });
 };

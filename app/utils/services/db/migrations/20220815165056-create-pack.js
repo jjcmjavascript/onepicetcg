@@ -9,7 +9,13 @@ module.exports = {
             },
             name: {
                 type: Sequelize.STRING,
-                comment: 'Nombre del pack'
+                comment: 'Nombre del pack',
+                allowNull: true
+            },
+            code: {
+                type: Sequelize.STRING,
+                comment: 'Code del pack',
+                allowNull: true
             },
             fecha_lanzamiento: {
                 type: Sequelize.DATE,

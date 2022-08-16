@@ -1,4 +1,6 @@
 module.exports = (db, DataTypes) => {
+    const FileModel = require('./File')(db, DataTypes); 
+
     const card = db.define('cards', {
         id: {
             type: DataTypes.INTEGER,
@@ -12,7 +14,12 @@ module.exports = (db, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
+            comment: 'Nombre de la carta'
+        },
+        other_name: {
+            type: DataTypes.STRING,
+            allowNull: true,
             comment: 'Nombre de la carta'
         },
         power: {
@@ -68,6 +75,9 @@ module.exports = (db, DataTypes) => {
     }, {
         
     });
+
+    card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id'});
+    card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id'});
 
     return card;
 };

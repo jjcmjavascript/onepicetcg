@@ -6,7 +6,7 @@ module.exports = (db, DataTypes) => {
             autoIncrement: true
         },
         card_id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             comment: 'Id de la carta',
             references: {
@@ -15,7 +15,7 @@ module.exports = (db, DataTypes) => {
             }
         },
         color_id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             comment: 'Id del color de la carta (green, red, blue, purple)',
             references: {
@@ -23,5 +23,7 @@ module.exports = (db, DataTypes) => {
                 key: 'id'
             }
         }
+    },{
+        timestamps: false,
     });
 };

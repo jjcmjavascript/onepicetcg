@@ -7,7 +7,14 @@ module.exports = (db, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING,
-            comment: 'Nombre del pack'
+            comment: 'Nombre del pack',
+            allowNull: true
+
+        },
+        code: {
+            type: DataTypes.STRING,
+            comment: 'Code del pack',
+            allowNull: true
         },
         fecha_lanzamiento: {
             type: DataTypes.DATE,
