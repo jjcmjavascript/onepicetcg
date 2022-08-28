@@ -1,5 +1,3 @@
-const path = require('path');
-
 if(!process.env.MODE){
   require('dotenv').config({
       path: '../../../../.env'
