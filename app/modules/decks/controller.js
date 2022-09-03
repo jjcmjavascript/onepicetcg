@@ -1,7 +1,7 @@
-const { paginator, filters } = require('../../utils/helpers'); 
+const { paginator, filters } = require('../../helpers'); 
 
 class DeckController {
-    constructor(deckService, cardService) {        
+    constructor({cards : cardService, decks : deckService}) {        
         this.deckService = deckService;
         this.cardService = cardService;
     }
@@ -18,9 +18,7 @@ class DeckController {
             page,
         }); 
 
-        return res.json([
-            cards,
-        ]); 
+        return res.json(cards); 
     }
     getCard(id) {
         return this.cardService.getCard(id);

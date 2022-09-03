@@ -1,13 +1,11 @@
 module.exports = (()=>{
-    const {db} = require('../../utils/services/db');
-    const {cards : cardService, decks : deckService} = db; 
+    const db = require('../../services/database');
 
-    const Controller = require('./deck_controller');
-    const Router = require('./router');
-
-    const controller = new Controller(deckService, cardService);
+    const Controller = require('./controller');
+    const controller = new Controller(db);
     
+    const Router = require('./router');
     const router = Router(controller);
 
-    return { router };
+    return router;
 })();
