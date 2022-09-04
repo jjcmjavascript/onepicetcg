@@ -20,25 +20,26 @@ const createFolders = (route, created_routes = {}) =>{
 }
 
 const getNamesFromUrl = (url)=>{
-    const url_parts = url.match(/.*\/(\w+-\w{1,3})(_)?(Alt)?/); 
-
-    console.log(url, url_parts);
+    const url_parts = url.split("/");
+    folder_name = url_parts[url_parts.length - 1]
+        .replace('_Alt', '').replace('.png', '');
+    
     return {
         name: url.replace(/.*\/(.*)/g, '$1'),
-        folder_name : url_parts[1],
-        is_alternative : url_parts[3] != undefined, 
+        folder_name,
     } 
 }
 
-const createImageStream = (data, image_writer)=>{
+const setImageWithPipeAndWriter = (data, image_writer)=>{
     return new Promise((resolve, reject) =>{
-        data.pipe(image_writer);         
-        data.on('end', resolve); 
-        data.on('error', reject); 
+        data.pipe(image_writer);   
+        data.on('end', resolve(true)); 
+        data.on('error', reject(false)); 
     });
 }
+
 const downloadImage = async(arr, color)=>{
-    const base_route = '../public/images'; 
+    const base_route = './public/images'; 
     let created_routes = {}; 
 
     try{
@@ -50,23 +51,21 @@ const downloadImage = async(arr, color)=>{
             //get formated names
             let {name, folder_name} = getNamesFromUrl(image_url); 
             let folder_route = `${base_route}/${color}/${folder_name}`; 
-
+            
             //create routes
             await createFolders(folder_route, created_routes);
-
-            //get small images buffers
-            let small_card_route = `${folder_route}/${name}`;
-            console.log(small_card_route)
+           
+            //get small image buffers
             const { data : _image_data } = await getImageStream(image_url);
-            const image_writer = fs.createWriteStream(small_card_route);    
-            
-            await createImageStream(_image_data, image_writer); 
+            // set small image
+            const image_writer = fs.createWriteStream(`${folder_route}/${name}`);  
+            let result = await setImageWithPipeAndWriter(_image_data, image_writer);
 
-            // const { data : _full_image_data} = await getImageStream(image_url);
-            
-            // const full_image_writer = fs.createWriteStream(`${folder_route}/full_${name}`);    
-
-            // _full_image_data.pipe(full_image_writer); 
+            //get full images buffers
+            const { data : _full_image_data } = await getImageStream(full_image_url);
+            // set full image
+            const _full_image_writer = fs.createWriteStream(`${folder_route}/full_${name}`);  
+            await setImageWithPipeAndWriter(_full_image_data, _full_image_writer);
 
             arr.splice(0,1);
         }
@@ -76,8 +75,22 @@ const downloadImage = async(arr, color)=>{
     }
 };
 
-module.exports = ()=>{
-    red.length = 2; 
-    downloadImage(red, 'red')
+async function execute(){
+    try {
+        await downloadImage(red, 'red');
+        await downloadImage(blue, 'blue');
+        await downloadImage(green, 'green');
+        await downloadImage(purple, 'purple');
+        await downloadImage(dons, 'no color');
+        
+        return {
+            success: true,
+        }
+    } catch (error) {
+        return {
+            error: error,
+            status: false
+        };   
+    }
 }; 
-
+module.exports = execute;

@@ -1,13 +1,11 @@
 require('dotenv').config();
+
 const {server, express} = require('./app/services/server');
 const {notFound, helmet, morgan, cors} = require('./app/middlewares');
 const routes = require('./app/routes');
 
-const downloadImage = require("./app/scripts/image_scrapper");
-
 (async ()=>{
     try {
-        downloadImage("rojo",  "https://nakamadecks.com/imgs/cards/little/OP01-060.png");
         server.use(express.static('public'));
         server.use(cors());
         server.use(helmet()); 
