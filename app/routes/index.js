@@ -1,5 +1,5 @@
-const decks  = require('../modules/decks');
+const decks  = require('../modules/deck');
 
-module.exports = {
-    decks,
-}
+module.exports = [
+    decks
+];

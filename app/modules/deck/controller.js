@@ -5,10 +5,6 @@ class DeckController {
         this.deckService = deckService;
         this.cardService = cardService;
     }
-
-    async getAllDecks(req, res){
-
-    }
     
     async getAllCards(req, res) {
         const {page, color} = req.query;
@@ -20,6 +16,11 @@ class DeckController {
 
         return res.json(cards); 
     }
+
+    async getAllDecks(req, res){
+
+    }
+    
     getCard(id) {
         return this.cardService.getCard(id);
     }

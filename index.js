@@ -1,23 +1,20 @@
 require('dotenv').config();
-
 const {server, express} = require('./app/services/server');
-const {notFound, helmet, morgan} = require('./app/middlewares');
-const router = require('./app/routes');
+const {notFound, helmet, morgan, cors} = require('./app/middlewares');
+const routes = require('./app/routes');
 
-// const manualSeeed = require('./app/utils/services/db/manualSeed');
+const downloadImage = require("./app/scripts/image_scrapper");
 
 (async ()=>{
     try {
-
+        downloadImage("rojo",  "https://nakamadecks.com/imgs/cards/little/OP01-060.png");
         server.use(express.static('public'));
-        server.use(express.json()); 
+        server.use(cors());
         server.use(helmet()); 
+        server.use(express.json({limit : '2mb'})); 
+        server.use(express.urlencoded({extended: false, limit: '2mb', parameterLimit: 100})); 
         server.use(morgan('tiny')); 
-        server.use(express.urlencoded({extended: false})); 
-
-        server.use(router.decks); 
-
-        //server.use(notFound);
+        server.use(routes); 
         server.listen(80);        
 
       } catch (error) {

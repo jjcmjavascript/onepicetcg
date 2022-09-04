@@ -1,14 +1,15 @@
+const axios = require('axios');
+const PAGE_TO_GET_NAMES  = process.env.PAGE_TO_GET_NAMES;
+const db = require('../../services/database/models');
+
 module.exports = async () => {
-    const PAGE_TO_GET_NAMES  = process.env.PAGE_TO_GET_NAMES;
-    const axios = require('axios');
-    const db = require('./models');
     const { 
         green, red, blue, purple, dons
         , leaders
         , characters
         , events
         , stages
-        , don_name } = require('../../../../../urls');
+        , don_name } = require('../image_scrapper/urls');
 
     let db_files = await db.files.findAll();
     let db_colors = await db.colors.findAll();
@@ -78,19 +79,6 @@ module.exports = async () => {
         return exists || newfile;
     };
     
-    //CREATE CARD 
-    const getAndCreateCard = async (card) => {
-        let new_card = null;
-        const exists = await db.cards.findOne({
-            where: card
-        });
-
-        if (!exists) {
-            new_card = await db.cards.create(card);9
-        }
-
-        return {exists, new_card};
-    }; 
     
     const getNameFromOtherPage = async (name_without_alt, full_name)=>{
         const response = await axios.get(`${PAGE_TO_GET_NAMES}=${name_without_alt}`); 
@@ -137,6 +125,35 @@ module.exports = async () => {
         return type ? type.id : null;
     };
 
+    //CREATE CARD 
+    const getAndCreateCard = async (card) => {
+        let new_card = null;
+        const exists = await db.cards.findOne({
+            where: card
+        });
+
+        if (!exists) {
+            new_card = await db.cards.create(card);
+        }
+
+        return {exists, new_card};
+    }; 
+    
+    const createPivots = ({card_id, color_id, type_id, pack_id}) => {
+        const  db_pivot_colors = await db.pivot_cards_colors.create({
+            card_id: card_id,
+            color_id
+        });
+        const  db_pivot_types = await db.pivot_cards_types.create({
+            card_id: card_id,
+            type_id,
+        });
+        const  db_pivot_packs = await db.pivot_cards_packs.create({
+            card_id: card_id,
+            pack_id,
+        });
+    }
+
     const formatAndInsertCards = async (arr, color)=>{
         while(arr.length > 0){
             const url = arr.shift();
@@ -144,16 +161,19 @@ module.exports = async () => {
             const name = url_name.replace('.png', '');
             const is_alt = /alt/i.test(name);
             const name_without_alt = name.replace(/_alt\d?/i, ''); 
+            const split_number = name_without_alt.split('-');
             const pack_code_name = name.split('-')[0];
-            const split_numero = name_without_alt.split('-');
-            const card_numero = split_numero[1] ? split_numero[1] : split_numero[0];
+            const card_number = split_number[1] ? split_number[1] : split_number[0];
 
             //get name from other page
             const {name : _name, other_name} = await getNameFromOtherPage(name_without_alt, name);
+           
             //search for color
             const color_id = db_colors.find(_color => _color.name == color).id; 
+            
             //search for card type
             const type_id = getTypeFromName(url_name);
+            
             //search for pack or create it
             const _pack = await getOrCreatePack(pack_code_name);
             const pack_id = _pack ? _pack.id : null;
@@ -177,31 +197,22 @@ module.exports = async () => {
                 is_alternative : is_alt,
                 type_id,	
                 pack_id, 
-                card_numero,	
+                card_number,	
                 codigo : name_without_alt, 
                 card_text : '',
                 image_id,
                 full_image_id,
             };
 
-            const {exist, new_card} = await getAndCreateCard(card);
+            const {new_card} = await getAndCreateCard(card);
 
-            if(new_card){
-                const  db_pivot_colors = await db.pivot_cards_colors.create({
-                    card_id: new_card.id,
-                    color_id
-                });
-    
-                const  db_pivot_types = await db.pivot_cards_types.create({
-                    card_id: new_card.id,
-                    type_id,
-                });
-
-                const  db_pivot_packs = await db.pivot_cards_packs.create({
-                    card_id: new_card.id,
-                    pack_id,
-                });
-            }
+            // Crear tablas pivotes para la carta
+            new_card && createPivots({
+                card_id: new_card.id, 
+                color_id, 
+                type_id, 
+                pack_id
+            });
         }
     }
 
