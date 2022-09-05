@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios');
 const PAGE_TO_GET_NAMES  = process.env.PAGE_TO_GET_NAMES;
 const db = require('../../services/database/models');
@@ -80,7 +81,7 @@ module.exports = async () => {
     };
     
     
-    const getNameFromOtherPage = async (name_without_alt, full_name)=>{
+    const getNameFromOtherPage = async (name_without_alt, full_name)=>{        
         const response = await axios.get(`${PAGE_TO_GET_NAMES}=${name_without_alt}`); 
         const data = response.data;
         const html = data.products;
@@ -139,7 +140,7 @@ module.exports = async () => {
         return {exists, new_card};
     }; 
     
-    const createPivots = ({card_id, color_id, type_id, pack_id}) => {
+    const createPivots = async ({card_id, color_id, type_id, pack_id}) => {
         const  db_pivot_colors = await db.pivot_cards_colors.create({
             card_id: card_id,
             color_id
