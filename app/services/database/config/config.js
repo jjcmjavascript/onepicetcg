@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 if(!process.env.MODE){
   require('dotenv').config({
       path: '../../../.env'

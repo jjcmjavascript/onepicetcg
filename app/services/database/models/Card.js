@@ -41,7 +41,7 @@ module.exports = (db, DataTypes) => {
             allowNull: true,
             comment: 'Id del pack de la carta'
         },
-        card_numero: {
+        card_number: {
             type: DataTypes.STRING,
             allowNull: true,
             comment: 'Numero de la carta'
