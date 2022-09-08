@@ -80,7 +80,6 @@ module.exports = async () => {
         return exists || newfile;
     };
     
-    
     const getNameFromOtherPage = async (name_without_alt, full_name)=>{        
         const response = await axios.get(`${PAGE_TO_GET_NAMES}=${name_without_alt}`); 
         const data = response.data;
