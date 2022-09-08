@@ -4,8 +4,7 @@ module.exports = (()=>{
     const Controller = require('./controller');
     const controller = new Controller(db);
     
-    const Router = require('./router');
-    const router = Router(controller);
+    const routes = require('./routes')(controller);
 
-    return router;
+    return routes;
 })();

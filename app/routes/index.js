@@ -1,5 +1,5 @@
-const decks  = require('../modules/deck');
+const v1_routes = require('./v1'); 
 
-module.exports = [
-    decks
-];
+module.exports = {
+    v1: v1_routes
+}
