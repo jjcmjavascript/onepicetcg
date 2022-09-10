@@ -1,9 +1,15 @@
-async function paginator(model, {method, where, page, size }){
+async function paginator(model, options = null){
+
+    console.log(typeof model);
+    if(model === null || model === undefined){
+        throw new Error('Please provide a valid model');
+    }
+    
     //set defualt values
-    method  = method || 'findAll'; 
-    where = where || {}; 
-    page = parseInt(page || 1); 
-    limit = parseInt(size || 15); 
+    method  = options && options.method ? options.method : 'findAll'; 
+    where = options && options.where ? options.where : {}; 
+    page = options &&  options.page ? parseInt(options.page) : 1; 
+    limit = options &&  options.size ? parseInt(options.size) : 15; 
 
     //calculate
     const total = await model.count(); 

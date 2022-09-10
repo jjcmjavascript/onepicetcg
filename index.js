@@ -15,8 +15,11 @@ const {v1} = require('./app/routes');
 
         server.use('/v1', v1); 
         
-        server.listen(process.env.APP_PORT);        
+        server.listen(process.env.APP_PORT, ()=>{
+          console.log(`Listening on port ${process.env.APP_PORT}`);
+        });        
       } catch (error) {
         console.error(error.stack);
       }
 })();
+

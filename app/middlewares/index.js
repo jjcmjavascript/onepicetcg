@@ -3,7 +3,7 @@ const cookie = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 
-const notFound = require('./not_found'); 
+const notFound = require('./notFound'); 
 
 module.exports = {
     notFound,
