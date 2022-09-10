@@ -13,5 +13,5 @@
     # PAGES FOR SCRAPPING
     PAGE_TO_GET_NAMES=
 
-2) in root folder execute :  node -e 'require("./app/scripts/image_scrapper")()'
-2) in root folder execute : node -e 'require("./app/scripts/manual_seeder")()'
+2) in root folder execute : node -e 'require("./app/scripts/image_scrapper")()'
+2) in root folder execute : NODE_ENV=dev node -e 'NODE_ENV=dev require("./app/scripts/manual_seeder")()'
