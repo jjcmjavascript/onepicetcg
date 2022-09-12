@@ -1,5 +1,7 @@
 module.exports = (db, DataTypes) => {
     const FileModel = require('./File')(db, DataTypes); 
+    const Colors = require('./Color')(db, DataTypes); 
+    const PivotCardColor = require('./PivotCardColor')(db, DataTypes); 
 
     const card = db.define('cards', {
         id: {
@@ -77,6 +79,8 @@ module.exports = (db, DataTypes) => {
     //RELATIONSHIPS
     card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id', as: '_image'});
     card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id', as : '_image_full'});
+
+    card.belongsToMany(Colors, {through: 'pivot_cards_colors',  foreignKey:'card_id', otherKey: 'color_id', as : '_colors'});
 
     return card;
 };

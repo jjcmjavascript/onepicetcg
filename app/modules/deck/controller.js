@@ -1,37 +1,61 @@
-const { paginator, filters } = require('../../helpers'); 
+const db = require('../../services/database');
+
+const { paginator, ParamsFormatter } = require('../../helpers'); 
 
 class DeckController {
-    constructor({cards : cardService, decks : deckService}) {        
-        this.deckService = deckService;
-        this.cardService = cardService;
+    constructor() {        
+        this.deckService = db.decks;
+        this.cardService = db.cards;
+        this.colorService = db.colors;
+        this.packsService = db.packs;
+        this.formater = new ParamsFormatter(); 
     }
     
-    async getAllCards(req, res) {
-        const {page, color} = req.query;
-        const where = {};
-         
+    async getAllCards(request, response) {
+        const {page} = request.query;
+        const where = this.formater
+            .validateAndSetRequest(request)
+            .setAllowed(['id'])
+            .fromQuery()
+            .get();
+        
+        // const whereColor = this.formater
+        //     .validateAndSetRequest(request)
+        //     .setAllowed(['color'])
+        //     .fromQuery()
+        //     .getRenamedParams({color : 'color_id'});
+
+            console.log(where);
+        
         const cards = await paginator(this.cardService, {
             page,
+            where,
+            include: [{model : this.colorService , as : '_colors', attributes: ['id', 'name']}]
         }); 
 
-        return res.json(cards); 
+        return response.json(cards); 
     }
 
-    async getAllDecks(req, res){
+    async getAllDecks(request, response){
 
     }
     
-    getCard(id) {
-        return this.cardService.getCard(id);
-    }
-    createCard(card) {
-        return this.cardService.createCard(card);
-    }
-    updateCard(card) {
-        return this.cardService.updateCard(card);
-    }
-    deleteCard(id) {
-        return this.cardService.deleteCard(id);
+    async getCardSelects(_, response){
+        const costs = Array(10).fill(0).map((_,k) => k + 1);
+        const attacks = Array(10).fill(0).map((_,k) => (k + 1) * 1000); 
+        const colors = await this.colorService.findAll(
+            {attributes: ['name', 'id']}
+        );
+        const packs = await this.packsService.findAll({
+            attributes: ['name', 'code', 'id'],
+        }) 
+        
+        return response.json({
+            colors, 
+            costs,
+            attacks,
+            packs
+        });
     }
 };
 

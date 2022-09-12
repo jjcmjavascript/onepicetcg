@@ -18,8 +18,9 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=prod nodemon index.js",
-    "start:dev": " NODE_ENV=dev nodemon index.js",
-    "test": "jest --verbose"
+    "start:dev": "NODE_ENV=dev nodemon index.js",
+    "test": "NODE_ENV=dev jest --verbose  --detectOpenHandles --silent",
+    "test:watch": "npm run test -- --watch"
   },
   "author": "jjcmjavascript@gmail.com",
   "license": "MIT",

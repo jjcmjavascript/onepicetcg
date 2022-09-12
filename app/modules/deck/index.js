@@ -1,9 +1,6 @@
-module.exports = (()=>{
-    const db = require('../../services/database');
-    
+module.exports = (()=>{    
     const Controller = require('./controller');
-    const controller = new Controller(db);
-    
+    const controller = new Controller();
     const routes = require('./routes')(controller);
 
     return routes;

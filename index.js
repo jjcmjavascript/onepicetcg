@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const {server, express} = require('./app/services/server');
 const {notFound, helmet, morgan, cors} = require('./app/middlewares');
 const {v1} = require('./app/routes');

@@ -1,7 +1,7 @@
 const paginator  = require('./paginate'); 
-const getParams  = require('./getParams'); 
+const ParamsFormatter  = require('./ParamsFormatter'); 
 
 module.exports = {
     paginator,
-    getParams
+    ParamsFormatter
 } 

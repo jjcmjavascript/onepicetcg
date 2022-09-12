@@ -1,6 +1,4 @@
 async function paginator(model, options = null){
-
-    console.log(typeof model);
     if(model === null || model === undefined){
         throw new Error('Please provide a valid model');
     }
@@ -10,7 +8,8 @@ async function paginator(model, options = null){
     where = options && options.where ? options.where : {}; 
     page = options &&  options.page ? parseInt(options.page) : 1; 
     limit = options &&  options.size ? parseInt(options.size) : 15; 
-
+    include = options &&  options.include ? options.include : null; 
+    
     //calculate
     const total = await model.count(); 
     const pages = Math.ceil(total / limit); 
@@ -21,6 +20,7 @@ async function paginator(model, options = null){
         where,
         offset,
         limit,
+        include
     });
 
     return {
