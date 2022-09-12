@@ -8,18 +8,17 @@ class DeckController {
         this.cardService = db.cards;
         this.colorService = db.colors;
         this.packsService = db.packs;
-        this.formater = new ParamsFormatter(); 
     }
     
     async getAllCards(request, response) {
         const {page} = request.query;
-        const where = this.formater
+        const where = new ParamsFormatter()
             .validateAndSetRequest(request)
             .setAllowed(['id'])
             .fromQuery()
             .get();
         
-        // const whereColor = this.formater
+        // const whereColor = new ParamsFormatter()
         //     .validateAndSetRequest(request)
         //     .setAllowed(['color'])
         //     .fromQuery()

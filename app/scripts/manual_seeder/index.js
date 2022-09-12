@@ -143,7 +143,7 @@ module.exports = async () => {
     const createPivots = async ({is_new, card_id, color_id, type_id, pack_id}) => {
         
         await db.pivot_cards_colors.create({
-            card_id: card_id,
+            card_id,
             color_id
         });
 
@@ -161,62 +161,74 @@ module.exports = async () => {
 
     const formatAndInsertCards = async (arr, color)=>{
         while(arr.length > 0){
-            const url = arr.shift();
-            const url_name = url.split('/').pop();
-            const name = url_name.replace('.png', '');
-            const is_alt = /alt/i.test(name);
-            const name_without_alt = name.replace(/_alt\d?/i, ''); 
-            const split_number = name_without_alt.split('-');
-            const pack_code_name = name.split('-')[0];
-            const card_number = split_number[1] ? split_number[1] : split_number[0];
-
-            //get name from other page
-            const {name : _name, other_name} = await getNameFromOtherPage(name_without_alt, name);
-           
-            //search for color
-            const color_id = db_colors.find(_color => _color.name == color).id; 
-            
-            //search for card type
-            const type_id = getTypeFromName(url_name);
-            
-            //search for pack or create it
-            const _pack = await getOrCreatePack(pack_code_name);
-            const pack_id = _pack ? _pack.id : null;
-            
-            //search for file or create it
-            const _color = color == 'no color' ? 'don' : color;
-            const img_url = `images/${_color}/${name_without_alt}/${url_name}`;
-            const img_url_full = `images/${_color}/cards/${name_without_alt}/full_${url_name}`;
-
-            const _image = await getOrCreateFile(name, img_url);
-            const image_id = _image ? _image.id : null;
-
-            const _full_image = await getOrCreateFile(`full_${url_name}`, img_url_full);
-            const full_image_id = _full_image ? _full_image.id : null; 
-
-            const card_data = {
-                cost : 0 ,	
-                power : 0,	
-                name : 	_name,
-                other_name,
-                is_alternative : is_alt,
-                type_id,	
-                pack_id, 
-                card_number,	
-                codigo : name_without_alt, 
-                card_text : '',
-            };
-
-            const {old_card, new_card} = await findOrCreateCard(card_data, {image_id, full_image_id});
-
-            // Crear tablas pivotes para la carta
-            createPivots({
-                is_new : Boolean(new_card),
-                card_id: Boolean(new_card) ? new_card.id : old_card.id, 
-                color_id, 
-                type_id, 
-                pack_id
-            });
+            try{
+                const url = arr.shift();
+                const url_name = url.split('/').pop();
+                const name = url_name.replace('.png', '');
+                const is_alt = /alt/i.test(name);
+                const name_without_alt = name.replace(/_alt\d?/i, ''); 
+                const split_number = name_without_alt.split('-');
+                const pack_code_name = name.split('-')[0];
+                const card_number = split_number[1] ? split_number[1] : split_number[0];
+    
+                //get name from other page
+                console.log('Obteniendo datos para' + name_without_alt);
+                const {name : _name, other_name} = await getNameFromOtherPage(name_without_alt, name);
+               
+                //search for color
+                console.log('Buscando Color' + color);
+                const color_id = db_colors.find(_color => _color.name == color).id; 
+                
+                //search for card type
+                console.log('Buscando Tipo de Carta');
+                const type_id = getTypeFromName(url_name);
+                console.log('Tipo de carta' + type_id);
+                
+                //search for pack or create it
+                const _pack = await getOrCreatePack(pack_code_name);
+                const pack_id = _pack ? _pack.id : null;
+                
+                //search for file or create it
+                const _color = color == 'no color' ? 'don' : color;
+                const img_url = `images/${_color}/${name_without_alt}/${url_name}`;
+                const img_url_full = `images/${_color}/cards/${name_without_alt}/full_${url_name}`;
+    
+                const _image = await getOrCreateFile(name, img_url);
+                const image_id = _image ? _image.id : null;
+    
+                const _full_image = await getOrCreateFile(`full_${url_name}`, img_url_full);
+                const full_image_id = _full_image ? _full_image.id : null; 
+    
+                console.log('Formateando data');
+                const card_data = {
+                    cost : 0 ,	
+                    power : 0,	
+                    name : 	_name,
+                    other_name,
+                    is_alternative : is_alt,
+                    type_id,	
+                    pack_id, 
+                    card_number,	
+                    codigo : name_without_alt, 
+                    card_text : '',
+                };
+    
+                console.log('Guardando data');
+                const {old_card, new_card} = await findOrCreateCard(card_data, {image_id, full_image_id});
+                console.log(old_card ? 'Carta Ya existente': 'Nueva Carta creada');
+    
+                // Crear tablas pivotes para la carta
+                createPivots({
+                    is_new : Boolean(new_card),
+                    card_id: Boolean(new_card) ? new_card.id : old_card.id, 
+                    color_id, 
+                    type_id, 
+                    pack_id
+                });
+            }
+            catch(e){
+                console.log('Error' + e.message);   
+            }
         }
     }
 
