@@ -7,7 +7,7 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env =  process.env.NODE_ENV;
-const config = require(__dirname + '/../config/config')[env];
+const config = require('../config/config')[env];
 const silent = process.env.SEQUELIZE_SILENT == 'true';
 const _config = silent ? {...config, logging : !silent} : config;
 const sequelize = new Sequelize(config.database, config.username, config.password, _config);

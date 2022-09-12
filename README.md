@@ -1,4 +1,4 @@
-1) Clone the proyect
+1) Clone the proyect and  npm install 
 2) Create db 
 3) Create .env in  root folder
     # ENVIRONMENT MODE
@@ -12,6 +12,7 @@
 
     # PAGES FOR SCRAPPING
     PAGE_TO_GET_NAMES=
-
-2) in root folder execute : node -e 'require("./app/scripts/image_scrapper")()'
-2) in root folder execute : NODE_ENV=dev node -e 'NODE_ENV=dev require("./app/scripts/manual_seeder")()'
+    
+4) npm run migrate:dev
+5) in root folder execute : node -e 'require("./app/scripts/image_scrapper")()'
+6) in root folder execute : NODE_ENV=dev node -e 'require("./app/scripts/manual_seeder")()'

@@ -79,7 +79,6 @@ module.exports = (db, DataTypes) => {
     //RELATIONSHIPS
     card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id', as: '_image'});
     card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id', as : '_image_full'});
-
     card.belongsToMany(Colors, {through: 'pivot_cards_colors',  foreignKey:'card_id', otherKey: 'color_id', as : '_colors'});
 
     return card;

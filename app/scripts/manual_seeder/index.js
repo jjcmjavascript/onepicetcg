@@ -126,32 +126,37 @@ module.exports = async () => {
     };
 
     //CREATE CARD 
-    const getAndCreateCard = async (card) => {
-        let new_card = null;
-        const exists = await db.cards.findOne({
-            where: card
+    const findOrCreateCard = async (card_data, other_data = {}) => {
+        let new_card = null; 
+        let old_card = await db.cards.findOne({
+            where: card_data
         });
 
-        if (!exists) {
-            new_card = await db.cards.create(card);
+        if (!old_card) {
+            card_data = {...card_data, ...other_data};
+            new_card = await db.cards.create(card_data);
         }
 
-        return {exists, new_card};
+        return {new_card, old_card};
     }; 
     
-    const createPivots = async ({card_id, color_id, type_id, pack_id}) => {
-        const  db_pivot_colors = await db.pivot_cards_colors.create({
+    const createPivots = async ({is_new, card_id, color_id, type_id, pack_id}) => {
+        
+        await db.pivot_cards_colors.create({
             card_id: card_id,
             color_id
         });
-        const  db_pivot_types = await db.pivot_cards_types.create({
-            card_id: card_id,
-            type_id,
-        });
-        const  db_pivot_packs = await db.pivot_cards_packs.create({
-            card_id: card_id,
-            pack_id,
-        });
+
+        if(is_new){
+            await db.pivot_cards_types.create({
+                card_id: card_id,
+                type_id,
+            });
+            await db.pivot_cards_packs.create({
+                card_id: card_id,
+                pack_id,
+            });
+        }
     }
 
     const formatAndInsertCards = async (arr, color)=>{
@@ -189,7 +194,7 @@ module.exports = async () => {
             const _full_image = await getOrCreateFile(`full_${url_name}`, img_url_full);
             const full_image_id = _full_image ? _full_image.id : null; 
 
-            const card = {
+            const card_data = {
                 cost : 0 ,	
                 power : 0,	
                 name : 	_name,
@@ -200,15 +205,14 @@ module.exports = async () => {
                 card_number,	
                 codigo : name_without_alt, 
                 card_text : '',
-                image_id,
-                full_image_id,
             };
 
-            const {new_card} = await getAndCreateCard(card);
+            const {old_card, new_card} = await findOrCreateCard(card_data, {image_id, full_image_id});
 
             // Crear tablas pivotes para la carta
-            new_card && createPivots({
-                card_id: new_card.id, 
+            createPivots({
+                is_new : Boolean(new_card),
+                card_id: Boolean(new_card) ? new_card.id : old_card.id, 
                 color_id, 
                 type_id, 
                 pack_id
