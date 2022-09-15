@@ -12,6 +12,7 @@ class DeckController {
     
     async getAllCards(request, response) {
         const {page} = request.query;
+
         const where = new ParamsFormatter()
             .validateAndSetRequest(request)
             .setAllowed(['id'])
@@ -28,7 +29,10 @@ class DeckController {
         
         const cards = await paginator(this.cardService, {
             page,
-            where,
+            where: {
+                id: 1,
+                color: : 
+            },
             include: [{model : this.colorService , as : '_colors', attributes: ['id', 'name']}]
         }); 
 
