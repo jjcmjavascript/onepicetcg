@@ -19,24 +19,13 @@ class DeckController {
             .fromQuery()
             .get();
         
-        // const whereColor = new ParamsFormatter()
-        //     .validateAndSetRequest(request)
-        //     .setAllowed(['color'])
-        //     .fromQuery()
-        //     .getRenamedParams({color : 'color_id'});
-
-            console.log(where);
-        
         const cards = await paginator(this.cardService, {
             page,
-            where: {
-                id: 1,
-                color: : 
-            },
+            where,
             include: [{model : this.colorService , as : '_colors', attributes: ['id', 'name']}]
         }); 
 
-        return response.json(cards); 
+        return response.status(200).json(cards); 
     }
 
     async getAllDecks(request, response){
