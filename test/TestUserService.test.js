@@ -2,14 +2,18 @@ const UserService = require("./services/UsersService");
 const userGenerator  = require("./utils/userGenerator"); 
 
 const usersList =  userGenerator(20); 
-const userService = new UserService(usersList); 
+let userService = new UserService(usersList); 
 
-describe("Service test", ()=>{
+beforeAll(()=>{
+    userService.users = usersList; 
+});
+
+describe.skip("Service test", ()=>{
     test("Limit: get 15 Users", ()=>{
-        const users =  userService.findAll({
+        const users = userService.findAll({
             limit: 15
         }); 
-        
+
         expect(users.length === 15).toBe(true);
     }); 
 
@@ -32,13 +36,13 @@ describe("Service test", ()=>{
         expect(user).toBeUndefined();
     });
 
-    test("Find: null", ()=>{
+    test("Find: return undefined with param null", ()=>{
         const user =  userService.findOne(null); 
         
         expect(user).toBeUndefined(undefined);
     });
 
-    test("Find: {}", ()=>{
+    test("Find: return undefined with param {}", ()=>{
         const user =  userService.findOne({}); 
         
         expect(user).toBeUndefined();
