@@ -27,15 +27,6 @@ describe('Module Deck Tests', ()=>{
 
         expect(cards).toHaveLength(0);
     });
-
-    // test('Filter: get card with ID 1', async ()=>{
-    //     let result = await api_client.get('/v1/cards?id=1');
-    //     const {body} = result;
-    //     const cards = body.rows; 
-
-    //     expect(cards).toHaveLength(1);
-    //     expect(cards[0].id).toBe(1);
-    // });
 });
 
 afterAll(()=>{

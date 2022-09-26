@@ -191,7 +191,7 @@ module.exports = async () => {
                 //search for file or create it
                 const _color = color == 'no color' ? 'don' : color;
                 const img_url = `images/${_color}/${name_without_alt}/${url_name}`;
-                const img_url_full = `images/${_color}/cards/${name_without_alt}/full_${url_name}`;
+                const img_url_full = `images/${_color}/${name_without_alt}/full_${url_name}`;
     
                 const _image = await getOrCreateFile(name, img_url);
                 const image_id = _image ? _image.id : null;

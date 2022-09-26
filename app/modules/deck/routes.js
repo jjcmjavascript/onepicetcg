@@ -1,7 +1,7 @@
 module.exports  = (controller)=>{
     return [
         {
-            method: 'post',
+            method: 'get',
             path: '/cards',
             handler: async (req, res) => controller.getAllCards(req, res),
         },

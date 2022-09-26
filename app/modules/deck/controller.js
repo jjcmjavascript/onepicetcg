@@ -22,7 +22,9 @@ class DeckController {
         const cards = await paginator(this.cardService, {
             page,
             where,
-            include: [{model : this.colorService , as : '_colors', attributes: ['id', 'name']}]
+            include: [
+                '_colors', '_image', '_image_full'
+            ]
         }); 
 
         return response.status(200).json(cards); 
