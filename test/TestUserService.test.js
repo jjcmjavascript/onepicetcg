@@ -1,4 +1,4 @@
-const UserService = require("./services/UsersService"); 
+const UserService = require("./services/usersService"); 
 const userGenerator  = require("./utils/userGenerator"); 
 
 const usersList =  userGenerator(20); 
