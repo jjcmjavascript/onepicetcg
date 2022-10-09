@@ -13,6 +13,7 @@ const config = {
     "database": process.env.TEST_DB_NAME,
     "dialect": 'mysql',
     "host": process.env.TEST_DB_HOST,
+    "port": process.env.TEST_DB_POST,
   },
   "prod": {
     "username": process.env.TEST_DB_USER,
@@ -20,6 +21,7 @@ const config = {
     "database": process.env.TEST_DB_NAME,
     "dialect": 'mysql',
     "host": process.env.TEST_DB_HOST,
+    "port": process.env.TEST_DB_POST,
   },
 }
 
