@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+
 module.exports = (db, DataTypes) => {
     const FileModel = require('./File')(db, DataTypes); 
     const Colors = require('./Color')(db, DataTypes); 
@@ -80,6 +82,29 @@ module.exports = (db, DataTypes) => {
     card.belongsTo(FileModel, {foreignKey: 'image_id', targetKey: 'id', as: '_image'});
     card.belongsTo(FileModel, {foreignKey: 'full_image_id', targetKey: 'id', as : '_image_full'});
     card.belongsToMany(Colors, {through: 'pivot_cards_colors',  foreignKey:'card_id', otherKey: 'color_id', as : '_colors'});
+    
+    card.addScope('fromQuery', (params)=>{
+        let where = {}; 
+        let include = []; 
 
+        if(params.id){
+            where.id = params.id;
+        }
+
+        if(params.name){
+            where.name = {
+                [Op.substring] : params.name
+            }
+        }        
+
+        if(params.color){
+            include.push(
+                { model : Colors, as : '_colors', where : { id : params.color } }
+            )
+        }
+
+        return {where, include};
+    });
+    
     return card;
 };

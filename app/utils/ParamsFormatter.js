@@ -1,20 +1,31 @@
 class ParamsFormatter {
     constructor() {
         this.params = {};
-        this.request = {};
         this.except = [];
         this.allowed = [];
+        this.request = null
+        this.regExp = []; 
+    }   
+    
+    validateRequest(request) {
+        if (typeof request != 'object')
+            throw Error("Invalid request")
+
+        return this;
     }
 
+    validateValue(value){
+        return value !== undefined 
+            && this.regExp.every(reg => reg.test(value));
+    }
+    
     iterate(object = {}) {
         Object.keys(object).forEach((key) => {
             if (this.except.includes(key) || this.allowed.length > 0 && !this.allowed.includes(key)) return;
 
-            if (object[key] != undefined && object[key] !== null) {
-                this.params[key] = object[key];
-            }
+            const value = object[key];
+            this.validateValue(value) && (this.params[key] = object[key]);  
         });
-
         return this;
     }
 
@@ -56,23 +67,21 @@ class ParamsFormatter {
         return this;
     }
 
-    validateRequest(request) {
-        if (typeof request != 'object')
-            throw Error("Invalid request")
-
-        return this;
-    }
-
     setRequest(request) {
         this.request = request;
 
         return this;
     }
 
-    validateAndSetRequest(request) {
+    setAndValidateRequest(request){
         this.validateRequest(request)
             .setRequest(request);
 
+        return this;
+    }
+
+    setRegExp(regExp) {
+        this.regExp = Array.isArray(regExp) ? regExp: [regExp];
         return this;
     }
 

@@ -1,5 +1,5 @@
 module.exports = (db, DataTypes)=>{
-    return db.define('colors',{
+    let color = db.define('colors',{
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -10,5 +10,7 @@ module.exports = (db, DataTypes)=>{
             comment: 'Nombre del color',
             allowNull: false
         }
-    }); 
+    });
+    
+    return color;
 }; 
