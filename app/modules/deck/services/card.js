@@ -8,7 +8,7 @@ module.exports = class CardServices {
 
     async paginate(query){
         const { page } = query;
-        const cards = await paginator(this.db.scope( { method: ['fromQuery', query] }),{
+        const cards = await paginator(this.db.scope({ method: ['fromQuery', query] }),{
             page, 
             include: [ '_colors', '_image', '_image_full']
         });

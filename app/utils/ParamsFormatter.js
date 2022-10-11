@@ -20,6 +20,8 @@ class ParamsFormatter {
     }
     
     iterate(object = {}) {
+        this.params = {};
+        
         Object.keys(object).forEach((key) => {
             if (this.except.includes(key) || this.allowed.length > 0 && !this.allowed.includes(key)) return;
 
@@ -85,8 +87,9 @@ class ParamsFormatter {
         return this;
     }
 
-    fromAll(options = {}) {
-        return this.setDenied(options.denied)
+    fromAll(request, options = {}) {
+        return this.setAndValidateRequest(request)
+            .setDenied(options.denied)
             .setAllowed(options.allowed)
             .fromBody()
             .fromParams()

@@ -22,12 +22,8 @@ class DeckController {
         .get(); 
         
         const cards = await this.cardServices.paginate(query); 
-                
+    
         return response.status(200).json(cards); 
-    }
-
-    async getAllDecks(request, response){
-
     }
     
     async getCardSelects(_, response){
