@@ -1,5 +1,5 @@
 const {cards} = require('../../../services/database');
-const { paginator , ParamsFormatter} = require('../../../utils'); 
+const { paginator} = require('../../../utils'); 
 
 module.exports = class CardServices {
     constructor(){
