@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  onepiece: 
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    links:
+      - onepiecedb
+    volumes:
+      - myapp:/app
+  onepiecedb:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: onepiece
+      MYSQL_DATABASE: onepiece
+      MYSQL_USER: onepiece
+      MYSQL_PASSWORD: onepiece
+    volumes:
+      - onepiecedb-folder:/var/lib/mysql
+volumes:
+  onepiecedb-folder:
+  myapp: 
+    type: bind
+    source: .
+    target: /opt/app/static
+
+
+    

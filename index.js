@@ -6,6 +6,7 @@ const {v1} = require('./app/routes');
 
 (async ()=>{
     try {
+        console.log("asd")
         server.use('/public', express.static(path.join(__dirname, 'public')))
         server.use(cors());
         server.use(helmet()); 
@@ -15,8 +16,6 @@ const {v1} = require('./app/routes');
 
         server.use('/v1', v1); 
         server.listen(process.env.APP_PORT, ()=>{
-         
-          
           console.log(`Listening on port ${process.env.APP_PORT}`);
         });        
       } catch (error) {
