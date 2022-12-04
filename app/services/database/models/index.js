@@ -10,9 +10,7 @@ const env =  process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const silent = process.env.SEQUELIZE_SILENT == 'true';
 const _config = silent ? {...config, logging : !silent} : config;
-const sequelize = new Sequelize(config.database, config.username, config.password, _config);
-
-console.log(_config);
+const sequelize = new Sequelize(_config.database, _config.username, _config.password, _config);
 
 fs
   .readdirSync(__dirname)
