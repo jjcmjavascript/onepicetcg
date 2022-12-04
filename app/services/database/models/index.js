@@ -12,6 +12,8 @@ const silent = process.env.SEQUELIZE_SILENT == 'true';
 const _config = silent ? {...config, logging : !silent} : config;
 const sequelize = new Sequelize(config.database, config.username, config.password, _config);
 
+console.log(_config);
+
 fs
   .readdirSync(__dirname)
   .filter(file => {

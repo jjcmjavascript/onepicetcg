@@ -8,6 +8,7 @@ const config = {
     "dialect": 'mysql',
     "host": process.env.TEST_DB_HOST,
     "port": process.env.TEST_DB_PORT,
+    // "socketPath":'/var/run/mysqld/mysqld.sock'
   },
   "prod": {
     "username": process.env.TEST_DB_USER,
@@ -16,6 +17,7 @@ const config = {
     "dialect": 'mysql',
     "host": process.env.TEST_DB_HOST,
     "port": process.env.TEST_DB_PORT,
+    // "socketPath":'/var/run/mysqld/mysqld.sock'
   },
 }
 

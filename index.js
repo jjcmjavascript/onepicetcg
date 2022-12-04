@@ -6,7 +6,6 @@ const {v1} = require('./app/routes');
 
 (async ()=>{
     try {
-        console.log("asd")
         server.use('/public', express.static(path.join(__dirname, 'public')))
         server.use(cors());
         server.use(helmet()); 

@@ -1,33 +1,32 @@
 version: "3.9"
 services:
-  onepiece: 
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    links:
-      - onepiecedb
-    volumes:
-      - myapp:/app
   onepiecedb:
     image: mysql:8.0
     restart: always
+    env_file: .env
     ports:
-      - "3306:3306"
+      - $TEST_DB_PORT:$TEST_DB_PORT
     environment:
-      MYSQL_ROOT_PASSWORD: onepiece
-      MYSQL_DATABASE: onepiece
-      MYSQL_USER: onepiece
-      MYSQL_PASSWORD: onepiece
+      MYSQL_ROOT_PASSWORD: $TEST_DB_PASS
+      MYSQL_DATABASE: $TEST_DB_NAME
+      MYSQL_TCP_PORT: $TEST_DB_PORT
     volumes:
       - onepiecedb-folder:/var/lib/mysql
+  onepiece:
+    container_name: onepiece
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # command: nodemon --watch index.js
+    ports:
+      - $APP_PORT:$APP_PORT
+    links:
+      - onepiecedb
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules # prevent binding of host node_modules
+    env_file: .env
 volumes:
-  onepiecedb-folder:
-  myapp: 
-    type: bind
-    source: .
-    target: /opt/app/static
-
-
-    
+  onepiecedb-folder: {}
+  node_modules: {}
