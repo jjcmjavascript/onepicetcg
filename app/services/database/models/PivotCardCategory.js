@@ -14,7 +14,7 @@ module.exports = (db, DataTypes) => {
               key: 'id'
           }
       },
-      color_id: {
+      category_id: {
           type: DataTypes.INTEGER,
           allowNull: false,
           comment: 'Id de la categoria de la carta',

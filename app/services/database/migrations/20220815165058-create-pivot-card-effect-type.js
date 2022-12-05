@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("pivot_cards_effect_types", {
+    await queryInterface.createTable("pivot_cards_effects", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -16,18 +16,18 @@ module.exports = {
           key: "id",
         },
       },
-      effect_type_id: {
+      effect_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         comment: "Id efecto de la carta",
         references: {
-          model: "effect_types",
+          model: "effects",
           key: "id",
         },
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("pivot_cards_effect_types");
+    await queryInterface.dropTable("pivot_cards_effects");
   },
 };

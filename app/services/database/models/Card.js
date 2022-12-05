@@ -31,11 +31,6 @@ module.exports = (db, DataTypes) => {
         allowNull: true,
         comment: "Poder de la carta",
       },
-      counter: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: "Poder al hacer counter de la carta",
-      },
       is_alternative: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

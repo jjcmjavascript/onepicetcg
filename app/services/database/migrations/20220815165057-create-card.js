@@ -51,11 +51,6 @@ module.exports = {
                 allowNull: true,
                 comment: 'Codigo de la carta pack id mas numero'
             },
-            counter: {
-              type: Sequelize.INTEGER,
-              allowNull: true,
-              comment: "Poder al hacer counter de la carta",
-            },
             card_text: {
                 type: Sequelize.TEXT,
                 allowNull: true,

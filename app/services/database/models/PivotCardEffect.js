@@ -1,5 +1,5 @@
 module.exports = (db, DataTypes) => {
-  return db.define('pivot_cards_effect_types', {
+  return db.define('pivot_cards_effects', {
       id: {
           type: DataTypes.INTEGER,
           primaryKey: true,
@@ -14,12 +14,12 @@ module.exports = (db, DataTypes) => {
               key: 'id'
           }
       },
-      color_id: {
+      effect_id: {
           type: DataTypes.INTEGER,
           allowNull: false,
           comment: 'Id del effecto de la carta',
           references: {
-              model: 'effect_types',
+              model: 'effects',
               key: 'id'
           }
       }
