@@ -12,7 +12,7 @@ module.exports = (db, DataTypes) => {
         autoIncrement: true,
       },
       cost: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: true,
         comment: "Costo de la carta",
       },
@@ -45,15 +45,14 @@ module.exports = (db, DataTypes) => {
         allowNull: true,
         comment: "Id del pack de la carta",
       },
+      code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       card_number: {
         type: DataTypes.STRING,
         allowNull: true,
         comment: "Numero de la carta",
-      },
-      code: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "Codigo de la carta pack id mas numero",
       },
       card_text: {
         type: DataTypes.TEXT,
@@ -75,6 +74,46 @@ module.exports = (db, DataTypes) => {
           model: "files",
           key: "id",
         },
+      },
+      blocker: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      rush: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      counter: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      banish: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      double_attack: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      don_rest: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      don_remove: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      don_set: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      trigger: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      attack_type: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {}

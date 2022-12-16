@@ -8,7 +8,12 @@ module.exports = (db, DataTypes) => {
       name: {
           type: DataTypes.STRING,
           allowNull: false
-      }
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "Descripción del efecto",
+      },
   },{
       modelName: 'effects',
   })

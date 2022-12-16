@@ -17,7 +17,7 @@ module.exports = {
                 comment: 'Code del pack',
                 allowNull: true
             },
-            fecha_lanzamiento: {
+            release_date: {
                 type: Sequelize.DATE,
                 allowNull: true,
                 comment: 'Año del pack'

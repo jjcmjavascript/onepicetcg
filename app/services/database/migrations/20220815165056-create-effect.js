@@ -12,6 +12,11 @@ module.exports = {
         allowNull: true,
         comment: "Efecto de la carta",
       },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        comment: "Descripción del efecto",
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
