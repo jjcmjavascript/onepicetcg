@@ -122,7 +122,7 @@ const {
     let result = existingValues[typeString];
 
     if (!result) {
-      result = await packs.create({
+      result = await types.create({
         name: typeString,
         code: typeString,
       });
