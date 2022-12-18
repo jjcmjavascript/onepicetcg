@@ -14,9 +14,6 @@ const {
   types,
   pivot_cards_categories,
   pivot_cards_colors,
-  pivot_cards_effects,
-  pivot_cards_packs,
-  pivot_cards_types,
 } = require("../../../services/database");
 
 (async () => {
@@ -196,7 +193,7 @@ const {
 
         const packResult = await prepareAndInsertPack(
           dbPacksByName,
-          currentJson.pack
+          currentJson.expansion
         );
 
         const typeResult = await prepareAndInsertType(

@@ -1,6 +1,8 @@
-module.exports = (error, req , res, next)=>{
-    res.status(500).json({
-        message: 'Internal Server Error',
-        error: error.message
-    });
-}
+module.exports = (error, req, res, next) => {
+  console.log("Not found");
+
+  res.status(404).json({
+    message: "Not found",
+    error: error.message,
+  });
+};
