@@ -7,13 +7,8 @@ module.exports  = (controller)=>{
         },
         {
             method: 'get',
-            path: '/cards/selects',
-            handler: async (req, res) => controller.getCardSelects(req, res),
-        },
-        {
-          method: 'get',
-          path: '/cards/selects',
-          handler: async (req, res) => controller.getCardSelects(req, res),
+            path: '/cards/filters',
+            handler: async (req, res) => controller.getFilters(req, res),
         },
     ]
 }

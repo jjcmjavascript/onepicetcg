@@ -1,12 +1,19 @@
+const db = require("./database");
 
- export const costs = Array(10).fill(0).map((_,k) => k + 1);
- 
- export const attacks = Array(10).fill(0).map((_,k) => (k + 1) * 1000); 
- 
- export const colors = await this.colors.findAll(
-  {attributes: ['name', 'id']}
- );
- 
- export const packs = await this.packs.findAll({
-     attributes: ['name', 'code', 'id'],
- }) 
+module.exports = {
+  attacks: Array(11)
+    .fill(0)
+    .map((_, k) => k * 1000),
+
+  costs: Array(1)
+    .fill(0)
+    .map((_, k) => k + 1),
+
+  colors: async () => await db.colors.findAll(),
+
+  packs: async () => await db.packs.findAll(),
+
+  types: async () => await db.types.findAll(),
+
+  categories: async () => await db.categories.findAll(),
+};

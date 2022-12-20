@@ -1,3 +1,7 @@
+const { Op } = require("sequelize");
+
+const { ParamsFormatter } = require("../../../helpers");
+
 module.exports = (db, DataTypes) => {
   const FileModel = require("./File")(db, DataTypes);
   const Colors = require("./Color")(db, DataTypes);
@@ -131,12 +135,70 @@ module.exports = (db, DataTypes) => {
     targetKey: "id",
     as: "_image_full",
   });
-  
+
   card.belongsToMany(Colors, {
     through: "pivot_cards_colors",
     foreignKey: "card_id",
     otherKey: "color_id",
     as: "_colors",
+  });
+
+  // Scopes Methods
+  const byId = (ids) => {
+    if (!ids) return { where: {} };
+
+    ids = Array.isArray(ids) ? ids : [ids];
+
+    return {
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    };
+  };
+
+  const byName = (name) => {
+    if (!name) return { where: {} };
+
+    return {
+      where: {
+        name: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    };
+  };
+
+  // Methods  
+  card.getValidParamsFromRequestToCardsModule = (request) => {
+    return new ParamsFormatter()
+      .validateAndSetRequest(request)
+      .setAllowed(["id", "card", "card_name"])
+      .fromQuery()
+      .get();
+  };
+
+  card.addScope("toCardsModule", (query) => {
+    let result = { where: {} };
+
+    if (!query) return result;
+
+    if (query.card || query.id) {
+      result.where = {
+        ...result.where,
+        ...byId(query.card || query.id).where,
+      };
+    }
+
+    if (query.name || query.card_name) {
+      result.where = {
+        ...result.where,
+        ...byName(query.name || query.card_name).where,
+      };
+    }
+
+    return result;
   });
 
   return card;
