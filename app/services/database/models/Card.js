@@ -4,8 +4,12 @@ const { ParamsFormatter } = require("../../../helpers");
 
 module.exports = (db, DataTypes) => {
   const FileModel = require("./File")(db, DataTypes);
-  const Colors = require("./Color")(db, DataTypes);
+  const Color = require("./Color")(db, DataTypes);
+  const Type = require("./Type")(db, DataTypes);
+  const Category = require("./Category")(db, DataTypes);
+  const Pack = require("./Pack")(db, DataTypes);
   const PivotCardColor = require("./PivotCardColor")(db, DataTypes);
+  const PivotCardCategory = require("./PivotCardCategory")(db, DataTypes);
 
   const card = db.define(
     "cards",
@@ -136,12 +140,39 @@ module.exports = (db, DataTypes) => {
     as: "_image_full",
   });
 
-  card.belongsToMany(Colors, {
+  card.belongsTo(Pack, {
+    foreignKey: "pack_id",
+    targetKey: "id",
+    as: "_pack",
+  });
+
+  card.belongsToMany(Color, {
     through: "pivot_cards_colors",
     foreignKey: "card_id",
     otherKey: "color_id",
     as: "_colors",
   });
+
+  card.belongsTo(Type, {
+    foreignKey: 'type_id',
+    targetKey: 'id',
+    as: '_type'
+  });
+
+  card.belongsToMany(Category, {
+    through: 'pivot_cards_categories',
+    foreignKey: 'card_id',
+    otherKey: 'category_id',
+    as: '_categories'
+  })
+  // Methods
+  card.getValidParamsFromRequestToCardsModule = (request) => {
+    return new ParamsFormatter()
+      .validateAndSetRequest(request)
+      .setAllowed(["id", "card", "card_name"])
+      .fromQuery()
+      .get();
+  };
 
   // Scopes Methods
   const byId = (ids) => {
@@ -170,35 +201,18 @@ module.exports = (db, DataTypes) => {
     };
   };
 
-  // Methods  
-  card.getValidParamsFromRequestToCardsModule = (request) => {
-    return new ParamsFormatter()
-      .validateAndSetRequest(request)
-      .setAllowed(["id", "card", "card_name"])
-      .fromQuery()
-      .get();
-  };
+  // Scopes
+  card.addScope("byId", byId);
+  card.addScope("byName", byName);
+  card.addScope("common", (query) => {
+    if (!query) return { where: {} };
 
-  card.addScope("toCardsModule", (query) => {
-    let result = { where: {} };
-
-    if (!query) return result;
-
-    if (query.card || query.id) {
-      result.where = {
-        ...result.where,
+    return {
+      where: {
         ...byId(query.card || query.id).where,
-      };
-    }
-
-    if (query.name || query.card_name) {
-      result.where = {
-        ...result.where,
         ...byName(query.name || query.card_name).where,
-      };
-    }
-
-    return result;
+      },
+    };
   });
 
   return card;

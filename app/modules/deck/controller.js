@@ -1,5 +1,5 @@
 const db = require("../../services/database");
-const { paginator, ParamsFormatter } = require("../../helpers");
+const { paginator } = require("../../helpers");
 const filters = require("../../services/filters_service");
 
 class DeckController {
@@ -18,7 +18,7 @@ class DeckController {
 
     const cards = await paginator(
       this.cardService.scope({
-        method: ["toCardsModule", cardParams],
+        method: ["common", cardParams],
       }),
       {
         page,
@@ -26,8 +26,20 @@ class DeckController {
           "_image",
           "_image_full",
           {
-            model: db.colors.scope({ method: ["toCardsModule", colorParams] }),
+            model: db.colors.scope({ method: ["common", colorParams] }),
             as: "_colors",
+          },
+          {
+            model: db.packs,
+            as: "_pack",
+          },
+          {
+            model: db.types,
+            as: "_type",
+          },
+          {
+            model: db.categories,
+            as: "_categories",
           },
         ],
       }
@@ -36,7 +48,11 @@ class DeckController {
     return response.status(200).json(cards);
   }
 
-  async getAllDecks(request, response) {}
+  async getAllDecks(request, response) {
+    const decks = await this.deckService.findAll();
+
+    return response.status(200).json(decks);
+  }
 
   async getFilters(_, response) {
     return response.status(200).json({

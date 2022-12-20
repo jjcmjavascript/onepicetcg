@@ -43,38 +43,27 @@ module.exports = (db, DataTypes) => {
     };
   };
 
-  // Methods 
+  // Methods
   color.getValidParamsFromRequestToCardsModule = (request) => {
     return new ParamsFormatter()
-    .validateAndSetRequest(request)
-    .setAllowed(["color", "color_name"])
-    .fromQuery()
-    .get();
+      .validateAndSetRequest(request)
+      .setAllowed(["color", "color_name"])
+      .fromQuery()
+      .get();
   };
 
   // Scopes
   color.addScope("byId", byId);
+  color.addScope("byName", byName);
+  color.addScope("common", (query) => {
+    if (!query) return { where: {} };
 
-  color.addScope("toCardsModule", (query) => {
-    let result = { where: {} };
-
-    if (!query) return result;
-
-    if (query.color) {
-      result.where = {
-        ...result.where,
+    return {
+      where: {
         ...byId(query.color).where,
-      };
-    }
-
-    if (query.name || query.color_name) {
-      result.where = {
-        ...result.where,
         ...byName(query.name || query.color_name).where,
-      };
-    }
-
-    return result;
+      },
+    };
   });
 
   return color;
