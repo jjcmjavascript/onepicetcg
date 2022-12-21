@@ -175,7 +175,7 @@ module.exports = (db, DataTypes) => {
   };
 
   // Scopes Methods
-  const byId = (ids) => {
+  const filterById = (ids) => {
     if (!ids) return { where: {} };
 
     ids = Array.isArray(ids) ? ids : [ids];
@@ -189,7 +189,7 @@ module.exports = (db, DataTypes) => {
     };
   };
 
-  const byName = (name) => {
+  const filterByName = (name) => {
     if (!name) return { where: {} };
 
     return {
@@ -201,16 +201,28 @@ module.exports = (db, DataTypes) => {
     };
   };
 
+  const filterByPack = (pack) => {
+    if (!pack) return { where: {} };
+  
+    return {
+      where: {
+        pack_id: pack,
+      },
+    };
+  };
+
   // Scopes
-  card.addScope("byId", byId);
-  card.addScope("byName", byName);
+  card.addScope("filterById", filterById);
+  card.addScope("filterByName", filterByName);
+  card.addScope("filterByPack", filterByPack);
   card.addScope("common", (query) => {
     if (!query) return { where: {} };
 
     return {
       where: {
-        ...byId(query.card || query.id).where,
-        ...byName(query.name || query.card_name).where,
+        ...filterById(query.card || query.id).where,
+        ...filterByName(query.name || query.card_name).where,
+        ...filterByPack(query.pack).where,
       },
     };
   });

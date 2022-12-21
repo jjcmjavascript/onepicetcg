@@ -16,6 +16,16 @@ class DeckController {
     const colorParams =
       db.colors.getValidParamsFromRequestToCardsModule(request);
 
+    const typeParams = db.types.getValidParamsFromRequestToCardsModule(
+      request,
+      ["type"]
+    );
+
+    const categoryParams = db.categories.getValidParamsFromRequestToCardsModule(
+      request,
+      ["category"]
+    );
+
     const cards = await paginator(
       this.cardService.scope({
         method: ["common", cardParams],
@@ -30,15 +40,11 @@ class DeckController {
             as: "_colors",
           },
           {
-            model: db.packs,
-            as: "_pack",
-          },
-          {
-            model: db.types,
+            model: db.types.scope({ method: ["common", typeParams] }),
             as: "_type",
           },
           {
-            model: db.categories,
+            model: db.categories.scope({ method: ["common", categoryParams] }),
             as: "_categories",
           },
         ],
