@@ -1,9 +1,9 @@
-const { ParamsFormatter } = require("../../../helpers");
+const { ParamsFormatter } = require('../../../helpers');
 
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
 
 module.exports = (db, DataTypes) => {
-  const color = db.define("colors", {
+  const color = db.define('colors', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -11,7 +11,7 @@ module.exports = (db, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
-      comment: "Nombre del color",
+      comment: 'Nombre del color',
       allowNull: false,
     },
   });
@@ -47,15 +47,15 @@ module.exports = (db, DataTypes) => {
   color.getValidParamsFromRequestToCardsModule = (request, allowed = null) => {
     return new ParamsFormatter()
       .validateAndSetRequest(request)
-      .setAllowed(allowed || ["color", "color_name"])
+      .setAllowed(allowed || ['color', 'color_name'])
       .fromQuery()
       .get();
   };
 
   // Scopes
-  color.addScope("filterById", filterById);
-  color.addScope("filterByName", filterByName);
-  color.addScope("common", (query) => {
+  color.addScope('filterById', filterById);
+  color.addScope('filterByName', filterByName);
+  color.addScope('common', (query) => {
     if (!query) return { where: {} };
 
     return {

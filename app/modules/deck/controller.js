@@ -1,51 +1,41 @@
-const db = require("../../services/database");
-const { paginator } = require("../../helpers");
-const filters = require("../../services/filters_service");
+const db = require('../../services/database');
+const { paginator, deckRules } = require('../../helpers');
+const filters = require('../../services/filters_service');
 
 class DeckController {
   constructor() {
-    this.deckService = db.decks;
-    this.cardService = db.cards;
+    this.dbDeck = db.decks;
+    this.dbCard = db.cards;
+    this.dbPivotDeckCard = db.pivot_decks_cards;
   }
 
   async getAllCards(request, response) {
     const { page } = request.query;
-
     const cardParams = db.cards.getValidParamsFromRequestToCardsModule(request);
 
-    const colorParams =
-      db.colors.getValidParamsFromRequestToCardsModule(request);
-
-    const typeParams = db.types.getValidParamsFromRequestToCardsModule(
-      request,
-      ["type"]
-    );
-
-    const categoryParams = db.categories.getValidParamsFromRequestToCardsModule(
-      request,
-      ["category"]
-    );
-
     const cards = await paginator(
-      this.cardService.scope({
-        method: ["common", cardParams],
+      this.dbCard.scope({
+        method: ['common', cardParams],
       }),
       {
         page,
         include: [
-          "_image",
-          "_image_full",
+          '_image',
+          '_image_full',
           {
-            model: db.colors.scope({ method: ["common", colorParams] }),
-            as: "_colors",
+            model: db.colors,
+            as: '_colors',
+            where: cardParams.color ? { id: cardParams.color } : null,
           },
           {
-            model: db.types.scope({ method: ["common", typeParams] }),
-            as: "_type",
+            model: db.types,
+            as: '_type',
+            where: cardParams.type ? { id: cardParams.type } : null,
           },
           {
-            model: db.categories.scope({ method: ["common", categoryParams] }),
-            as: "_categories",
+            model: db.categories,
+            as: '_categories',
+            where: cardParams.category ? { id: cardParams.category } : null,
           },
         ],
       }
@@ -55,7 +45,7 @@ class DeckController {
   }
 
   async getAllDecks(request, response) {
-    const decks = await this.deckService.findAll();
+    const decks = await this.dbDeck.findAll();
 
     return response.status(200).json(decks);
   }
@@ -69,6 +59,57 @@ class DeckController {
       colors: await filters.colors(),
       categories: await filters.categories(),
     });
+  }
+
+  async saveDeck(request, response) {
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const { cards, name } = request.body;
+
+      const deck = await this.dbDeck.create({
+        name,
+      });
+
+      const formatCardsToInsert = cards.reduce((acc, card_id) => {
+        if (!acc[card_id]) {
+          acc[card_id] = { quantity: 0, card_id, deck_id: deck.id };
+        }
+        acc[card_id].quantity += 1;
+        return acc;
+      }, {});
+
+      const cardsToInsert = Object.values(formatCardsToInsert);
+
+      await this.dbPivotDeckCard.bulkCreate(cardsToInsert);
+
+      await transaction.commit();
+
+      const findDeck = await this.dbDeck.findOne({
+        where: { id: deck.id },
+        include: [
+          {
+            model: this.dbCard,
+            as: '_cards',
+            through: {
+              attributes: ['quantity'],
+            },
+          },
+        ],
+      });
+
+      return response.status(200).json({
+        deck: findDeck,
+        success: 'Deck saved successfully',
+      });
+    } catch (e) {
+      if (transaction.state === 'pending') {
+        await transaction.rollback();
+      }
+      return response.status(500).json({
+        errors: ['Error saving deck'],
+      });
+    }
   }
 }
 

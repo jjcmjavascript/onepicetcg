@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("effects", {
+    await queryInterface.createTable('effects', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -10,12 +10,12 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
         allowNull: true,
-        comment: "Efecto de la carta",
+        comment: 'Efecto de la carta',
       },
       description: {
         type: Sequelize.STRING,
         allowNull: true,
-        comment: "Descripción del efecto",
+        comment: 'Descripción del efecto',
       },
       createdAt: {
         allowNull: false,
@@ -28,6 +28,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("effects");
+    await queryInterface.dropTable('effects');
   },
 };

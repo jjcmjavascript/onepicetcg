@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("cards", {
+    await queryInterface.createTable('cards', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -10,22 +10,22 @@ module.exports = {
       cost: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        comment: "Costo de la carta",
+        comment: 'Costo de la carta',
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: "Nombre de la carta",
+        comment: 'Nombre de la carta',
       },
       other_name: {
         type: Sequelize.STRING,
         allowNull: true,
-        comment: "Nombre de la carta",
+        comment: 'Nombre de la carta',
       },
       power: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        comment: "Poder de la carta",
+        comment: 'Poder de la carta',
       },
       is_alternative: {
         type: Sequelize.BOOLEAN,
@@ -34,27 +34,27 @@ module.exports = {
       type_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        comment: "Tipo de la carta (Leader, Character, etc)",
+        comment: 'Tipo de la carta (Leader, Character, etc)',
       },
       pack_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        comment: "Id del pack de la carta",
+        comment: 'Id del pack de la carta',
       },
       card_number: {
         type: Sequelize.STRING,
         allowNull: true,
-        comment: "Numero de la carta",
+        comment: 'Numero de la carta',
       },
       code: {
         type: Sequelize.STRING,
         allowNull: true,
-        comment: "Codigo de la carta pack id mas numero",
+        comment: 'Codigo de la carta pack id mas numero',
       },
       card_text: {
         type: Sequelize.TEXT,
         allowNull: true,
-        comment: "Texto de la carta",
+        comment: 'Texto de la carta',
       },
       image_id: {
         type: Sequelize.INTEGER,
@@ -115,6 +115,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("cards");
+    await queryInterface.dropTable('cards');
   },
 };

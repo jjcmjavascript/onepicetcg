@@ -169,7 +169,7 @@ module.exports = (db, DataTypes) => {
   card.getValidParamsFromRequestToCardsModule = (request) => {
     return new ParamsFormatter()
       .validateAndSetRequest(request)
-      .setAllowed(["id", "card", "card_name"])
+      .setAllowed(["id", "card", "name", "color", "type"])
       .fromQuery()
       .get();
   };
@@ -195,7 +195,7 @@ module.exports = (db, DataTypes) => {
     return {
       where: {
         name: {
-          [Op.like]: `%${name}%`,
+          [Op.regexp]: name,
         },
       },
     };
@@ -203,7 +203,7 @@ module.exports = (db, DataTypes) => {
 
   const filterByPack = (pack) => {
     if (!pack) return { where: {} };
-  
+
     return {
       where: {
         pack_id: pack,
@@ -215,7 +215,9 @@ module.exports = (db, DataTypes) => {
   card.addScope("filterById", filterById);
   card.addScope("filterByName", filterByName);
   card.addScope("filterByPack", filterByPack);
+
   card.addScope("common", (query) => {
+    const includes = [];
     if (!query) return { where: {} };
 
     return {
@@ -224,6 +226,7 @@ module.exports = (db, DataTypes) => {
         ...filterByName(query.name || query.card_name).where,
         ...filterByPack(query.pack).where,
       },
+      include: includes,
     };
   });
 

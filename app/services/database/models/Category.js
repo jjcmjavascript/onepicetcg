@@ -1,9 +1,9 @@
-const { Op } = require("sequelize");
-const { ParamsFormatter } = require("../../../helpers");
+const { Op } = require('sequelize');
+const { ParamsFormatter } = require('../../../helpers');
 
 module.exports = (db, DataTypes) => {
   const category = db.define(
-    "categories",
+    'categories',
     {
       id: {
         type: DataTypes.INTEGER,
@@ -16,7 +16,7 @@ module.exports = (db, DataTypes) => {
       },
     },
     {
-      modelName: "categories",
+      modelName: 'categories',
     }
   );
 
@@ -48,18 +48,21 @@ module.exports = (db, DataTypes) => {
   };
 
   // Methods
-  category.getValidParamsFromRequestToCardsModule = (request, allowed = null) => {
+  category.getValidParamsFromRequestToCardsModule = (
+    request,
+    allowed = null
+  ) => {
     return new ParamsFormatter()
       .validateAndSetRequest(request)
-      .setAllowed(allowed || ["category", "category_name"])
+      .setAllowed(allowed || ['category', 'category_name'])
       .fromQuery()
       .get();
   };
 
   // Scopes
-  category.addScope("filterById", filterById);
-  category.addScope("filterByName", filterByName);
-  category.addScope("common", (query) => {
+  category.addScope('filterById', filterById);
+  category.addScope('filterByName', filterByName);
+  category.addScope('common', (query) => {
     if (!query) return { where: {} };
 
     return {

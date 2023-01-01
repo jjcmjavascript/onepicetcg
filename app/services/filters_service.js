@@ -1,11 +1,11 @@
 const db = require("./database");
 
 module.exports = {
-  attacks: Array(11)
+  attacks: Array(10)
     .fill(0)
     .map((_, k) => k * 1000),
 
-  costs: Array(1)
+  costs: Array(11)
     .fill(0)
     .map((_, k) => k + 1),
 
