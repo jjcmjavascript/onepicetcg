@@ -4,6 +4,8 @@ const { ParamsFormatter } = require('../../../helpers');
 
 module.exports = (db, DataTypes) => {
   const CardModel = require('./Card')(db, DataTypes);
+  const ColorModel = require('./Color')(db, DataTypes);
+  const CategoryModel = require('./Category')(db, DataTypes);
   const PivotDeckCard = require('./PivotDeckCard')(db, DataTypes);
 
   const deck = db.define(
@@ -22,6 +24,35 @@ module.exports = (db, DataTypes) => {
     },
     {}
   );
+
+  const structureForDeck = () => {
+    return {
+      include: [
+        {
+          model: CardModel,
+          as: '_cards',
+          through: {
+            attributes: ['quantity'],
+          },
+          include: [
+            '_image',
+            '_image_full',
+            '_type',
+            {
+              model: ColorModel,
+              as: '_colors',
+            },
+            {
+              model: CategoryModel,
+              as: '_categories',
+            },
+          ],
+        },
+      ],
+    };
+  };
+
+  deck.addScope('structureForDeck', structureForDeck);
 
   //RELATIONSHIPS
   deck.belongsToMany(CardModel, {

@@ -9,6 +9,18 @@ const createSchema = joi.object({
   cards,
 });
 
+const deleteSchema = joi.object({
+  id,
+});
+
+const updateSchema = joi.object({
+  id,
+  name,
+  cards,
+});
+
 module.exports = {
   createSchema,
+  deleteSchema,
+  updateSchema
 };

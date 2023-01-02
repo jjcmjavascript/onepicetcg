@@ -85,18 +85,9 @@ class DeckController {
 
       await transaction.commit();
 
-      const findDeck = await this.dbDeck.findOne({
-        where: { id: deck.id },
-        include: [
-          {
-            model: this.dbCard,
-            as: '_cards',
-            through: {
-              attributes: ['quantity'],
-            },
-          },
-        ],
-      });
+      const findDeck = await this.dbDeck
+        .scope(['structureForDeck'])
+        .findByPk(id);
 
       return response.status(200).json({
         deck: findDeck,
@@ -108,6 +99,100 @@ class DeckController {
       }
       return response.status(500).json({
         errors: ['Error saving deck'],
+      });
+    }
+  }
+
+  async deleteDeck(request, response) {
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const { id } = request.params;
+
+      const deck = await this.dbDeck.findByPk(id);
+
+      if (!deck) throw Error('Deck not found');
+
+      await this.dbPivotDeckCard.destroy({
+        where: { deck_id: deck.id },
+      });
+
+      await deck.destroy();
+
+      await transaction.commit();
+
+      return response.status(200).json({
+        success: 'Deck deleted successfully',
+      });
+    } catch (e) {
+      if (transaction.state === 'pending') {
+        await transaction.rollback();
+      }
+      console.log(e);
+      return response.status(500).json({
+        errors: ['Error deleting deck'],
+      });
+    }
+  }
+
+  async findDeck(request, response) {
+    try {
+      const { id } = request.params;
+
+      const deck = await this.dbDeck.scope(['structureForDeck']).findByPk(id);
+
+      if (!deck) throw Error('Deck not found');
+
+      return response.status(200).json(deck);
+    } catch (err) {
+      return response.status(500).json({
+        errors: ['Error finding deck'],
+      });
+    }
+  }
+
+  async updateDeck(request, response) {
+    try {
+      const { id } = request.params;
+      const { cards, name } = request.body;
+
+      const deck = await this.dbDeck.findByPk(id);
+
+      if (!deck) throw Error('Deck not found');
+
+      await this.dbPivotDeckCard.destroy({
+        where: { deck_id: deck.id },
+      });
+
+      const formatCardsToInsert = cards.reduce((acc, card_id) => {
+        if (!acc[card_id]) {
+          acc[card_id] = { quantity: 0, card_id, deck_id: deck.id };
+        }
+        acc[card_id].quantity += 1;
+        return acc;
+      }, {});
+
+      const cardsToInsert = Object.values(formatCardsToInsert);
+
+      await this.dbPivotDeckCard.bulkCreate(cardsToInsert);
+
+      await deck.update({
+        name,
+      });
+
+      const findDeck = await this.dbDeck
+        .scope(['structureForDeck'])
+        .findByPk(id);
+
+      return response.status(200).json({
+        deck: findDeck,
+        success: 'Deck updated successfully',
+      });
+
+    }
+    catch (err) {
+      return response.status(500).json({
+        errors: ['Error updating deck'],
       });
     }
   }
