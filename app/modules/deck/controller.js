@@ -51,14 +51,7 @@ class DeckController {
   }
 
   async getFilters(_, response) {
-    return response.status(200).json({
-      costs: filters.costs,
-      attacks: filters.attacks,
-      types: await filters.types(),
-      packs: await filters.packs(),
-      colors: await filters.colors(),
-      categories: await filters.categories(),
-    });
+    return await filters();
   }
 
   async saveDeck(request, response) {
@@ -188,9 +181,7 @@ class DeckController {
         deck: findDeck,
         success: 'Deck updated successfully',
       });
-
-    }
-    catch (err) {
+    } catch (err) {
       return response.status(500).json({
         errors: ['Error updating deck'],
       });

@@ -76,6 +76,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      lives: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       banish: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

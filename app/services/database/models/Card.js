@@ -83,6 +83,10 @@ module.exports = (db, DataTypes) => {
           key: 'id',
         },
       },
+      lives: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       blocker: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

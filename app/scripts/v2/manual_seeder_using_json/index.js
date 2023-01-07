@@ -170,7 +170,7 @@ const {
       while (current < total) {
         const currentJson = jsonParse[current];
 
-   
+
         if (dbCardsByCode[currentJson.code]) {
           current++;
           continue
@@ -237,7 +237,7 @@ const {
 
         console.log(`Card ${current} of ${total} inserted`);
       }
-    } 
+    }
     catch (e) {
       console.error(e)
       errorCounter++;
