@@ -45,7 +45,7 @@ class DeckController {
   }
 
   async getAllDecks(request, response) {
-    const decks = await this.dbDeck.findAll();
+    const decks = await this.dbDeck.scope(['structureForDeck']).findAll();
 
     return response.status(200).json(decks);
   }
@@ -80,13 +80,14 @@ class DeckController {
 
       const findDeck = await this.dbDeck
         .scope(['structureForDeck'])
-        .findByPk(id);
+        .findByPk(deck.id);
 
       return response.status(200).json({
         deck: findDeck,
         success: 'Deck saved successfully',
       });
     } catch (e) {
+      console.log(e);
       if (transaction.state === 'pending') {
         await transaction.rollback();
       }
