@@ -51,7 +51,18 @@ class DeckController {
   }
 
   async getFilters(_, response) {
-    return await filters();
+    console.log(filters);
+
+    const filterObject = {
+      attacks: filters.attacks,
+      costs: filters.costs,
+      colors: await filters.colors(),
+      packs: await filters.packs(),
+      types: await filters.types(),
+      categories: await filters.categories(),
+    };
+
+    return response.json(filterObject);
   }
 
   async saveDeck(request, response) {
