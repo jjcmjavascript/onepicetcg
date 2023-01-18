@@ -1,6 +1,7 @@
 const db = require('../../services/database');
 const { paginator, deckRules } = require('../../helpers');
 const filters = require('../../services/filters_service');
+const setUuid = require('../../helpers/setUuid');
 
 class DeckController {
   constructor() {
@@ -46,13 +47,10 @@ class DeckController {
 
   async getAllDecks(request, response) {
     const decks = await this.dbDeck.scope(['structureForDeck']).findAll();
-
     return response.status(200).json(decks);
   }
 
   async getFilters(_, response) {
-    console.log(filters);
-
     const filterObject = {
       attacks: filters.attacks,
       costs: filters.costs,
