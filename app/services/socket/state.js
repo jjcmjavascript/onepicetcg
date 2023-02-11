@@ -1,4 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
+const { DON, LEADER } = require('../../helpers/cardTypes');
+const shuffle = require('../../helpers/shuffle');
 
 const getBoardSchema = () => {
   return {
@@ -27,19 +29,42 @@ const getRoomSchema = (playerA, playerB) => {
   };
 };
 
+function formatCardsForDeck(deck) {
+  const don = deck._cards.find((card) => card.type_id === DON);
+  const cards = [];
+
+  deck._cards.forEach((card) => {
+    const quantity = card.pivot_decks_cards.quantity;
+    for (let i = 0; i < quantity; i++) {
+      cards.push({
+        ...card,
+        uuid: uuidv4(),
+      });
+    }
+  });
+
+  for (let i = 0; i < 9; i++) {
+    cards.push({
+      ...don,
+      uuid: uuidv4(),
+    });
+  }
+
+  return decks;
+}
+
 const separeDeck = (deck) => {
-  const schema = getBoardSchema();
   const don = deck.find((card) => card.type_id === DON);
   const leader = deck.find((card) => card.type_id === LEADER);
   const dons = deck.filter((card) => card.type_id === DON);
-  const cards = deck.filter(
+  const characters = deck.filter(
     (card) => card.type_id !== DON && card.type_id !== LEADER
   );
 
   return {
     don,
     leader,
-    cards,
+    characters,
     dons,
   };
 };
@@ -82,6 +107,10 @@ const state = {
 
     return roomName;
   },
+
+  separeDeck,
+  formatCardsForDeck,
+  shuffle
 };
 
 module.exports = state;

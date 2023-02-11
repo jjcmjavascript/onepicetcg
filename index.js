@@ -3,6 +3,7 @@ const path = require('path');
 const { server, express, httpServer } = require('./app/services/server');
 const { notFound, helmet, morgan, cors } = require('./app/middlewares');
 const { v1 } = require('./app/routes');
+const db = require('./app/services/database');
 
 let { ioServer, ioState } = require('./app/services/socket')(httpServer);
 
@@ -44,8 +45,44 @@ let { ioServer, ioState } = require('./app/services/socket')(httpServer);
         socket.to(data.room).emit('duel:removeLife', data);
       });
 
-      socket.on('duel:playerSelected', (data) => {
-        socket.to(data.room).emit('duel:playerSelected', {});
+      socket.on('duel:playerSelected', async (data) => {
+        const currentRoom = ioState.rooms[data.room];
+        const decks = await db.decks.findAll({
+          include: [
+            '_image',
+            '_image_full',
+            {
+              model: db.colors,
+              as: '_colors',
+            },
+            {
+              model: db.types,
+              as: '_type',
+            },
+            {
+              model: db.categories,
+              as: '_categories',
+            },
+          ],
+        });
+
+        for (const playerId in currentRoom) {
+          const formatCardsForDeck = ioState.formatCardsForDeck(decks[0]);
+          const separeDeck = ioState.shuffle(ioState.separeDeck(formatCardsForDeck));
+          const player = currentRoom[playerId];
+
+          player.board = {
+            ...player.board,
+            ...separeDeck,
+          };
+
+          console.log(player.board);
+          ioServer.of('/duel').to(data.room).emit('duel:setBoard', {
+            player: playerId,
+            board: player.board,
+          });
+
+        }
       });
 
       if (!ioState.waiterExist(socket)) {
