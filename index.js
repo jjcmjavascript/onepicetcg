@@ -5,7 +5,7 @@ const { notFound, helmet, morgan, cors } = require('./app/middlewares');
 const { v1 } = require('./app/routes');
 const db = require('./app/services/database');
 
-let { ioServer, ioState } = require('./app/services/socket')(httpServer);
+let { ioServer, ioState, ioEvents } = require('./app/services/socket')(httpServer);
 
 (async () => {
   try {
@@ -35,15 +35,12 @@ let { ioServer, ioState } = require('./app/services/socket')(httpServer);
     });
 
     ioServer.of('/duel').on('connection', (socket) => {
-      console.log('Client connected to duel');
 
-      socket.on('disconnect', () => {
-        console.log('Client disconnected from duel');
-      });
+      ioEvents.emitDuelJoin(ioServer);
 
-      socket.on('duel:removeLife', (data) => {
-        socket.to(data.room).emit('duel:removeLife', data);
-      });
+      if (!ioState.waiterExist(socket)) {
+        ioState.setWaiter(socket);
+      }
 
       socket.on('duel:playerSelected', async (data) => {
         const currentRoom = ioState.rooms[data.room];
@@ -85,22 +82,20 @@ let { ioServer, ioState } = require('./app/services/socket')(httpServer);
         }
       });
 
-      if (!ioState.waiterExist(socket)) {
-        ioState.setWaiter(socket);
-      }
-
       setInterval(() => {
-        let connecteds = Object.values(ioState.connecteds);
+        let connecteds = Object.values(ioState.connecteds).filter(player => player.socket.connected);
         let notPlaying = connecteds.filter((player) => !player.isPlaying);
+
+        console.log(notPlaying.length, connecteds.length);
 
         while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
           const [playerOne, playerTwo] = notPlaying.splice(0, 2);
 
           const roomName = ioState.setPlayersInRoom(playerOne, playerTwo);
 
-          socket.to(roomName).emit('duel:connected', { room: roomName });
+          ioEvents.emitDuelRoomJoin(socket, { room: roomName });
 
-          socket.emit('duel:started', {});
+          ioEvents.emitDuelInitRockPaperScissors(socket, { room: roomName });
         }
       }, 1000);
     });
