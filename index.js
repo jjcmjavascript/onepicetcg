@@ -5,7 +5,7 @@ const { notFound, helmet, morgan, cors } = require('./app/middlewares');
 const { v1 } = require('./app/routes');
 const db = require('./app/services/database');
 
-let { ioServer, ioState, ioEvents } = require('./app/services/socket')(httpServer);
+let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socket')(httpServer);
 
 (async () => {
   try {
@@ -35,12 +35,15 @@ let { ioServer, ioState, ioEvents } = require('./app/services/socket')(httpServe
     });
 
     ioServer.of('/duel').on('connection', (socket) => {
-
-      ioEvents.emitDuelJoin(ioServer);
-
       if (!ioState.waiterExist(socket)) {
         ioState.setWaiter(socket);
       }
+
+      socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
+        ioEvents.onRockPaperScissorsChoise(ioServer, socket);
+      });
+
+      ioEvents.emitDuelJoin(ioServer);
 
       socket.on('duel:playerSelected', async (data) => {
         const currentRoom = ioState.rooms[data.room];
@@ -86,7 +89,8 @@ let { ioServer, ioState, ioEvents } = require('./app/services/socket')(httpServe
         let connecteds = Object.values(ioState.connecteds).filter(player => player.socket.connected);
         let notPlaying = connecteds.filter((player) => !player.isPlaying);
 
-        console.log(notPlaying.length, connecteds.length);
+        console.log("Players connected:", connecteds.length);
+        console.log("Players Playing:", connecteds.length - notPlaying.length);
 
         while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
           const [playerOne, playerTwo] = notPlaying.splice(0, 2);

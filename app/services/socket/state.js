@@ -21,10 +21,12 @@ const getRoomSchema = (playerA, playerB) => {
     [playerA.id]: {
       socket: playerA.socket,
       board: getBoardSchema(),
+      rockPaperScissorChoise: null,
     },
     [playerB.id]: {
       socket: playerB.socket,
       board: getBoardSchema(),
+      rockPaperScissorChoise: null,
     },
   };
 };
