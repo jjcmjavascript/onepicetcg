@@ -1,7 +1,7 @@
 const constants = require('./constants');
 const methods = require('./methods');
 
-module.exports = {
+const ioEvents = {
   emitDuelJoin: (socket, payload = {}) => {
     console.log(constants.DUEL_JOIN);
     socket.emit(constants.DUEL_JOIN, payload);
@@ -12,24 +12,39 @@ module.exports = {
   },
   emitDuelInitRockPaperScissors: (socket, payload = {}) => {
     console.log(constants.GAME_ROCK_SCISSORS_PAPER_START);
-    socket.to(payload.room).emit(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
+    socket
+      .of('/duel')
+      .to(payload.room)
+      .emit(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
+  },
+  emitDuelRockPaperScissorsResult: (socket, payload) => {
+    console.log(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
+    socket
+      .of('/duel')
+      .to(payload.room)
+      .emit(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
   },
 
   onRockPaperScissorsChoise: (mainSocket, clientSocket, payload, state) => {
-    console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE);
+    console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE, payload);
 
     const room = state.rooms[payload.room];
+    const [playerA, playerB] = Object.values(room);
     const currentPlayer = room[clientSocket.id];
 
-    if(!currentPlayer.rockPaperScissorChoose){
-      currentPlayer.rockPaperScissorChoose = payload.choise;
+    if (!currentPlayer.rockPaperScissorChoice) {
+      currentPlayer.rockPaperScissorChoice = payload.choice;
     }
 
-    const players = Object.values(room);
+    if (playerA.rockPaperScissorChoice && playerB.rockPaperScissorChoice) {
+      const result = methods.evaluateRockPaperScissors(playerA, playerB);
 
-    if(players[0].rockPaperScissorChoose && players[1].rockPaperScissorChoose){
-      const evaluateRockPaperSciissors = methods.evaluateRockPaperSciissors(players[0], players[1]);
-      ioEvents.emitDuelInitRockPaperScissors(evaluateRockPaperSciissors);
+      ioEvents.emitDuelRockPaperScissorsResult(mainSocket, {
+        room: payload.room,
+        result: result ? result.socket.id : null,
+      });
     }
   },
 };
+
+module.exports = ioEvents;

@@ -5,7 +5,8 @@ const { notFound, helmet, morgan, cors } = require('./app/middlewares');
 const { v1 } = require('./app/routes');
 const db = require('./app/services/database');
 
-let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socket')(httpServer);
+let { ioServer, ioState, ioEvents, ioConstants } =
+  require('./app/services/socket')(httpServer);
 
 (async () => {
   try {
@@ -40,7 +41,7 @@ let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socke
       }
 
       socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
-        ioEvents.onRockPaperScissorsChoise(ioServer, socket);
+        ioEvents.onRockPaperScissorsChoise(ioServer, socket, payload, ioState);
       });
 
       ioEvents.emitDuelJoin(ioServer);
@@ -68,7 +69,9 @@ let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socke
 
         for (const playerId in currentRoom) {
           const formatCardsForDeck = ioState.formatCardsForDeck(decks[0]);
-          const separeDeck = ioState.shuffle(ioState.separeDeck(formatCardsForDeck));
+          const separeDeck = ioState.shuffle(
+            ioState.separeDeck(formatCardsForDeck)
+          );
           const player = currentRoom[playerId];
 
           player.board = {
@@ -81,16 +84,17 @@ let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socke
             player: playerId,
             board: player.board,
           });
-
         }
       });
 
       setInterval(() => {
-        let connecteds = Object.values(ioState.connecteds).filter(player => player.socket.connected);
+        let connecteds = Object.values(ioState.connecteds).filter(
+          (player) => player.socket.connected
+        );
         let notPlaying = connecteds.filter((player) => !player.isPlaying);
 
-        console.log("Players connected:", connecteds.length);
-        console.log("Players Playing:", connecteds.length - notPlaying.length);
+        console.log('Players connected:', connecteds.length);
+        console.log('Players Playing:', connecteds.length - notPlaying.length);
 
         while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
           const [playerOne, playerTwo] = notPlaying.splice(0, 2);
@@ -99,7 +103,7 @@ let { ioServer, ioState, ioEvents, ioConstants } = require('./app/services/socke
 
           ioEvents.emitDuelRoomJoin(socket, { room: roomName });
 
-          ioEvents.emitDuelInitRockPaperScissors(socket, { room: roomName });
+          ioEvents.emitDuelInitRockPaperScissors(ioServer, { room: roomName });
         }
       }, 1000);
     });

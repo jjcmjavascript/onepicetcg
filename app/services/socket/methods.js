@@ -4,12 +4,12 @@ const results = [
   { name: 'scissors', beats: 'paper' },
 ];
 
-const evalRockPaperScissors = (playerA, playerB) => {
+const evaluateRockPaperScissors = (playerA, playerB) => {
   const playerAResult = results.find(
-    (result) => result.name === playerA.rockPaperScissorChoise
+    (result) => result.name === playerA.rockPaperScissorChoice
   );
   const playerBResult = results.find(
-    (result) => result.name === playerB.rockPaperScissorChoise
+    (result) => result.name === playerB.rockPaperScissorChoice
   );
 
   if (playerAResult.beats === playerBResult.name) {
@@ -23,5 +23,5 @@ const evalRockPaperScissors = (playerA, playerB) => {
 };
 
 module.exports = {
-  evalRockPaperScissors,
+  evaluateRockPaperScissors,
 };
