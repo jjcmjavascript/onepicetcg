@@ -106,6 +106,18 @@ let { ioServer, ioState, ioEvents, ioConstants } =
           ioEvents.emitDuelInitRockPaperScissors(ioServer, { room: roomName });
         }
       }, 1000);
+
+      // CHECK GAME CANCELED
+      setInterval(() => {
+        Object.values(ioState.rooms).map((room) => {
+          const [playerA, playerB] = Object.values(room);
+          if (!playerA.socket.connected || !playerB.socket.connected) {
+            ioEvents.emitDuelCanceled(ioServer, {
+              room: roomName,
+            });
+          }
+        });
+      }, 10000);
     });
   } catch (error) {
     console.error(error.stack);

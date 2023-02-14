@@ -1,6 +1,7 @@
 // EMMITS
 const DUEL_JOIN = 'duel:join';
 const GAME_ROOM_JOIN = 'game:room_join';
+const GAME_ROOM_CANCEL = 'game:cancel';
 const GAME_ROCK_SCISSORS_PAPER_START = 'game:initRockPaperScissors';
 const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
 
