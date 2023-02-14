@@ -6,11 +6,11 @@ const ioEvents = {
     console.log(constants.DUEL_JOIN);
     socket.emit(constants.DUEL_JOIN, payload);
   },
-  emitDuelRoomJoin: (socket, payload = {}) => {
-    console.log(constants.GAME_ROOM_JOIN);
-    socket.to(payload.room).emit(constants.GAME_ROOM_JOIN, payload);
+  emitDuelRoomJoin: (socket, payload) => {
+    console.log(constants.GAME_ROOM_JOIN, payload.room);
+    socket.of('/duel').to(payload.room).emit(constants.GAME_ROOM_JOIN, payload);
   },
-  emitDuelInitRockPaperScissors: (socket, payload = {}) => {
+  emitDuelInitRockPaperScissors: (socket, payload) => {
     console.log(constants.GAME_ROCK_SCISSORS_PAPER_START);
     socket
       .of('/duel')

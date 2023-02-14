@@ -1,5 +1,5 @@
-const service = (ioObjects) => {
-  const { ioServer, ioState, ioEvents, ioConstants } = ioObjects;
+module.exports = (ioObjects) => {
+  const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
 
   ioServer.on('connection', (socket) => {
     console.log('Client connected');
@@ -61,12 +61,11 @@ const service = (ioObjects) => {
       }
     });
 
-    // leave
     socket.on('disconnect', () => {
-      ioState.removePlayerFromRoom(socket);
-      ioState.removeWaiter(socket);
+      // ioMethods.removePlayerFromRoom(socket);
     });
 
+    // check if there are players waiting for a duel
     setInterval(() => {
       let connecteds = Object.values(ioState.connecteds).filter(
         (player) => player.socket.connected
@@ -79,28 +78,26 @@ const service = (ioObjects) => {
       while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
         const [playerOne, playerTwo] = notPlaying.splice(0, 2);
 
-        const roomName = ioState.setPlayersInRoom(playerOne, playerTwo);
+        const roomName = ioMethods.setPlayersInRoom({playerOne, playerTwo, ioState});
 
-        ioEvents.emitDuelRoomJoin(socket, { room: roomName });
+        ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
 
         ioEvents.emitDuelInitRockPaperScissors(ioServer, { room: roomName });
       }
     }, 1000);
 
     // CHECK GAME CANCELED
-    setInterval(() => {
-      Object.values(ioState.rooms).map((room) => {
-        const [playerA, playerB] = Object.values(room);
-        if (!playerA.socket.connected || !playerB.socket.connected) {
-          ioMethods.removePlayerFromRoom(playerA.socket);
+    // setInterval(() => {
+    //   Object.values(ioState.rooms).map((room) => {
+    //     const [playerA, playerB] = Object.values(room);
+    //     if (!playerA.socket.connected || !playerB.socket.connected) {
+    //       ioMethods.removePlayerFromRoom(playerA.socket, ioState);
 
-          ioEvents.emitDuelCanceled(ioServer, {
-            players: [playerA.socket.id, playerB.socket.id],
-          });
-        }
-      });
-    }, 10000);
+    //       ioEvents.emitDuelCanceled(ioServer, {
+    //         players: [playerA.socket.id, playerB.socket.id],
+    //       });
+    //     }
+    //   });
+    // }, 10000);
   });
 };
-
-module.exports = service;
