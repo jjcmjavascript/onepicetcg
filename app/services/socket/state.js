@@ -109,10 +109,9 @@ const state = {
 
     return roomName;
   },
-
   separeDeck,
   formatCardsForDeck,
-  shuffle
+  shuffle,
 };
 
 module.exports = state;

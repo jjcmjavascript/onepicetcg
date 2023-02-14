@@ -48,7 +48,7 @@ const ioEvents = {
 
   emitDuelCanceled: (socket, payload) => {
     console.log(constants.GAME_ROOM_CANCEL);
-    socket.to(payload.room).emit(constants.GAME_ROOM_CANCEL, { ...payload });
+    socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
   },
 };
 
