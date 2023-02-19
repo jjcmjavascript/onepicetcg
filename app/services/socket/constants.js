@@ -7,6 +7,7 @@ const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
 
 // LISTENERS
 const GAME_ROCK_PAPER_SCISSORS_CHOISE = 'game:rockPaperScissorsChoise';
+const GAME_DECK_SELECTED = 'game:deckSelected';
 
 module.exports = {
   DUEL_JOIN,
@@ -14,4 +15,6 @@ module.exports = {
   GAME_ROCK_SCISSORS_PAPER_START,
   GAME_ROCK_PAPER_SCISSORS_CHOISE,
   GAME_ROCK_SCISSORS_PAPER_RESULT,
+  GAME_ROOM_CANCEL,
+  GAME_DECK_SELECTED,
 };

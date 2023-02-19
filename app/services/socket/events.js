@@ -24,8 +24,12 @@ const ioEvents = {
       .to(payload.room)
       .emit(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
   },
+  emitDuelCanceled: (socket, payload) => {
+    console.log(constants.GAME_ROOM_CANCEL);
+    socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
+  },
 
-  onRockPaperScissorsChoise: (mainSocket, clientSocket, payload, state) => {
+  onRockPaperScissorsChoise(mainSocket, clientSocket, payload, state) {
     console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE, payload);
 
     const room = state.rooms[payload.room];
@@ -39,23 +43,21 @@ const ioEvents = {
     if (playerA.rockPaperScissorChoice && playerB.rockPaperScissorChoice) {
       const result = methods.evaluateRockPaperScissors(playerA, playerB);
 
-
-      ioEvents.emitDuelRockPaperScissorsResult(mainSocket, {
+      this.emitDuelRockPaperScissorsResult(mainSocket, {
         room: payload.room,
         result: result ? result.socket.id : null,
       });
 
       // Si hay empate
-      if(!result){
+      if (!result) {
         playerA.rockPaperScissorChoice = null;
         playerB.rockPaperScissorChoice = null;
       }
     }
   },
-
-  emitDuelCanceled: (socket, payload) => {
-    console.log(constants.GAME_ROOM_CANCEL);
-    socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
+  onDeckSelected(socket, payload, ioState) {
+    console.log(constants.GAME_DECK_SELECTED, payload);
+    ioState.connected[socket.id].deck = payload.deck;
   },
 };
 

@@ -4,8 +4,9 @@ module.exports = (ioObjects) => {
   ioServer.on('connection', (socket) => {
     console.log('Client connected');
 
-    socket.on('disconnect', () => {
-      delete ioState.connecteds[socket.id];
+    socket.on('disconnect', (a) => {
+      console.log('Client disconnected');
+      delete ioState.connected[socket.id];
     });
   });
 
@@ -65,15 +66,15 @@ module.exports = (ioObjects) => {
       // ioMethods.removePlayerFromRoom(socket);
     });
 
+    socket.on(ioConstants.GAME_DECK_SELECTED, (data) => {
+      ioEvents.onDeckSelected(socket, data, ioState);
+    });
+
     // check if there are players waiting for a duel
     setInterval(() => {
-      let connecteds = Object.values(ioState.connecteds).filter(
-        (player) => player.socket.connected
-      );
-      let notPlaying = connecteds.filter((player) => !player.isPlaying);
-
-      console.log('Players connected:', connecteds.length);
-      console.log('Players Playing:', connecteds.length - notPlaying.length);
+      let notPlaying = ioState.notPlayingArr;
+      console.log('Players connected:', ioState.connectedCount);
+      console.log('Players Playing:', ioState.playingCount);
 
       while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
         const [playerOne, playerTwo] = notPlaying.splice(0, 2);
