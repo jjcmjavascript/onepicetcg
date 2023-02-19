@@ -39,10 +39,17 @@ const ioEvents = {
     if (playerA.rockPaperScissorChoice && playerB.rockPaperScissorChoice) {
       const result = methods.evaluateRockPaperScissors(playerA, playerB);
 
+
       ioEvents.emitDuelRockPaperScissorsResult(mainSocket, {
         room: payload.room,
         result: result ? result.socket.id : null,
       });
+
+      // Si hay empate
+      if(!result){
+        playerA.rockPaperScissorChoice = null;
+        playerB.rockPaperScissorChoice = null;
+      }
     }
   },
 
