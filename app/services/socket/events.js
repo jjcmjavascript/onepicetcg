@@ -65,7 +65,7 @@ const onRockPaperScissorsChoise = (
 
 const onDeckSelected = (socket, payload, ioState) => {
   console.log(constants.GAME_DECK_SELECTED, payload);
-  ioState.connected[socket.id].deck = payload.deckId;
+  ioState.connected[socket.id].deckId = payload.deckId;
 };
 
 module.exports = {

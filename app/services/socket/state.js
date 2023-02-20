@@ -5,7 +5,7 @@ const getConnectedSchema = (socket) => {
     socket,
     id: socket.id,
     isPlaying: false,
-    activeDeck: null,
+    deckId: null,
   };
 };
 

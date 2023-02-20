@@ -24,7 +24,7 @@ module.exports = (ioObjects) => {
 
     socket.on('duel:playerSelected', async (data) => {
       const currentRoom = ioState.rooms[data.room];
-      const decks = []
+      const decks = [];
 
       for (const playerId in currentRoom) {
         const formatCardsForDeck = ioState.formatCardsForDeck(decks[0]);

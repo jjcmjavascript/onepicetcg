@@ -16,7 +16,8 @@ module.exports = ({ httpServer, database }) => {
     ioEvents,
     ioConstants,
     ioMethods,
+    database,
   };
 
-  return () => service(ioObjects, database);
+  return () => service(ioObjects);
 };

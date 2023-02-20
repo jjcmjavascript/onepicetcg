@@ -1,5 +1,5 @@
-const { v4: uuidv4 } = require('uuid');
-const { DON, LEADER } = require('../../helpers/cardTypes');
+const { v4: idGenerator } = require('uuid');
+const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
 
 const results = [
@@ -39,19 +39,19 @@ const getRoomSchema = (playerA, playerB) => {
   };
 };
 
-const evaluateRockPaperScissors = (playerOne, playerTwo) => {
-  const playerOneResult = results.find(
-    (result) => result.name === playerOne.rockPaperScissorChoice
+const evaluateRockPaperScissors = (playerA, playerB) => {
+  const playerAResult = results.find(
+    (result) => result.name === playerA.rockPaperScissorChoice
   );
-  const playerTwoResult = results.find(
-    (result) => result.name === playerTwo.rockPaperScissorChoice
+  const playerBResult = results.find(
+    (result) => result.name === playerB.rockPaperScissorChoice
   );
 
-  if (playerOneResult.beats === playerTwoResult.name) {
-    return playerOne;
+  if (playerAResult.beats === playerBResult.name) {
+    return playerA;
   }
-  if (playerTwoResult.beats === playerOneResult.name) {
-    return playerTwo;
+  if (playerBResult.beats === playerAResult.name) {
+    return playerB;
   }
 
   return null;
@@ -63,23 +63,23 @@ const removePlayerFromRoom = (socket, ioState) => {
   const [roomKey, room] = rooms[roomIndex];
 
   if (room) {
-    const [playerOne, playerTwo] = Object.values(room);
+    const [playerA, playerB] = Object.values(room);
 
-    playerOne && (playerOne.isPlaying = false);
-    playerTwo && (playerTwo.isPlaying = false);
+    playerA && (playerA.isPlaying = false);
+    playerB && (playerB.isPlaying = false);
     delete ioState.rooms[roomKey];
   }
 };
 
-const setPlayersInRoom = ({ playerOne, playerTwo, ioState }) => {
-  const roomName = uuidv4();
-  ioState.rooms[roomName] = getRoomSchema(playerOne, playerTwo);
+const setPlayersInRoom = ({ playerA, playerB, ioState }) => {
+  const roomName = idGenerator();
+  ioState.rooms[roomName] = getRoomSchema(playerA, playerB);
 
-  playerOne.isPlaying = true;
-  playerTwo.isPlaying = true;
+  playerA.isPlaying = true;
+  playerB.isPlaying = true;
 
-  playerOne.socket.join(roomName);
-  playerTwo.socket.join(roomName);
+  playerA.socket.join(roomName);
+  playerB.socket.join(roomName);
 
   return roomName;
 };
@@ -91,20 +91,31 @@ const preparePlayerState = async ({
   database,
   callback,
 }) => {
-  const decks = await database.scope(['structureForDeck']).findAll({
+  let decks = await database.decks.scope(['structureForDeck']).findAll({
     where: {
       id: [playerA.deckId, playerB.deckId],
     },
   });
 
+  decks = decks.map((deck) => deck.toJSON());
+
   const playerADeck = decks.find((deck) => deck.id === playerA.deckId);
   const playerBDeck = decks.find((deck) => deck.id === playerB.deckId);
 
-  const playerBDeckDb = database.decks.findByPk(playerB.deckId);
+  console.log(playerADeck);
+
+  let playerADeckStructure = formatCardsForDeck({
+    deck: playerADeck,
+    idGenerator,
+    types,
+  });
+
+  console.log(playerADeckStructure)
 };
 
 module.exports = {
   evaluateRockPaperScissors,
   removePlayerFromRoom,
   setPlayersInRoom,
+  preparePlayerState
 };

@@ -1,5 +1,11 @@
-function formatCardsForDeck({ deck, idGenerator }) {
-  const don = deck._cards.find((card) => card.type_id === DON);
+/**
+ * @param {DeckModel} deck
+ * @param {Function} idGenerator
+ * @param {Object} types
+ * @returns
+ */
+function formatCardsForDeck({ deck, idGenerator, types }) {
+  const don = deck._cards.find((card) => card.type_id === types.DON);
   const cards = [];
 
   deck._cards.forEach((card) => {
@@ -19,7 +25,7 @@ function formatCardsForDeck({ deck, idGenerator }) {
     });
   }
 
-  return decks;
-};
+  return cards;
+}
 
 module.exports = formatCardsForDeck;
