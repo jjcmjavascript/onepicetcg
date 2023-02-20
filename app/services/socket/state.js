@@ -12,7 +12,6 @@ const getConnectedSchema = (socket) => {
 const state = {
   connected: {},
   rooms: {},
-
   get connectedArr() {
     return (
       Object.values(this.connected).filter(

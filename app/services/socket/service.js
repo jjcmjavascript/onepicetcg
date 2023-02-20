@@ -76,10 +76,12 @@ module.exports = (ioObjects) => {
           playerB,
           ioState,
           database,
+          roomName,
           callback: async () => {
             ioEvents.emitDuelInitRockPaperScissors(ioServer, {
               room: roomName,
             });
+            console.log(ioState.rooms[roomName])
           },
         });
       }

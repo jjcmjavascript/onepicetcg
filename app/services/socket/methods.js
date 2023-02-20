@@ -89,6 +89,7 @@ const preparePlayerState = async ({
   playerB,
   ioState,
   database,
+  roomName,
   callback,
 }) => {
   let decks = await database.decks.scope(['structureForDeck']).findAll({
@@ -102,15 +103,45 @@ const preparePlayerState = async ({
   const playerADeck = decks.find((deck) => deck.id === playerA.deckId);
   const playerBDeck = decks.find((deck) => deck.id === playerB.deckId);
 
-  console.log(playerADeck);
-
-  let playerADeckStructure = formatCardsForDeck({
+  // prepare player A state
+  const playerADeckStructure = formatCardsForDeck({
     deck: playerADeck,
     idGenerator,
     types,
   });
+  const playerADeckDivided = deckDivider({deck: playerADeckStructure, types});
+  const playerADeckShuffled = shuffle(playerADeckDivided.characters);
 
-  console.log(playerADeckStructure)
+  // prepare player B state
+  const playerBDeckStructure = formatCardsForDeck({
+    deck: playerBDeck,
+    idGenerator,
+    types,
+  });
+  const playerBDeckDivided = deckDivider({deck: playerBDeckStructure, types});
+  const playerBDeckShuffled = shuffle(playerBDeckDivided.characters);
+
+  // find player A/B state
+  const playerAState = ioState.rooms[roomName][playerA.id];
+  const playerBState = ioState.rooms[roomName][playerB.id];
+
+  playerAState.board = {
+    ...playerAState.board,
+    don: playerADeckDivided.don,
+    leader: playerADeckDivided.leader,
+    deck: playerADeckShuffled,
+    dons: playerADeckDivided.dons,
+  }
+
+  playerBState.board = {
+    ...playerBState.board,
+    don: playerBDeckDivided.don,
+    leader: playerBDeckDivided.leader,
+    deck: playerBDeckShuffled,
+    dons: playerBDeckDivided.dons,
+  };
+
+  callback()
 };
 
 module.exports = {
