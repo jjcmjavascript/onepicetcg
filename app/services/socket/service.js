@@ -1,5 +1,6 @@
 module.exports = (ioObjects) => {
-  const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
+  const { ioServer, ioState, ioEvents, ioConstants, ioMethods, database } =
+    ioObjects;
 
   ioServer.on('connection', (socket) => {
     console.log('Client connected');
@@ -23,24 +24,7 @@ module.exports = (ioObjects) => {
 
     socket.on('duel:playerSelected', async (data) => {
       const currentRoom = ioState.rooms[data.room];
-      const decks = await db.decks.findAll({
-        include: [
-          '_image',
-          '_image_full',
-          {
-            model: db.colors,
-            as: '_colors',
-          },
-          {
-            model: db.types,
-            as: '_type',
-          },
-          {
-            model: db.categories,
-            as: '_categories',
-          },
-        ],
-      });
+      const decks = []
 
       for (const playerId in currentRoom) {
         const formatCardsForDeck = ioState.formatCardsForDeck(decks[0]);
@@ -77,13 +61,27 @@ module.exports = (ioObjects) => {
       console.log('Players Playing:', ioState.playingCount);
 
       while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
-        const [playerOne, playerTwo] = notPlaying.splice(0, 2);
+        const [playerA, playerB] = notPlaying.splice(0, 2);
 
-        const roomName = ioMethods.setPlayersInRoom({playerOne, playerTwo, ioState});
+        const roomName = ioMethods.setPlayersInRoom({
+          playerA,
+          playerB,
+          ioState,
+        });
 
         ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
 
-        ioEvents.emitDuelInitRockPaperScissors(ioServer, { room: roomName });
+        ioMethods.preparePlayerState({
+          playerA,
+          playerB,
+          ioState,
+          database,
+          callback: async () => {
+            ioEvents.emitDuelInitRockPaperScissors(ioServer, {
+              room: roomName,
+            });
+          },
+        });
       }
     }, 1000);
 

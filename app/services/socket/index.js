@@ -6,7 +6,7 @@ const ioConstants = require('./constants');
 const ioMethods = require('./methods');
 const service = require('./service');
 
-module.exports = (httpServer) => {
+module.exports = ({ httpServer, database }) => {
   const ioServer = new Server(httpServer, ioConfig);
   const ioObjects = {
     httpServer,
@@ -18,8 +18,5 @@ module.exports = (httpServer) => {
     ioMethods,
   };
 
-  return {
-    ioService: () => service(ioObjects),
-    ...ioObjects,
-  };
+  return () => service(ioObjects, database);
 };

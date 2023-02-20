@@ -5,7 +5,7 @@ const { notFound, helmet, morgan, cors } = require('./app/middlewares');
 const { v1 } = require('./app/routes');
 const db = require('./app/services/database');
 
-const { ioService } = require('./app/services/socket')(httpServer);
+const ioService = require('./app/services/socket')({httpServer, db});
 
 (async () => {
   try {

@@ -9,7 +9,6 @@ function setUuid(item) {
     return item.map((i) => setUuid(i));
   }
 
-  console.log(faker.datatype.uuid());
   return {
     ...item,
     uuid: faker.datatype.uuid(),

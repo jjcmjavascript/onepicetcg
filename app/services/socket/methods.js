@@ -1,4 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
+const { DON, LEADER } = require('../../helpers/cardTypes');
+const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
 
 const results = [
   { name: 'rock', beats: 'scissors' },
@@ -26,11 +28,13 @@ const getRoomSchema = (playerA, playerB) => {
       socket: playerA.socket,
       board: getBoardSchema(),
       rockPaperScissorChoice: null,
+      deckId: playerA.deckId,
     },
     [playerB.id]: {
       socket: playerB.socket,
       board: getBoardSchema(),
       rockPaperScissorChoice: null,
+      deckId: playerB.deckId,
     },
   };
 };
@@ -73,10 +77,30 @@ const setPlayersInRoom = ({ playerOne, playerTwo, ioState }) => {
 
   playerOne.isPlaying = true;
   playerTwo.isPlaying = true;
+
   playerOne.socket.join(roomName);
   playerTwo.socket.join(roomName);
 
   return roomName;
+};
+
+const preparePlayerState = async ({
+  playerA,
+  playerB,
+  ioState,
+  database,
+  callback,
+}) => {
+  const decks = await database.scope(['structureForDeck']).findAll({
+    where: {
+      id: [playerA.deckId, playerB.deckId],
+    },
+  });
+
+  const playerADeck = decks.find((deck) => deck.id === playerA.deckId);
+  const playerBDeck = decks.find((deck) => deck.id === playerB.deckId);
+
+  const playerBDeckDb = database.decks.findByPk(playerB.deckId);
 };
 
 module.exports = {
