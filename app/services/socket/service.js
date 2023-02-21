@@ -12,8 +12,8 @@ module.exports = (ioObjects) => {
   });
 
   ioServer.of('/duel').on('connection', (socket) => {
-    if (!ioState.waiterExist(socket)) {
-      ioState.setWaiter(socket);
+    if (!ioMethods.waiterExist(socket)) {
+      ioMethods.setWaiter(socket);
     }
 
     socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
@@ -81,7 +81,7 @@ module.exports = (ioObjects) => {
             ioEvents.emitDuelInitRockPaperScissors(ioServer, {
               room: roomName,
             });
-            console.log(ioState.rooms[roomName])
+            console.log(ioState.rooms[roomName]);
           },
         });
       }

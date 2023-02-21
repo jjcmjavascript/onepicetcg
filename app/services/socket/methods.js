@@ -109,7 +109,7 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerADeckDivided = deckDivider({deck: playerADeckStructure, types});
+  const playerADeckDivided = deckDivider({ deck: playerADeckStructure, types });
   const playerADeckShuffled = shuffle(playerADeckDivided.characters);
 
   // prepare player B state
@@ -118,7 +118,7 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerBDeckDivided = deckDivider({deck: playerBDeckStructure, types});
+  const playerBDeckDivided = deckDivider({ deck: playerBDeckStructure, types });
   const playerBDeckShuffled = shuffle(playerBDeckDivided.characters);
 
   // find player A/B state
@@ -131,7 +131,7 @@ const preparePlayerState = async ({
     leader: playerADeckDivided.leader,
     deck: playerADeckShuffled,
     dons: playerADeckDivided.dons,
-  }
+  };
 
   playerBState.board = {
     ...playerBState.board,
@@ -141,12 +141,27 @@ const preparePlayerState = async ({
     dons: playerBDeckDivided.dons,
   };
 
-  callback()
+  callback();
+};
+
+const removeWaiter = (socket) => {
+  delete this.connected[socket.id];
+};
+
+const waiterExist = (socket) => {
+  return this.connected[socket.id];
+};
+
+const setWaiter = (socket) => {
+  this.connected[socket.id] = getConnectedSchema(socket);
 };
 
 module.exports = {
   evaluateRockPaperScissors,
   removePlayerFromRoom,
   setPlayersInRoom,
-  preparePlayerState
+  preparePlayerState,
+  removeWaiter,
+  waiterExist,
+  setWaiter,
 };

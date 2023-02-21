@@ -34,15 +34,6 @@ const state = {
   get roomsCount() {
     return Object.values(this.rooms).length;
   },
-  removeWaiter: (socket) => {
-    delete state.connected[socket.id];
-  },
-  waiterExist(socket) {
-    return this.connected[socket.id];
-  },
-  setWaiter: (socket) => {
-    state.connected[socket.id] = getConnectedSchema(socket);
-  },
 };
 
 module.exports = state;
