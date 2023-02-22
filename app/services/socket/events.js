@@ -31,35 +31,67 @@ const emitDuelCanceled = (socket, payload) => {
   socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
 };
 
-const onRockPaperScissorsChoise = (
-  mainSocket,
-  clientSocket,
-  payload,
-  state
-) => {
+/**
+ * @param {Object SocketIo} mainSocket
+ * @param {Object {room}} payload
+ */
+const emitDuelBoard = (mainSocket, room, ioState) => {
+  console.log(constants.GAME_BOARD_STATE);
+  const [playerA, playerB] = Object.values(ioState.rooms[room]);
+
+  mainSocket
+    .of('/duel')
+    .to(playerA.socket.id)
+    .emit(constants.GAME_BOARD_STATE, {
+      room,
+      board: playerA.board,
+      name: "Player A"
+    });
+
+    mainSocket
+    .of('/duel')
+    .to(playerB.socket.id)
+    .emit(constants.GAME_BOARD_STATE, {
+      room,
+      board: playerB.board,
+      name: "Player B"
+    });
+};
+
+/**
+ * @param {Object SocketIo} mainSocket
+ * @param {Object SocketIo} clientSocket
+ * @param {Object {room, choise}} payload
+ * @param {Object} state
+ * @param {Object} state.connected
+ * @param {Object} state.rooms
+ * @param {Object} state.rooms[payload.room]
+ * @param {Object} state.rooms[payload.room]
+ * @param {Object} state.rooms[payload.room][payload.socket.id]
+ * @param {Object} state.rooms[payload.room][payload.socket.id].rockPaperScissorChoice
+ */
+const onRockPaperScissorsChoise = (socket, clientSocket, payload, state) => {
   console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE, payload);
 
-  const room = state.rooms[payload.room];
-  const [playerA, playerB] = Object.values(room);
-  const currentPlayer = room[clientSocket.id];
-
-  if (!currentPlayer.rockPaperScissorChoice) {
-    currentPlayer.rockPaperScissorChoice = payload.choice;
-  }
+  const [playerA, playerB] = methods.getPlayerChoise({
+    clientSocket,
+    payload,
+    state,
+  });
 
   if (playerA.rockPaperScissorChoice && playerB.rockPaperScissorChoice) {
     const result = methods.evaluateRockPaperScissors(playerA, playerB);
 
-    emitDuelRockPaperScissorsResult(mainSocket, {
+    emitDuelRockPaperScissorsResult(socket, {
       room: payload.room,
       result: result ? result.socket.id : null,
     });
 
-    // Si hay empate
-    if (!result) {
-      playerA.rockPaperScissorChoice = null;
-      playerB.rockPaperScissorChoice = null;
+    if (result) {
+      emitDuelBoard(socket, payload.room, state);
     }
+
+    methods.clearPlayerChoiseFromResult({ result, playerA, playerB });
   }
 };
 
@@ -76,4 +108,10 @@ module.exports = {
   emitDuelCanceled,
   onRockPaperScissorsChoise,
   onDeckSelected,
+  emitDuelBoard,
 };
+
+// ioServer.of('/duel').to(data.room).emit('duel:setBoard', {
+//   player: playerId,
+//   board: player.board,
+// });

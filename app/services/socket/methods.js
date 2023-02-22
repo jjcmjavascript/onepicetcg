@@ -22,6 +22,15 @@ const getBoardSchema = () => {
   };
 };
 
+const getConnectedSchema = (socket) => {
+  return {
+    socket,
+    id: socket.id,
+    isPlaying: false,
+    deckId: null,
+  };
+};
+
 const getRoomSchema = (playerA, playerB) => {
   return {
     [playerA.id]: {
@@ -144,16 +153,46 @@ const preparePlayerState = async ({
   callback();
 };
 
-const removeWaiter = (socket) => {
-  delete this.connected[socket.id];
+const removeWaiter = (ioState, socket) => {
+  delete ioState.connected[socket.id];
 };
 
-const waiterExist = (socket) => {
-  return this.connected[socket.id];
+const waiterExist = (ioState, socket) => {
+  return ioState.connected[socket.id];
 };
 
-const setWaiter = (socket) => {
-  this.connected[socket.id] = getConnectedSchema(socket);
+const setWaiter = (ioState, socket) => {
+  ioState.connected[socket.id] = getConnectedSchema(socket);
+};
+
+/**
+ * @param {Object SocketClient} clientSocket
+ * @param {Object { room, choice }} payload
+ * @param {Object ioState } state
+ * @returns {Array} [playerA, playerB]
+ */
+const getPlayerChoise = ({ clientSocket, payload, state }) => {
+  const room = state.rooms[payload.room];
+  const [playerA, playerB] = Object.values(room);
+  const currentPlayer = room[clientSocket.id];
+
+  if (!currentPlayer.rockPaperScissorChoice) {
+    currentPlayer.rockPaperScissorChoice = payload.choice;
+  }
+
+  return [playerA, playerB];
+};
+
+/**
+ * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerA
+ * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerB
+ * @return {undefined}
+ */
+const clearPlayerChoiseFromResult = ({ result, playerA, playerB }) => {
+  if (!result) {
+    playerA.rockPaperScissorChoice = null;
+    playerB.rockPaperScissorChoice = null;
+  }
 };
 
 module.exports = {
@@ -164,4 +203,6 @@ module.exports = {
   removeWaiter,
   waiterExist,
   setWaiter,
+  getPlayerChoise,
+  clearPlayerChoiseFromResult,
 };

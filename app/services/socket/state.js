@@ -1,14 +1,3 @@
-const { v4: uuidv4 } = require('uuid');
-
-const getConnectedSchema = (socket) => {
-  return {
-    socket,
-    id: socket.id,
-    isPlaying: false,
-    deckId: null,
-  };
-};
-
 const state = {
   connected: {},
   rooms: {},

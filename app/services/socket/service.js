@@ -12,39 +12,13 @@ module.exports = (ioObjects) => {
   });
 
   ioServer.of('/duel').on('connection', (socket) => {
-    if (!ioMethods.waiterExist(socket)) {
-      ioMethods.setWaiter(socket);
+    if (!ioMethods.waiterExist(ioState, socket)) {
+      ioMethods.setWaiter(ioState, socket);
     }
 
-    socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
-      ioEvents.onRockPaperScissorsChoise(ioServer, socket, payload, ioState);
-    });
-
-    ioEvents.emitDuelJoin(ioServer);
-
-    socket.on('duel:playerSelected', async (data) => {
-      const currentRoom = ioState.rooms[data.room];
-      const decks = [];
-
-      for (const playerId in currentRoom) {
-        const formatCardsForDeck = ioState.formatCardsForDeck(decks[0]);
-        const separeDeck = ioState.shuffle(
-          ioState.separeDeck(formatCardsForDeck)
-        );
-        const player = currentRoom[playerId];
-
-        player.board = {
-          ...player.board,
-          ...separeDeck,
-        };
-
-        console.log(player.board);
-        ioServer.of('/duel').to(data.room).emit('duel:setBoard', {
-          player: playerId,
-          board: player.board,
-        });
-      }
-    });
+    /************************************************/
+    // LISTENERS
+    /************************************************/
 
     socket.on('disconnect', () => {
       // ioMethods.removePlayerFromRoom(socket);
@@ -54,7 +28,19 @@ module.exports = (ioObjects) => {
       ioEvents.onDeckSelected(socket, data, ioState);
     });
 
-    // check if there are players waiting for a duel
+    socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
+      ioEvents.onRockPaperScissorsChoise(ioServer, socket, payload, ioState);
+    });
+
+    /************************************************/
+    // EMMITS
+    /************************************************/
+
+    ioEvents.emitDuelJoin(ioServer);
+
+    /************************************************/
+    // CHECK PLAYERS
+    /************************************************/
     setInterval(() => {
       let notPlaying = ioState.notPlayingArr;
       console.log('Players connected:', ioState.connectedCount);
@@ -81,7 +67,6 @@ module.exports = (ioObjects) => {
             ioEvents.emitDuelInitRockPaperScissors(ioServer, {
               room: roomName,
             });
-            console.log(ioState.rooms[roomName]);
           },
         });
       }

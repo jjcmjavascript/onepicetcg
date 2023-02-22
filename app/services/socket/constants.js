@@ -4,6 +4,7 @@ const GAME_ROOM_JOIN = 'game:room_join';
 const GAME_ROOM_CANCEL = 'game:cancel';
 const GAME_ROCK_SCISSORS_PAPER_START = 'game:initRockPaperScissors';
 const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
+const GAME_BOARD_STATE = 'game:boardState';
 
 // LISTENERS
 const GAME_ROCK_PAPER_SCISSORS_CHOISE = 'game:rockPaperScissorsChoise';
@@ -17,4 +18,5 @@ module.exports = {
   GAME_ROCK_SCISSORS_PAPER_RESULT,
   GAME_ROOM_CANCEL,
   GAME_DECK_SELECTED,
+  GAME_BOARD_STATE,
 };
