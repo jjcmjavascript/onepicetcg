@@ -118,8 +118,10 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerADeckDivided = deckDivider({ deck: playerADeckStructure, types });
-  const playerADeckShuffled = shuffle(playerADeckDivided.characters);
+  const playerADeckSplitted = deckDivider({ deck: playerADeckStructure, types });
+  const playerADeckShuffled = shuffle(playerADeckSplitted.characters);
+  const livesA = playerADeckShuffled.splice(0, playerADeckSplitted.leader.lives);
+  const handA = playerADeckShuffled.splice(0, 5);
 
   // prepare player B state
   const playerBDeckStructure = formatCardsForDeck({
@@ -127,8 +129,10 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerBDeckDivided = deckDivider({ deck: playerBDeckStructure, types });
-  const playerBDeckShuffled = shuffle(playerBDeckDivided.characters);
+  const playerBDeckSplitted = deckDivider({ deck: playerBDeckStructure, types });
+  const playerBDeckShuffled = shuffle(playerBDeckSplitted.characters);
+  const livesB = playerBDeckShuffled.splice(0, playerBDeckSplitted.leader.lives);
+  const handB = playerBDeckShuffled.splice(0, 5);
 
   // find player A/B state
   const playerAState = ioState.rooms[roomName][playerA.id];
@@ -136,18 +140,22 @@ const preparePlayerState = async ({
 
   playerAState.board = {
     ...playerAState.board,
-    don: playerADeckDivided.don,
-    leader: playerADeckDivided.leader,
+    don: playerADeckSplitted.don,
+    leader: playerADeckSplitted.leader,
     deck: playerADeckShuffled,
-    dons: playerADeckDivided.dons,
+    dons: playerADeckSplitted.dons,
+    lives: livesA,
+    hand: handA,
   };
 
   playerBState.board = {
     ...playerBState.board,
-    don: playerBDeckDivided.don,
-    leader: playerBDeckDivided.leader,
+    don: playerBDeckSplitted.don,
+    leader: playerBDeckSplitted.leader,
     deck: playerBDeckShuffled,
-    dons: playerBDeckDivided.dons,
+    dons: playerBDeckSplitted.dons,
+    lives: livesB,
+    hand: handB,
   };
 
   callback();

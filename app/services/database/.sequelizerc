@@ -1,10 +1,11 @@
-'use strict';
-if (!process.env.MODE) {
-    require('dotenv').config({
-        path: '../../../../.env'
-    });
-}
+"use strict";
+// to remove -- 24-02-2023
+// if (!process.env.MODE) {
+//   require("dotenv").config({
+//     path: "../../../../.env",
+//   });
+// }
 
 module.exports = {
-    'env': process.env.MODE || 'dev',
+  env: process.env.MODE || "dev",
 };

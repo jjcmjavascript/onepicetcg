@@ -38,40 +38,6 @@ module.exports = (ioObjects) => {
 
     ioEvents.emitDuelJoin(ioServer);
 
-    /************************************************/
-    // CHECK PLAYERS
-    /************************************************/
-    setInterval(() => {
-      let notPlaying = ioState.notPlayingArr;
-      console.log('Players connected:', ioState.connectedCount);
-      console.log('Players Playing:', ioState.playingCount);
-
-      while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
-        const [playerA, playerB] = notPlaying.splice(0, 2);
-
-        const roomName = ioMethods.setPlayersInRoom({
-          playerA,
-          playerB,
-          ioState,
-        });
-
-        ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
-
-        ioMethods.preparePlayerState({
-          playerA,
-          playerB,
-          ioState,
-          database,
-          roomName,
-          callback: async () => {
-            ioEvents.emitDuelInitRockPaperScissors(ioServer, {
-              room: roomName,
-            });
-          },
-        });
-      }
-    }, 1000);
-
     // CHECK GAME CANCELED
     // setInterval(() => {
     //   Object.values(ioState.rooms).map((room) => {
@@ -86,4 +52,38 @@ module.exports = (ioObjects) => {
     //   });
     // }, 10000);
   });
+
+  /************************************************/
+  // CHECK PLAYERS
+  /************************************************/
+  setInterval(() => {
+    let notPlaying = ioState.notPlayingArr;
+    console.log('Players connected:', ioState.connectedCount);
+    console.log('Players Playing:', ioState.playingCount);
+
+    while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
+      const [playerA, playerB] = notPlaying.splice(0, 2);
+
+      const roomName = ioMethods.setPlayersInRoom({
+        playerA,
+        playerB,
+        ioState,
+      });
+
+      ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
+
+      ioMethods.preparePlayerState({
+        playerA,
+        playerB,
+        ioState,
+        database,
+        roomName,
+        callback: async () => {
+          ioEvents.emitDuelInitRockPaperScissors(ioServer, {
+            room: roomName,
+          });
+        },
+      });
+    }
+  }, 1000);
 };
