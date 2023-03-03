@@ -51,12 +51,14 @@ module.exports = (ioObjects) => {
     //     }
     //   });
     // }, 10000);
+
+    checkPlayers();
   });
 
   /************************************************/
   // CHECK PLAYERS
   /************************************************/
-  setInterval(() => {
+  const checkPlayers = () => {
     let notPlaying = ioState.notPlayingArr;
     console.log('Players connected:', ioState.connectedCount);
     console.log('Players Playing:', ioState.playingCount);
@@ -85,5 +87,5 @@ module.exports = (ioObjects) => {
         },
       });
     }
-  }, 1000);
+  };
 };
