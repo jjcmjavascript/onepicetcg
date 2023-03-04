@@ -1,54 +1,15 @@
 const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
-
-const results = [
-  { name: 'rock', beats: 'scissors' },
-  { name: 'paper', beats: 'rock' },
-  { name: 'scissors', beats: 'paper' },
-];
-
-const getBoardSchema = () => {
-  return {
-    leader: null,
-    don: null,
-    stage: null,
-    characters: [],
-    costs: [],
-    trash: [],
-    dons: [],
-    lives: [],
-    deck: [],
-  };
-};
-
-const getConnectedSchema = (socket) => {
-  return {
-    socket,
-    id: socket.id,
-    isPlaying: false,
-    deckId: null,
-  };
-};
-
-const getRoomSchema = (playerA, playerB) => {
-  return {
-    [playerA.id]: {
-      socket: playerA.socket,
-      board: getBoardSchema(),
-      rockPaperScissorChoice: null,
-      deckId: playerA.deckId,
-    },
-    [playerB.id]: {
-      socket: playerB.socket,
-      board: getBoardSchema(),
-      rockPaperScissorChoice: null,
-      deckId: playerB.deckId,
-    },
-  };
-};
+const { getConnectedSchema, getRoomSchema , gameSchema} = require('./schemas');
 
 const evaluateRockPaperScissors = (playerA, playerB) => {
+  const results = [
+    { name: 'rock', beats: 'scissors' },
+    { name: 'paper', beats: 'rock' },
+    { name: 'scissors', beats: 'paper' },
+  ];
+
   const playerAResult = results.find(
     (result) => result.name === playerA.rockPaperScissorChoice
   );
@@ -58,8 +19,7 @@ const evaluateRockPaperScissors = (playerA, playerB) => {
 
   if (playerAResult.beats === playerBResult.name) {
     return playerA;
-  }
-  if (playerBResult.beats === playerAResult.name) {
+  } else if (playerBResult.beats === playerAResult.name) {
     return playerB;
   }
 
@@ -118,9 +78,15 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerADeckSplitted = deckDivider({ deck: playerADeckStructure, types });
+  const playerADeckSplitted = deckDivider({
+    deck: playerADeckStructure,
+    types,
+  });
   const playerADeckShuffled = shuffle(playerADeckSplitted.characters);
-  const livesA = playerADeckShuffled.splice(0, playerADeckSplitted.leader.lives);
+  const livesA = playerADeckShuffled.splice(
+    0,
+    playerADeckSplitted.leader.lives
+  );
   const handA = playerADeckShuffled.splice(0, 5);
 
   // prepare player B state
@@ -129,9 +95,15 @@ const preparePlayerState = async ({
     idGenerator,
     types,
   });
-  const playerBDeckSplitted = deckDivider({ deck: playerBDeckStructure, types });
+  const playerBDeckSplitted = deckDivider({
+    deck: playerBDeckStructure,
+    types,
+  });
   const playerBDeckShuffled = shuffle(playerBDeckSplitted.characters);
-  const livesB = playerBDeckShuffled.splice(0, playerBDeckSplitted.leader.lives);
+  const livesB = playerBDeckShuffled.splice(
+    0,
+    playerBDeckSplitted.leader.lives
+  );
   const handB = playerBDeckShuffled.splice(0, 5);
 
   // find player A/B state
