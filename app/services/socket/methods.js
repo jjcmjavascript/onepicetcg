@@ -1,7 +1,7 @@
 const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
-const { getConnectedSchema, getRoomSchema , gameSchema} = require('./schemas');
+const { getConnectedSchema, getRoomSchema, gameSchema } = require('./schemas');
 
 const evaluateRockPaperScissors = (playerA, playerB) => {
   const results = [
@@ -83,10 +83,6 @@ const preparePlayerState = async ({
     types,
   });
   const playerADeckShuffled = shuffle(playerADeckSplitted.characters);
-  const livesA = playerADeckShuffled.splice(
-    0,
-    playerADeckSplitted.leader.lives
-  );
   const handA = playerADeckShuffled.splice(0, 5);
 
   // prepare player B state
@@ -100,10 +96,6 @@ const preparePlayerState = async ({
     types,
   });
   const playerBDeckShuffled = shuffle(playerBDeckSplitted.characters);
-  const livesB = playerBDeckShuffled.splice(
-    0,
-    playerBDeckSplitted.leader.lives
-  );
   const handB = playerBDeckShuffled.splice(0, 5);
 
   // find player A/B state
@@ -116,7 +108,7 @@ const preparePlayerState = async ({
     leader: playerADeckSplitted.leader,
     deck: playerADeckShuffled,
     dons: playerADeckSplitted.dons,
-    lives: livesA,
+    lives: [],
     hand: handA,
   };
 
@@ -126,7 +118,7 @@ const preparePlayerState = async ({
     leader: playerBDeckSplitted.leader,
     deck: playerBDeckShuffled,
     dons: playerBDeckSplitted.dons,
-    lives: livesB,
+    lives: [],
     hand: handB,
   };
 
@@ -151,8 +143,8 @@ const setWaiter = (ioState, socket) => {
  * @param {Object ioState } state
  * @returns {Array} [playerA, playerB]
  */
-const getPlayerChoise = ({ clientSocket, payload, state }) => {
-  const room = state.rooms[payload.room];
+const getPlayerChoise = ({ clientSocket, payload, ioState }) => {
+  const room = ioState.rooms[payload.room];
   const [playerA, playerB] = Object.values(room);
   const currentPlayer = room[clientSocket.id];
 
@@ -175,6 +167,38 @@ const clearPlayerChoiseFromResult = ({ result, playerA, playerB }) => {
   }
 };
 
+const setWinnerInGameState = ({ ioState, roomName, winner }) => {
+  const room = ioState.rooms[roomName];
+
+  room.game.rockPaperScissorWinner = winner;
+  room.game.currentTurnPlayerId = winner;
+};
+
+const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
+  if (!payload.mulligan) return;
+
+  const room = ioState.rooms[payload.room];
+  const currentPlayer = room[clientSocket.id];
+  const currentPlayerBoard = currentPlayer.board;
+
+  const deck = shuffle([
+    ...currentPlayerBoard.deck,
+    ...currentPlayerBoard.hand,
+  ]);
+  const hand = deck.splice(0, 5);
+
+  currentPlayerBoard.deck = deck;
+  currentPlayerBoard.hand = hand;
+
+  callback({
+    socket,
+    payload: {
+      room: payload.room,
+      board: currentPlayerBoard,
+    },
+  });
+};
+
 module.exports = {
   evaluateRockPaperScissors,
   removePlayerFromRoom,
@@ -185,4 +209,6 @@ module.exports = {
   setWaiter,
   getPlayerChoise,
   clearPlayerChoiseFromResult,
+  setWinnerInGameState,
+  mulligan,
 };

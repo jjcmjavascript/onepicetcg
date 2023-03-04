@@ -32,6 +32,16 @@ module.exports = (ioObjects) => {
       ioEvents.onRockPaperScissorsChoise(ioServer, socket, payload, ioState);
     });
 
+    socket.on(ioConstants.GAME_MULLIGAN, (payload) => {
+      ioMethods.mulligan({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callback: ioEvents.emitMulligan,
+      });
+    });
+
     /************************************************/
     // EMMITS
     /************************************************/

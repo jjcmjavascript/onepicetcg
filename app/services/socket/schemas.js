@@ -23,21 +23,19 @@ const getConnectedSchema = (socket) => {
  * @property {Object} turns
  * @property {Object} turns[turnId][socketEvents]
  */
-const gameSchema = (player) => {
+const gameSchema = (playerA, playerB) => {
   return {
+    rockPaperScissorWinner: null,
+    currentTurnNumber: 1,
+    playerAId: playerA.id,
+    playerBId: playerB.id,
+    currentTurnPlayerId: 0,
+    currentPhase: "mulligan",
     [playerA.id]: {
-      mulligan: {
-        did: false,
-        avaible: true,
-      },
-      turns: {},
+      turnPlays: {},
     },
     [playerB.id]: {
-      mulligan: {
-        did: false,
-        avaible: true,
-      },
-      turns: {},
+      turnPlays: {},
     },
   };
 };
@@ -58,7 +56,6 @@ const getBoardSchema = () => {
 
 const getRoomSchema = (playerA, playerB) => {
   return {
-    currentTurnNumber: 1,
     [playerA.id]: {
       socket: playerA.socket,
       board: getBoardSchema(),
@@ -71,6 +68,7 @@ const getRoomSchema = (playerA, playerB) => {
       rockPaperScissorChoice: null,
       deckId: playerB.deckId,
     },
+    game: gameSchema(playerA, playerB),
   };
 };
 
