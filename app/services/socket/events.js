@@ -145,7 +145,7 @@ module.exports = {
   onDeckSelected,
   emitBoardState,
   emitMulligan,
-  emitGameRegreshPhase,
+  emitGameRefreshPhase,
 };
 
 // ioServer.of('/duel').to(data.room).emit('duel:setBoard', {
