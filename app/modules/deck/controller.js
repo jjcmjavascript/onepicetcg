@@ -1,7 +1,6 @@
 const db = require('../../services/database');
 const { paginator, deckRules } = require('../../helpers');
 const filters = require('../../services/filters_service');
-const setUuid = require('../../helpers/setUuid');
 
 class DeckController {
   constructor() {
