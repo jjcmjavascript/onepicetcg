@@ -127,7 +127,7 @@ const emitMulligan = ({ socket, clientSocket, payload }) => {
   socket.of('/duel').to(payload.room).emit(constants.GAME_MULLIGAN, payload);
 };
 
-const emitGameRegreshPhase = ({ socket, payload }) => {
+const emitGameRefreshPhase = ({ socket, payload }) => {
   console.log(constants.GAME_PHASES_REFRESH);
 
   socket.of('/duel').to(payload.room).emit(constants.GAME_PHASES_REFRESH, {

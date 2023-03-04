@@ -229,11 +229,8 @@ const checkMulliganEnd = ({
   ) {
     callback({
       socket,
-      clientSocket,
       payload: {
         room: payload.room,
-        board: currentPlayerBoard,
-        playerId: clientSocket.id,
       },
     });
   }
@@ -251,5 +248,5 @@ module.exports = {
   clearPlayerChoiseFromResult,
   setWinnerInGameState,
   mulligan,
-  checkMulliganEnd
+  checkMulliganEnd,
 };
