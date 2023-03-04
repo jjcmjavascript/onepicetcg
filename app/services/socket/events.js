@@ -121,14 +121,19 @@ const emitMulliganPhase = ({ socket, payload }) => {
   });
 };
 
-const emitMulligan = ({ socket, payload }) => {
+const emitMulligan = ({ socket, clientSocket, payload }) => {
   console.log(constants.GAME_MULLIGAN);
 
-  ioServer.to(socket.id).emit(constants.GAME_MULLIGAN, {
-    room: payload.room,
-    board: payload.board,
-  });
+  socket.of('/duel').to(payload.room).emit(constants.GAME_MULLIGAN, payload);
 };
+
+const emitGameRegreshPhase = ({ socket, payload }) => {
+  console.log(constants.GAME_PHASES_REFRESH);
+
+  socket.of('/duel').to(payload.room).emit(constants.GAME_PHASES_REFRESH, {
+    room: payload.room,
+  });
+}
 
 module.exports = {
   emitDuelJoin,
@@ -140,6 +145,7 @@ module.exports = {
   onDeckSelected,
   emitBoardState,
   emitMulligan,
+  emitGameRegreshPhase,
 };
 
 // ioServer.of('/duel').to(data.room).emit('duel:setBoard', {

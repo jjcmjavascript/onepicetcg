@@ -175,28 +175,68 @@ const setWinnerInGameState = ({ ioState, roomName, winner }) => {
 };
 
 const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
-  if (!payload.mulligan) return;
-
   const room = ioState.rooms[payload.room];
   const currentPlayer = room[clientSocket.id];
   const currentPlayerBoard = currentPlayer.board;
+  const game = room.game;
 
-  const deck = shuffle([
-    ...currentPlayerBoard.deck,
-    ...currentPlayerBoard.hand,
-  ]);
-  const hand = deck.splice(0, 5);
+  // format board for mulligan
+  if (payload.mulligan) {
+    const deck = shuffle([
+      ...currentPlayerBoard.deck,
+      ...currentPlayerBoard.hand,
+    ]);
+    const hand = deck.splice(0, 5);
 
-  currentPlayerBoard.deck = deck;
-  currentPlayerBoard.hand = hand;
+    currentPlayerBoard.deck = deck;
+    currentPlayerBoard.hand = hand;
+  }
+
+  currentPlayerBoard.lives = currentPlayerBoard.deck.splice(
+    0,
+    currentPlayerBoard.leader.lives
+  );
+
+  // set config for mulligan
+  game[clientSocket.id].mulligan.did = payload.mulligan;
+  game[clientSocket.id].mulligan.available = false;
 
   callback({
     socket,
+    clientSocket,
     payload: {
       room: payload.room,
       board: currentPlayerBoard,
+      playerId: clientSocket.id,
     },
   });
+};
+
+const checkMulliganEnd = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callback,
+}) => {
+  const room = ioState.rooms[payload.room];
+  const game = room.game;
+  const { playerAId, playerBId } = game;
+
+  if (
+    !game[playerAId].mulligan.available &&
+    !game[playerBId].mulligan.available
+  ) {
+    callback({
+      socket,
+      clientSocket,
+      payload: {
+        room: payload.room,
+        board: currentPlayerBoard,
+        playerId: clientSocket.id,
+      },
+    });
+  }
 };
 
 module.exports = {
@@ -211,4 +251,5 @@ module.exports = {
   clearPlayerChoiseFromResult,
   setWinnerInGameState,
   mulligan,
+  checkMulliganEnd
 };

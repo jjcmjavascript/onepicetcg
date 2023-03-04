@@ -33,9 +33,17 @@ const gameSchema = (playerA, playerB) => {
     currentPhase: "mulligan",
     [playerA.id]: {
       turnPlays: {},
+      mulligan: {
+        did: false,
+        avaible: true,
+      }
     },
     [playerB.id]: {
       turnPlays: {},
+      mulligan: {
+        did: false,
+        avaible: true,
+      }
     },
   };
 };

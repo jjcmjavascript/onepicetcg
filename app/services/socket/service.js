@@ -40,6 +40,14 @@ module.exports = (ioObjects) => {
         ioState,
         callback: ioEvents.emitMulligan,
       });
+
+      ioMethods.checkMulliganEnd({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callback: ioEvents.emitGameRegreshPhase,
+      });
     });
 
     /************************************************/
