@@ -7,6 +7,8 @@ const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
 const GAME_BOARD_STATE = 'game:boardState';
 const GAME_STATE = 'game:gameState';
 
+const GAME_RIVAL_PHASES_REFRESH = 'game:rivalPhasesRefresh';
+
 //hybrid
 const GAME_TURN_START = 'game:turnStart';
 const GAME_TURN_WAIT = 'game:turnWait';
@@ -38,4 +40,5 @@ module.exports = {
   GAME_PHASES_DRAW,
 
   GAME_MULLIGAN,
+  GAME_RIVAL_PHASES_REFRESH,
 };

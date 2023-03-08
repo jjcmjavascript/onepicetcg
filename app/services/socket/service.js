@@ -46,7 +46,10 @@ module.exports = (ioObjects) => {
         clientSocket: socket,
         payload,
         ioState,
-        callback: ioEvents.emitGameRefreshPhase,
+        callbacks: {
+          emitGameRefreshPhase: ioEvents.emitGameRefreshPhase,
+          emitGameRivalRefreshPhase: ioEvents.emitGameRivalRefreshPhase,
+        },
       });
     });
 

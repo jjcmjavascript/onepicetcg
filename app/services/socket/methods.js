@@ -26,6 +26,15 @@ const evaluateRockPaperScissors = (playerA, playerB) => {
   return null;
 };
 
+const getCurrentPlayerAndRivalId = ({ room, ioState }) => {
+  const { currentPlayer, playerAId, playerBId } = ioState.rooms[room].game;
+
+  return {
+    currentPlayerId: currentPlayer,
+    rivalPlayerId: currentPlayer === playerAId ? playerBId : playerAId,
+  };
+};
+
 const removePlayerFromRoom = (socket, ioState) => {
   const roomsEntries = Object.entries(ioState.rooms);
   const roomIndex = roomsEntries.findIndex(([key, room]) => room[socket.id]);
@@ -174,7 +183,13 @@ const setWinnerInGameState = ({ ioState, roomName, winner }) => {
   room.game.currentTurnPlayerId = winner;
 };
 
-const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
+const mulligan = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callback: emitMulligan,
+}) => {
   const room = ioState.rooms[payload.room];
   const currentPlayer = room[clientSocket.id];
   const currentPlayerBoard = currentPlayer.board;
@@ -201,7 +216,7 @@ const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
   game[clientSocket.id].mulligan.did = payload.mulligan;
   game[clientSocket.id].mulligan.available = false;
 
-  callback({
+  emitMulligan({
     socket,
     clientSocket,
     payload: {
@@ -217,7 +232,7 @@ const checkMulliganEnd = ({
   clientSocket,
   payload,
   ioState,
-  callback,
+  callbacks: { emitGameRefreshPhase, emitGameRivalRefreshPhase },
 }) => {
   const room = ioState.rooms[payload.room];
   const game = room.game;
@@ -227,8 +242,24 @@ const checkMulliganEnd = ({
     !game[playerAId].mulligan.available &&
     !game[playerBId].mulligan.available
   ) {
-    callback({
+    const currentPlayer =
+      game.currentPlayer === playerAId ? playerAId : playerBId;
+    const rivalId = currentPlayer === playerAId ? playerBId : playerAId;
+
+    console.log(currentPlayer);
+    console.log(rivalId);
+
+    emitGameRefreshPhase({
       socket,
+      playerId: currentPlayer,
+      payload: {
+        room: payload.room,
+      },
+    });
+
+    emitGameRivalRefreshPhase({
+      socket,
+      playerId: rivalId,
       payload: {
         room: payload.room,
       },
@@ -249,4 +280,5 @@ module.exports = {
   setWinnerInGameState,
   mulligan,
   checkMulliganEnd,
+  getCurrentPlayerAndRivalId,
 };

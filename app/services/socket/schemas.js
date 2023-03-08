@@ -19,30 +19,31 @@ const getConnectedSchema = (socket) => {
  * @returns {Object}
  * @property {Object} mulligan
  * @property {Boolean} mulligan.did
- * @property {Boolean} mulligan.avaible
+ * @property {Boolean} mulligan.available
  * @property {Object} turns
  * @property {Object} turns[turnId][socketEvents]
  */
 const gameSchema = (playerA, playerB) => {
   return {
+    currentTurnPlayerId: 0,
+    currentPhase: "mulligan",
     rockPaperScissorWinner: null,
     currentTurnNumber: 1,
     playerAId: playerA.id,
     playerBId: playerB.id,
-    currentTurnPlayerId: 0,
-    currentPhase: "mulligan",
+
     [playerA.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
-        avaible: true,
+        available: true,
       }
     },
     [playerB.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
-        avaible: true,
+        available: true,
       }
     },
   };
