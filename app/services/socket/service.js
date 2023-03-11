@@ -53,6 +53,18 @@ module.exports = (ioObjects) => {
       });
     });
 
+    socket.on(ioConstants.GAME_PHASES_REFRESH_END, (payload) => {
+      ioMethods.drawPhase({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callbacks: {
+          emitPhaseDraw: ioEvents.emitPhaseDraw,
+          emitRivalPhaseDraw: ioEvents.emitRivalPhaseDraw,
+        },
+      });
+    });
     /************************************************/
     // EMMITS
     /************************************************/
@@ -72,8 +84,6 @@ module.exports = (ioObjects) => {
     //     }
     //   });
     // }, 10000);
-
-    checkPlayers();
   });
 
   /************************************************/
@@ -108,5 +118,16 @@ module.exports = (ioObjects) => {
         },
       });
     }
+
+    callTimeOut(checkPlayers, 2000);
   };
+
+  const callTimeOut = (callback, time) => {
+    console.log('callTimeOut');
+    setTimeout(() => {
+      callback();
+    }, time);
+  };
+
+  callTimeOut(checkPlayers, 2000);
 };

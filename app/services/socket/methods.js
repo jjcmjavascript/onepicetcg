@@ -1,7 +1,8 @@
 const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
-const { getConnectedSchema, getRoomSchema, gameSchema } = require('./schemas');
+const { getConnectedSchema, getRoomSchema } = require('./schemas');
+const gameEffects = require('./effects');
 
 const evaluateRockPaperScissors = (playerA, playerB) => {
   const results = [
@@ -27,12 +28,30 @@ const evaluateRockPaperScissors = (playerA, playerB) => {
 };
 
 const getCurrentPlayerAndRivalId = ({ room, ioState }) => {
-  const { currentPlayer, playerAId, playerBId } = ioState.rooms[room].game;
+  const { currentTurnPlayerId, playerAId, playerBId } =
+    ioState.rooms[room].game;
 
   return {
-    currentPlayerId: currentPlayer,
-    rivalPlayerId: currentPlayer === playerAId ? playerBId : playerAId,
+    currentTurnPlayerId: currentTurnPlayerId,
+    rivalPlayerId: currentTurnPlayerId === playerAId ? playerBId : playerAId,
   };
+};
+
+const getCurrentBoardFromClientSocket = ({ clientSocket, room, ioState }) => {
+  const currentRoom = ioState.rooms[room];
+
+  return currentRoom[clientSocket.id].board;
+};
+
+const setNewBoardToClientSocket = ({
+  clientSocket,
+  room,
+  ioState,
+  newBoard,
+}) => {
+  let currentRoom = ioState.rooms[room];
+
+  currentRoom[clientSocket.id].board = newBoard;
 };
 
 const removePlayerFromRoom = (socket, ioState) => {
@@ -229,7 +248,6 @@ const mulligan = ({
 
 const checkMulliganEnd = ({
   socket,
-  clientSocket,
   payload,
   ioState,
   callbacks: { emitGameRefreshPhase, emitGameRivalRefreshPhase },
@@ -245,9 +263,6 @@ const checkMulliganEnd = ({
     const currentPlayer =
       game.currentPlayer === playerAId ? playerAId : playerBId;
     const rivalId = currentPlayer === playerAId ? playerBId : playerAId;
-
-    console.log(currentPlayer);
-    console.log(rivalId);
 
     emitGameRefreshPhase({
       socket,
@@ -267,6 +282,53 @@ const checkMulliganEnd = ({
   }
 };
 
+const drawPhase = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callbacks: { emitPhaseDraw, emitRivalPhaseDraw },
+}) => {
+  const currentBoard = getCurrentBoardFromClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+  });
+
+  const board = gameEffects.draw(currentBoard, 1);
+
+  setNewBoardToClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+    board,
+  });
+
+  const { currentTurnPlayerId, rivalPlayerId } = getCurrentPlayerAndRivalId({
+    room: payload.room,
+    ioState,
+  });
+
+  console.log(currentTurnPlayerId, rivalPlayerId);
+
+  emitPhaseDraw({
+    socket,
+    playerId: currentTurnPlayerId,
+    payload: {
+      room: payload.room,
+      board,
+    },
+  });
+
+  // emitRivalPhaseDraw({
+  //   socket,
+  //   rivalPlayerId,
+  //   payload: {
+  //     room: payload.room,
+  //   },
+  // });
+};
+
 module.exports = {
   evaluateRockPaperScissors,
   removePlayerFromRoom,
@@ -281,4 +343,5 @@ module.exports = {
   mulligan,
   checkMulliganEnd,
   getCurrentPlayerAndRivalId,
+  drawPhase,
 };

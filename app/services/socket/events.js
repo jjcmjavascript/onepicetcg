@@ -143,6 +143,27 @@ const emitGameRivalRefreshPhase = ({ socket, playerId, payload }) => {
   });
 };
 
+const emitPhaseDraw = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_PHASES_DRAW);
+
+  console.log(
+    payload.board,
+    Object.keys(payload.board),
+  )
+  socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_DRAW, {
+    room: payload.room,
+    board: payload.board,
+  });
+};
+
+const emitRivalPhaseDraw = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_RIVAL_PHASES_DRAW);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_REFRESH, {
+    room: payload.room,
+  });
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
@@ -155,6 +176,8 @@ module.exports = {
   emitMulligan,
   emitGameRefreshPhase,
   emitGameRivalRefreshPhase,
+  emitPhaseDraw,
+  emitRivalPhaseDraw,
 };
 
 // ioServer.of('/duel').to(data.room).emit('duel:setBoard', {

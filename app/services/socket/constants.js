@@ -7,15 +7,18 @@ const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
 const GAME_BOARD_STATE = 'game:boardState';
 const GAME_STATE = 'game:gameState';
 
-const GAME_RIVAL_PHASES_REFRESH = 'game:rivalPhasesRefresh';
-
 //hybrid
 const GAME_TURN_START = 'game:turnStart';
 const GAME_TURN_WAIT = 'game:turnWait';
 const GAME_TURN_END = 'game:turnEnd';
 const GAME_PHASES_REFRESH = 'game:phasesRefresh';
-const GAME_PHASES_DRAW = 'game:phasesRefresh';
 const GAME_PHASES_MULLIGAN = 'game:phasesMulligan';
+const GAME_PHASES_REFRESH_END = 'game:phasesRefreshEnd';
+const GAME_PHASES_DRAW = 'game:phasesDraw';
+const GAME_PHASES_DRAW_END = 'game:phasesDrawEnd';
+
+const GAME_RIVAL_PHASES_REFRESH = 'game:rivalPhasesRefresh';
+const GAME_RIVAL_PHASES_DRAW = 'game:rivalPhasesDraw';
 
 // LISTENERS
 const GAME_ROCK_PAPER_SCISSORS_CHOISE = 'game:rockPaperScissorsChoise';
@@ -37,8 +40,11 @@ module.exports = {
   GAME_TURN_WAIT,
   GAME_TURN_END,
   GAME_PHASES_REFRESH,
-  GAME_PHASES_DRAW,
 
   GAME_MULLIGAN,
   GAME_RIVAL_PHASES_REFRESH,
+  GAME_PHASES_REFRESH_END,
+  GAME_PHASES_DRAW,
+  GAME_PHASES_DRAW_END,
+  GAME_RIVAL_PHASES_DRAW,
 };

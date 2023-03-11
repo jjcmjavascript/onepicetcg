@@ -95,7 +95,6 @@ class DeckController {
         success: 'Deck saved successfully',
       });
     } catch (e) {
-      console.log(e);
       if (transaction.state === 'pending') {
         await transaction.rollback();
       }
@@ -130,7 +129,6 @@ class DeckController {
       if (transaction.state === 'pending') {
         await transaction.rollback();
       }
-      console.log(e);
       return response.status(500).json({
         errors: ['Error deleting deck'],
       });
