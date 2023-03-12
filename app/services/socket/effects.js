@@ -10,7 +10,7 @@ const draw = (board, quantity = 1) => {
   };
 };
 
-const addDon = (board, quantity = 1) => {
+const drawDon = (board, quantity = 1) => {
   const { dons, costs } = board;
 
   board.costs = [...costs, ...dons.splice(0, quantity)];
@@ -25,6 +25,6 @@ const removeDon = (board, quantity = 1) => {
 };
 module.exports = {
   draw,
-  addDon,
+  drawDon,
   removeDon,
 };

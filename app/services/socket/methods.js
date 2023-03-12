@@ -43,15 +43,10 @@ const getCurrentBoardFromClientSocket = ({ clientSocket, room, ioState }) => {
   return currentRoom[clientSocket.id].board;
 };
 
-const setNewBoardToClientSocket = ({
-  clientSocket,
-  room,
-  ioState,
-  newBoard,
-}) => {
+const setNewBoardToClientSocket = ({ clientSocket, room, ioState, board }) => {
   let currentRoom = ioState.rooms[room];
 
-  currentRoom[clientSocket.id].board = newBoard;
+  currentRoom[clientSocket.id].board = board;
 };
 
 const removePlayerFromRoom = (socket, ioState) => {
@@ -361,13 +356,14 @@ const donPhase = ({
   callbacks: { emitPhaseDon, emitRivalPhaseDon },
 }) => {
   const game = ioState.rooms[payload.room].game;
+
   const currentBoard = getCurrentBoardFromClientSocket({
     clientSocket,
     room: payload.room,
     ioState,
   });
 
-  const board = gameEffects.don(
+  const board = gameEffects.drawDon(
     currentBoard,
     game.currentTurnNumber == 1 ? 1 : 2
   );
@@ -397,8 +393,8 @@ const donPhase = ({
     socket,
     playerId: rivalPlayerId,
     payload: {
-      board,
       room: payload.room,
+      board,
     },
   });
 };

@@ -69,7 +69,7 @@ module.exports = (ioObjects) => {
       });
     });
 
-    socket.on(constants.GAME_PHASES_DRAW_END, (payload) => {
+    socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
       ioMethods.donPhase({
         socket: ioServer,
         clientSocket: socket,
