@@ -38,7 +38,10 @@ module.exports = (ioObjects) => {
         clientSocket: socket,
         payload,
         ioState,
-        callback: ioEvents.emitMulligan,
+        callbacks: {
+          emitMulligan: ioEvents.emitMulligan,
+          emitRivalMulligan: ioEvents.emitRivalMulligan,
+        },
       });
 
       ioMethods.checkMulliganEnd({
@@ -46,7 +49,36 @@ module.exports = (ioObjects) => {
         clientSocket: socket,
         payload,
         ioState,
-        callback: ioEvents.emitGameRefreshPhase,
+        callbacks: {
+          emitGameRefreshPhase: ioEvents.emitGameRefreshPhase,
+          emitGameRivalRefreshPhase: ioEvents.emitGameRivalRefreshPhase,
+        },
+      });
+    });
+
+    socket.on(ioConstants.GAME_PHASES_REFRESH_END, (payload) => {
+      ioMethods.drawPhase({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callbacks: {
+          emitPhaseDraw: ioEvents.emitPhaseDraw,
+          emitRivalPhaseDraw: ioEvents.emitRivalPhaseDraw,
+        },
+      });
+    });
+
+    socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
+      ioMethods.donPhase({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callbacks: {
+          emitPhaseDon: ioEvents.emitPhaseDon,
+          emitRivalPhaseDon: ioEvents.emitRivalPhaseDon,
+        },
       });
     });
 
@@ -69,8 +101,6 @@ module.exports = (ioObjects) => {
     //     }
     //   });
     // }, 10000);
-
-    checkPlayers();
   });
 
   /************************************************/
@@ -105,5 +135,16 @@ module.exports = (ioObjects) => {
         },
       });
     }
+
+    callTimeOut(checkPlayers, 2000);
   };
+
+  const callTimeOut = (callback, time) => {
+    console.log('callTimeOut');
+    setTimeout(() => {
+      callback();
+    }, time);
+  };
+
+  callTimeOut(checkPlayers, 2000);
 };

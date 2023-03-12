@@ -1,10 +1,6 @@
 /**
  * @param {SocketIoObject} socket
- * @return {Object}
- * @return object.socket
- * @return object.id
- * @return object.isPlaying
- * @return object.deckId
+ * @return {Object: {Int id, Object socket, Boolean isPlaying, Int deckId}}
  */
 const getConnectedSchema = (socket) => {
   return {
@@ -19,31 +15,31 @@ const getConnectedSchema = (socket) => {
  * @returns {Object}
  * @property {Object} mulligan
  * @property {Boolean} mulligan.did
- * @property {Boolean} mulligan.avaible
+ * @property {Boolean} mulligan.available
  * @property {Object} turns
  * @property {Object} turns[turnId][socketEvents]
  */
 const gameSchema = (playerA, playerB) => {
   return {
-    rockPaperScissorWinner: null,
+    currentTurnPlayerId: 0,
+    currentPhase: 'mulligan',
     currentTurnNumber: 1,
+    rockPaperScissorWinner: null,
     playerAId: playerA.id,
     playerBId: playerB.id,
-    currentTurnPlayerId: 0,
-    currentPhase: "mulligan",
     [playerA.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
-        avaible: true,
-      }
+        available: true,
+      },
     },
     [playerB.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
-        avaible: true,
-      }
+        available: true,
+      },
     },
   };
 };
@@ -59,6 +55,7 @@ const getBoardSchema = () => {
     dons: [],
     lives: [],
     deck: [],
+    hand: [],
   };
 };
 

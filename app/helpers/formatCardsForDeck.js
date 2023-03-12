@@ -14,6 +14,8 @@ function formatCardsForDeck({ deck, idGenerator, types }) {
       cards.push({
         ...card,
         uuid: idGenerator(),
+        underCardId: null,
+        overCardId: null,
       });
     }
   });
@@ -22,6 +24,8 @@ function formatCardsForDeck({ deck, idGenerator, types }) {
     cards.push({
       ...don,
       uuid: idGenerator(),
+      underCardId: null,
+      overCardId: null,
     });
   }
 

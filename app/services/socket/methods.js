@@ -1,7 +1,8 @@
 const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
-const { getConnectedSchema, getRoomSchema, gameSchema } = require('./schemas');
+const { getConnectedSchema, getRoomSchema } = require('./schemas');
+const gameEffects = require('./effects');
 
 const evaluateRockPaperScissors = (playerA, playerB) => {
   const results = [
@@ -24,6 +25,28 @@ const evaluateRockPaperScissors = (playerA, playerB) => {
   }
 
   return null;
+};
+
+const getCurrentPlayerAndRivalId = ({ room, ioState }) => {
+  const { currentTurnPlayerId, playerAId, playerBId } =
+    ioState.rooms[room].game;
+
+  return {
+    currentTurnPlayerId: currentTurnPlayerId,
+    rivalPlayerId: currentTurnPlayerId === playerAId ? playerBId : playerAId,
+  };
+};
+
+const getCurrentBoardFromClientSocket = ({ clientSocket, room, ioState }) => {
+  const currentRoom = ioState.rooms[room];
+
+  return currentRoom[clientSocket.id].board;
+};
+
+const setNewBoardToClientSocket = ({ clientSocket, room, ioState, board }) => {
+  let currentRoom = ioState.rooms[room];
+
+  currentRoom[clientSocket.id].board = board;
 };
 
 const removePlayerFromRoom = (socket, ioState) => {
@@ -174,7 +197,13 @@ const setWinnerInGameState = ({ ioState, roomName, winner }) => {
   room.game.currentTurnPlayerId = winner;
 };
 
-const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
+const mulligan = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callbacks: { emitMulligan, emitRivalMulligan },
+}) => {
   const room = ioState.rooms[payload.room];
   const currentPlayer = room[clientSocket.id];
   const currentPlayerBoard = currentPlayer.board;
@@ -201,23 +230,34 @@ const mulligan = ({ socket, clientSocket, payload, ioState, callback }) => {
   game[clientSocket.id].mulligan.did = payload.mulligan;
   game[clientSocket.id].mulligan.available = false;
 
-  callback({
+  // board emit
+  const { playerAId, playerBId } = room.game;
+
+  emitMulligan({
     socket,
-    clientSocket,
+    playerId: clientSocket.id,
     payload: {
       room: payload.room,
       board: currentPlayerBoard,
-      playerId: clientSocket.id,
+    },
+  });
+
+  emitRivalMulligan({
+    socket,
+    playerId: clientSocket.id === playerAId ? playerBId : playerAId,
+    payload: {
+      room: payload.room,
+      board: currentPlayerBoard,
     },
   });
 };
 
 const checkMulliganEnd = ({
   socket,
-  clientSocket,
   payload,
+  clientSocket,
   ioState,
-  callback,
+  callbacks: { emitGameRefreshPhase, emitGameRivalRefreshPhase },
 }) => {
   const room = ioState.rooms[payload.room];
   const game = room.game;
@@ -227,13 +267,136 @@ const checkMulliganEnd = ({
     !game[playerAId].mulligan.available &&
     !game[playerBId].mulligan.available
   ) {
-    callback({
+    const { currentTurnPlayerId, rivalPlayerId } = getCurrentPlayerAndRivalId({
+      room: payload.room,
+      ioState,
+    });
+
+    const board = getCurrentBoardFromClientSocket({
+      clientSocket,
+      room: payload.room,
+      ioState,
+    });
+
+    emitGameRefreshPhase({
       socket,
+      playerId: currentTurnPlayerId,
       payload: {
         room: payload.room,
+        board,
+      },
+    });
+
+    emitGameRivalRefreshPhase({
+      socket,
+      playerId: rivalPlayerId,
+      payload: {
+        room: payload.room,
+        board,
       },
     });
   }
+};
+
+const drawPhase = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callbacks: { emitPhaseDraw, emitRivalPhaseDraw },
+}) => {
+  const currentBoard = getCurrentBoardFromClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+  });
+
+  const game = ioState.rooms[payload.room].game;
+  const board = gameEffects.draw(
+    currentBoard,
+    game.currentTurnNumber == 1 ? 0 : 1
+  );
+
+  setNewBoardToClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+    board,
+  });
+
+  const { currentTurnPlayerId, rivalPlayerId } = getCurrentPlayerAndRivalId({
+    room: payload.room,
+    ioState,
+  });
+
+  emitPhaseDraw({
+    socket,
+    playerId: currentTurnPlayerId,
+    payload: {
+      room: payload.room,
+      board,
+    },
+  });
+
+  emitRivalPhaseDraw({
+    socket,
+    playerId: rivalPlayerId,
+    payload: {
+      board,
+      room: payload.room,
+    },
+  });
+};
+
+const donPhase = ({
+  socket,
+  clientSocket,
+  payload,
+  ioState,
+  callbacks: { emitPhaseDon, emitRivalPhaseDon },
+}) => {
+  const game = ioState.rooms[payload.room].game;
+
+  const currentBoard = getCurrentBoardFromClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+  });
+
+  const board = gameEffects.drawDon(
+    currentBoard,
+    game.currentTurnNumber == 1 ? 1 : 2
+  );
+
+  setNewBoardToClientSocket({
+    clientSocket,
+    room: payload.room,
+    ioState,
+    board,
+  });
+
+  const { currentTurnPlayerId, rivalPlayerId } = getCurrentPlayerAndRivalId({
+    room: payload.room,
+    ioState,
+  });
+
+  emitPhaseDon({
+    socket,
+    playerId: currentTurnPlayerId,
+    payload: {
+      room: payload.room,
+      board,
+    },
+  });
+
+  emitRivalPhaseDon({
+    socket,
+    playerId: rivalPlayerId,
+    payload: {
+      room: payload.room,
+      board,
+    },
+  });
 };
 
 module.exports = {
@@ -249,4 +412,7 @@ module.exports = {
   setWinnerInGameState,
   mulligan,
   checkMulliganEnd,
+  getCurrentPlayerAndRivalId,
+  drawPhase,
+  donPhase,
 };
