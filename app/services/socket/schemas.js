@@ -1,10 +1,6 @@
 /**
  * @param {SocketIoObject} socket
- * @return {Object}
- * @return object.socket
- * @return object.id
- * @return object.isPlaying
- * @return object.deckId
+ * @return {Object: {Int id, Object socket, Boolean isPlaying, Int deckId}}
  */
 const getConnectedSchema = (socket) => {
   return {
@@ -26,25 +22,24 @@ const getConnectedSchema = (socket) => {
 const gameSchema = (playerA, playerB) => {
   return {
     currentTurnPlayerId: 0,
-    currentPhase: "mulligan",
-    rockPaperScissorWinner: null,
+    currentPhase: 'mulligan',
     currentTurnNumber: 1,
+    rockPaperScissorWinner: null,
     playerAId: playerA.id,
     playerBId: playerB.id,
-
     [playerA.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
         available: true,
-      }
+      },
     },
     [playerB.id]: {
       turnPlays: {},
       mulligan: {
         did: false,
         available: true,
-      }
+      },
     },
   };
 };

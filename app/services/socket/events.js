@@ -31,25 +31,28 @@ const emitDuelCanceled = (socket, payload) => {
   socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
 };
 
-/**
- * @param {Object SocketIo} socket
- * @param {Object {room}} payload
- */
-const emitBoardState = ({ socket, payload, ioState }) => {
-  console.log(constants.GAME_BOARD_STATE);
+const emitInitialBoardState = ({ socket, payload, ioState }) => {
+  console.log(constants.GAME_INITIAL_BOARD_STATE);
+
   const [playerA, playerB] = Object.values(ioState.rooms[payload.room]);
 
-  socket.of('/duel').to(playerA.socket.id).emit(constants.GAME_BOARD_STATE, {
-    room: payload.room,
-    board: playerA.board,
-    name: 'Player A',
-  });
+  socket
+    .of('/duel')
+    .to(playerA.socket.id)
+    .emit(constants.GAME_INITIAL_BOARD_STATE, {
+      room: payload.room,
+      board: playerA.board,
+      rivalBoard: playerB.board,
+    });
 
-  socket.of('/duel').to(playerB.socket.id).emit(constants.GAME_BOARD_STATE, {
-    room: payload.room,
-    board: playerB.board,
-    name: 'Player B',
-  });
+  socket
+    .of('/duel')
+    .to(playerB.socket.id)
+    .emit(constants.GAME_INITIAL_BOARD_STATE, {
+      room: payload.room,
+      board: playerB.board,
+      rivalBoard: playerA.board,
+    });
 };
 
 const emitGameState = ({ socket, payload, ioState }) => {
@@ -61,18 +64,6 @@ const emitGameState = ({ socket, payload, ioState }) => {
   });
 };
 
-/**
- * @param {Object SocketIo} socket
- * @param {Object SocketIo} clientSocket
- * @param {Object {room, choise}} payload
- * @param {Object} state
- * @param {Object} state.connected
- * @param {Object} state.rooms
- * @param {Object} state.rooms[payload.room]
- * @param {Object} state.rooms[payload.room]
- * @param {Object} state.rooms[payload.room][payload.socket.id]
- * @param {Object} state.rooms[payload.room][payload.socket.id].rockPaperScissorChoice
- */
 const onRockPaperScissorsChoise = (socket, clientSocket, payload, ioState) => {
   console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE, payload);
 
@@ -99,7 +90,7 @@ const onRockPaperScissorsChoise = (socket, clientSocket, payload, ioState) => {
     });
 
     if (winner) {
-      emitBoardState({ socket, payload, ioState });
+      emitInitialBoardState({ socket, payload, ioState });
       emitGameState({ socket, payload, ioState });
       emitMulliganPhase({ socket, payload });
     }
@@ -121,10 +112,22 @@ const emitMulliganPhase = ({ socket, payload }) => {
   });
 };
 
-const emitMulligan = ({ socket, clientSocket, payload }) => {
+const emitMulligan = ({ socket, playerId, payload }) => {
   console.log(constants.GAME_MULLIGAN);
 
-  socket.of('/duel').to(clientSocket.id).emit(constants.GAME_MULLIGAN, payload);
+  socket.of('/duel').to(playerId).emit(constants.GAME_MULLIGAN, {
+    room: payload.room,
+    board: payload.board,
+  });
+};
+
+const emitRivalMulligan = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_RIVAL_MULLIGAN);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_MULLIGAN, {
+    room: payload.room,
+    board: payload.board,
+  });
 };
 
 const emitGameRefreshPhase = ({ socket, playerId, payload }) => {
@@ -132,6 +135,7 @@ const emitGameRefreshPhase = ({ socket, playerId, payload }) => {
 
   socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_REFRESH, {
     room: payload.room,
+    board: payload.board,
   });
 };
 
@@ -140,16 +144,13 @@ const emitGameRivalRefreshPhase = ({ socket, playerId, payload }) => {
 
   socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_REFRESH, {
     room: payload.room,
+    board: payload.board,
   });
 };
 
 const emitPhaseDraw = ({ socket, playerId, payload }) => {
   console.log(constants.GAME_PHASES_DRAW);
 
-  console.log(
-    payload.board,
-    Object.keys(payload.board),
-  )
   socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_DRAW, {
     room: payload.room,
     board: payload.board,
@@ -161,6 +162,25 @@ const emitRivalPhaseDraw = ({ socket, playerId, payload }) => {
 
   socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_REFRESH, {
     room: payload.room,
+    board: payload.board,
+  });
+};
+
+const emitPhaseDon = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_PHASES_DON);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_DON, {
+    room: payload.room,
+    board: payload.board,
+  });
+};
+
+const emitRivalPhaseDon = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_RIVAL_PHASES_DON);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_DON, {
+    room: payload.room,
+    board: payload.board,
   });
 };
 
@@ -172,15 +192,13 @@ module.exports = {
   emitDuelCanceled,
   onRockPaperScissorsChoise,
   onDeckSelected,
-  emitBoardState,
+  emitInitialBoardState,
   emitMulligan,
   emitGameRefreshPhase,
   emitGameRivalRefreshPhase,
   emitPhaseDraw,
   emitRivalPhaseDraw,
+  emitRivalMulligan,
+  emitPhaseDon,
+  emitRivalPhaseDon,
 };
-
-// ioServer.of('/duel').to(data.room).emit('duel:setBoard', {
-//   player: playerId,
-//   board: player.board,
-// });

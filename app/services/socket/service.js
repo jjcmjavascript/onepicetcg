@@ -38,7 +38,10 @@ module.exports = (ioObjects) => {
         clientSocket: socket,
         payload,
         ioState,
-        callback: ioEvents.emitMulligan,
+        callbacks: {
+          emitMulligan: ioEvents.emitMulligan,
+          emitRivalMulligan: ioEvents.emitRivalMulligan,
+        },
       });
 
       ioMethods.checkMulliganEnd({
@@ -65,6 +68,20 @@ module.exports = (ioObjects) => {
         },
       });
     });
+
+    socket.on(constants.GAME_PHASES_DRAW_END, (payload) => {
+      ioMethods.donPhase({
+        socket: ioServer,
+        clientSocket: socket,
+        payload,
+        ioState,
+        callbacks: {
+          emitPhaseDon: ioEvents.emitPhaseDon,
+          emitRivalPhaseDon: ioEvents.emitRivalPhaseDon,
+        },
+      });
+    });
+
     /************************************************/
     // EMMITS
     /************************************************/
