@@ -1,14 +1,13 @@
-const https = require('https');
-const express = require('express'); 
+const http = require('http');
+const express = require('express');
 
-module.exports = (()=>{
-    const server = express();
-    const httpServer  =  https.createServer(server);
+module.exports = (() => {
+  const server = express();
+  const httpServer = http.Server(server);
 
-    return {
-        https,
-        express,
-        server,
-        httpServer
-    }
-})(); 
+  return {
+    express,
+    server,
+    httpServer,
+  };
+})();

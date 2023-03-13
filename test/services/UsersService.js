@@ -1,67 +1,66 @@
-class UserService 
-{
-    constructor(users = []){
-        this.users = users;
+class UserService {
+  constructor(users = []) {
+    this.users = users;
+  }
+
+  /*
+   * @param Object conditions
+   *   @param Function<Boolean> | null where
+   *   @param Integer | null offset
+   *   @param Integer | null limit
+   */
+  resolver(conditions) {
+    if (conditions) {
+      Object.keys(conditions).forEach((methodName) => {
+        this[methodName](conditions[methodName]);
+      });
     }
 
-    /* 
-    * @param Object conditions
-    *   @param Function<Boolean> | null where 
-    *   @param Integer | null offset 
-    *   @param Integer | null limit 
-    */
-    resolver(conditions){
-        if(conditions){
-            Object.keys(conditions).forEach(methodName => {
-                this[methodName](conditions[methodName]);
-            }); 
-        }; 
+    return this;
+  }
 
-        return this;
+  offset(offset = 1) {
+    if (offset > 0) {
+      this.users = this.users.slice(offset);
     }
 
-    offset(offset = 1){
-        if(offset > 0 ){
-            this.users = this.users.slice(offset);
-        }
+    return this;
+  }
 
-        return this; 
+  limit(limit = null) {
+    if (limit !== null && limit <= this.users.length) {
+      this.users.length = limit;
     }
 
-    limit(limit = null){
-        if(limit !== null && limit <= this.users.length){ 
-            this.users.length = limit
-        };
-
-        return this;
-    }
-    where(callback){
-        if(typeof callback == 'function'){
-            this.users = this.users.filter(callback)
-        }
-        
-        return this;  
+    return this;
+  }
+  where(callback) {
+    if (typeof callback == 'function') {
+      this.users = this.users.filter(callback);
     }
 
-    findAll(conditions = null){
-        return this.resolver(conditions).users;
-    }
+    return this;
+  }
 
-    findOne(callback){
-        return typeof callback == 'function' 
-            ? this.users.find(callback)
-            : undefined;
-    }
-    
-    setUser(users){
-        this.users = users; 
+  findAll(conditions = null) {
+    return this.resolver(conditions).users;
+  }
 
-        return this;
-    }
+  findOne(callback) {
+    return typeof callback == 'function'
+      ? this.users.find(callback)
+      : undefined;
+  }
 
-    count(){
-        return this.users.length;
-    }
+  setUser(users) {
+    this.users = users;
+
+    return this;
+  }
+
+  count() {
+    return this.users.length;
+  }
 }
 
 module.exports = UserService;

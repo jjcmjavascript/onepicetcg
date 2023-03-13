@@ -18,7 +18,7 @@ module.exports = (controller) => {
       {
         method: 'get',
         path: '/user/list',
-        middlewares: [requireAuth],
+        middlewares: [],
         handler: async (req, res) => controller.getAll(req, res),
       },
     ]
