@@ -1,4 +1,4 @@
-const { validation } = require('../../middlewares');
+const { validation, requireAuth } = require('../../middlewares');
 const schemas = require('./schemas');
 
 module.exports = (controller) => {
@@ -18,6 +18,7 @@ module.exports = (controller) => {
       {
         method: 'get',
         path: '/user/list',
+        middlewares: [requireAuth],
         handler: async (req, res) => controller.getAll(req, res),
       },
     ]

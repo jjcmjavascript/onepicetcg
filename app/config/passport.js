@@ -10,12 +10,18 @@ module.exports = function (passport) {
         secretOrKey: process.env.JWT_SECRET
     };
     passport.use(new StrategyJwt(opts, function (jwt_payload, callback) {
-        db.findUser({email: jwt_payload.user_email}, function (res) {
-            var user = res;
+        console.log(jwt_payload);
+        db.users.findAll({
+			where: {
+				email: jwt_payload.email
+			}
+		}).then( data => {
+            var user = data;
             delete user.password;
             callback(null, user);
-        }, function (err) {
+        }).catch( err => {
             return callback(err, false);
         });
+    
     }));
 };
