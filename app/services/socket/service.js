@@ -140,7 +140,6 @@ module.exports = (ioObjects) => {
   };
 
   const callTimeOut = (callback, time) => {
-    console.log('callTimeOut');
     setTimeout(() => {
       callback();
     }, time);
