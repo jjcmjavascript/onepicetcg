@@ -24,7 +24,7 @@ class AuthController {
 					.status(500)
 					.json({errors: ['Error user not found'],})
 			}
-			console.log(this.encriptPassword(password));
+			
 			if( !this.comparePassword(password, userFound.password)) {
 				return res
 				.status(401)
@@ -41,7 +41,6 @@ class AuthController {
 
 			return res.status(200).json({ token: jwtToken, });
 		}).catch( err => {
-      console.log('hola', 'error => ', err);
 			return res.status(500).json({
 				errors: 'Oops!, something\'s wrong',
 				message: err
@@ -80,7 +79,6 @@ class AuthController {
 	async getAll(req, res) {
 		const users = await this.dbUser.findAll()
 		.catch( (err) => {
-			console.log('Error', err);
 			return res.status(500)
 			.json({
 				message: 'Oops! something is wrong',
