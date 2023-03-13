@@ -52,12 +52,11 @@ class AuthController {
 
 	async create(req, res) {
 		const { email, name, password} = req.body;
-		console.log('name', name);
-
+		const passwordEncrypt = this.encriptPassword(password);
 		const user = await this.dbUser.create({
 			name,
 			email,
-			password,
+			password: passwordEncrypt,
 		}, { fields: ['name', 'email', 'password'] })
 		.catch((err) => {
 			console.log('Error', err);
