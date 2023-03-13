@@ -12,7 +12,7 @@ class AuthController {
 
 	async login(req, res) {
 		const { email, password } = req.body;
-		
+
 		const userExistByEmail = await this.dbUser.findAll({
 			where: {
 				email: email
@@ -30,28 +30,30 @@ class AuthController {
 				.status(401)
 				.json({ message: "Email or password does not match!" });
 			}
-	
-			const jwyToken = jwt.sign(
+    
+			const jwtToken = jwt.sign(
 				{id: userFound.id , email: userFound.email },
 				process.env.JWT_SECRET, {
 					expiresIn: process.env.JWT_EXPIRES_IN
-				}
+				},
 			)
+      
 
-			return res.status(200).json({ token: jwyToken, }); 
+			return res.status(200).json({ token: jwtToken, });
 		}).catch( err => {
+      console.log('hola', 'error => ', err);
 			return res.status(500).json({
 				errors: 'Oops!, something\'s wrong',
 				message: err
 			});
 		});
- 
+
 	}
 
 	async create(req, res) {
 		const { email, name, password} = req.body;
 		console.log('name', name);
-		
+
 		const user = await this.dbUser.create({
 			name,
 			email,
@@ -60,8 +62,8 @@ class AuthController {
 		.catch((err) => {
 			console.log('Error', err);
 			return res.status(500)
-			.json({ 
-				message: 'Oops! something\'s wrong', 
+			.json({
+				message: 'Oops! something\'s wrong',
 				errors: `Error ${err}`}
 			)
 		});
@@ -81,8 +83,8 @@ class AuthController {
 		.catch( (err) => {
 			console.log('Error', err);
 			return res.status(500)
-			.json({ 
-				message: 'Oops! something is wrong', 
+			.json({
+				message: 'Oops! something is wrong',
 				errors: `Error ${err}`}
 			)
 		});

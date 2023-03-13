@@ -3,6 +3,7 @@ const path = require("path");
 const { server, express } = require("./app/services/server");
 const { notFound, helmet, morgan, cors } = require("./app/middlewares");
 const { v1 } = require("./app/routes");
+const passport = require("passport");
 
 (async () => {
   try {
@@ -14,7 +15,10 @@ const { v1 } = require("./app/routes");
       express.urlencoded({ extended: false, limit: "2mb", parameterLimit: 100 })
     );
     server.use(morgan("tiny"));
-
+    
+    server.use(passport.initialize());
+    require('./app/config/passport')(passport);
+    
     server.use("/v1", v1);
     server.use("*", notFound);
 
