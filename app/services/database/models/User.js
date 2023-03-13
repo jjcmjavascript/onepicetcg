@@ -1,20 +1,47 @@
-'use strict';
-const { Model } = require('sequelize');
+const { Op } = require('sequelize');
 
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    static associate(models) {}
-  }
-  
-  User.init({
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'users',
-    tableName: 'users',
-  });
+const { ParamsFormatter } = require('../../../helpers');
 
-  return User;
-};
+module.exports = (db, DataTypes) => {
+  const user = db.define(
+    'users', 
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: 'email del usuario'
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: 'password del usuario'
+      },
+    },
+    {}
+  );
+
+  const filterByEmail = (email) => {
+    if (!email) return { where: {} };
+
+    return {
+      where: {
+        email: {
+          [Op.regexp]: email,
+        },
+      },
+    };
+  };
+
+  user.addScope('filterByEmail', filterByEmail);
+
+  return user;
+}
