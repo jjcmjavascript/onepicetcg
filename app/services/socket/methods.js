@@ -2,7 +2,7 @@ const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
 const { getConnectedSchema, getRoomSchema } = require('./schemas');
-const gameEffects = require('./effects');
+const Game = require('../game/GameCore');
 
 const evaluateRockPaperScissors = (playerA, playerB) => {
   const results = [
@@ -312,10 +312,8 @@ const drawPhase = ({
   });
 
   const game = ioState.rooms[payload.room].game;
-  const board = gameEffects.draw(
-    currentBoard,
-    game.currentTurnNumber == 1 ? 0 : 1
-  );
+
+  const board = Game.effects.drawCardByDrawPhase(currentBoard);
 
   setNewBoardToClientSocket({
     clientSocket,
@@ -363,7 +361,7 @@ const donPhase = ({
     ioState,
   });
 
-  const board = gameEffects.drawDon(
+  const board = Game.effects.loadDonFronDonPhase(
     currentBoard,
     game.currentTurnNumber == 1 ? 1 : 2
   );
