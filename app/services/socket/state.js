@@ -20,9 +20,6 @@ const state = {
   get playingCount() {
     return this.connectedCount - this.notPlayingCount;
   },
-  get roomsCount() {
-    return Object.values(this.rooms).length;
-  },
 };
 
 module.exports = state;

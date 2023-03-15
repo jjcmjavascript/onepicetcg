@@ -1,19 +1,24 @@
-class Player {
-  constructor(id) {
-    this.id = id;
-    this.deckId = 0;
-    this.rockPaperScissorChoice = null;
+const { formatCardsForDeck, deckDivider, shuffle } = require('../../helpers');
+const types = require('../../helpers/cardTypes');
 
-    this.leader = null;
-    this.don = null;
-    this.stage = null;
-    this.characters = [];
-    this.costs = [];
-    this.trash = [];
-    this.dons = [];
-    this.lives = [];
-    this.deck = [];
-    this.hand = [];
+class Player {
+  /**
+   * @param {Object{ id , deckId}} player
+   */
+  constructor(player) {
+    this.id = player.id;
+    this.deckId = player.deckId;
+    this.rockPaperScissorChoice = player.rockPaperScissorChoice || null;
+    this.leader = player.leader || null;
+    this.don = player.don || null;
+    this.stage = player.stage || null;
+    this.characters = player.characters || [];
+    this.costs = player.costs || [];
+    this.trash = player.trash || [];
+    this.dons = player.dons || [];
+    this.lives = player.lives || [];
+    this.deck = player.deck || [];
+    this.hand = player.hand || [];
   }
 
   get board() {
@@ -28,6 +33,60 @@ class Player {
       lives: this.lives,
       deck: this.deck,
       hand: this.hand,
+    };
+  }
+
+  static factoryFromObject(schema) {
+    const player = new Player({});
+    player.setDataFromObject(schema);
+
+    return player;
+  }
+
+  setDeckFromDeckModel(deck) {
+    this.setDataFromObject(this.getFormatedDeckFromDeckModel(deck));
+  }
+
+  setDataFromObject(schema) {
+    Object.keys(schema).forEach((key) => {
+      let value = schema[key];
+      if (Array.isArray(value)) {
+        value = [...value];
+      } else if (value && typeof value === 'object') {
+        value = { ...value };
+      }
+      this[key] = value;
+    });
+  }
+
+  /**
+   * @param {Array [CardModel]} deck
+   */
+  getFormatedDeckFromDeckModel(deck) {
+    const playerDeckStructure = formatCardsForDeck({
+      deck,
+      types,
+    });
+
+    const playerDeckSplitted = deckDivider({
+      deck: playerDeckStructure,
+      types,
+    });
+
+    const playerDeckShuffled = shuffle(playerDeckSplitted.characters);
+    const hand = playerDeckShuffled.splice(0, 5);
+
+    return {
+      hand,
+      deck: playerDeckShuffled,
+      don: playerDeckSplitted.don,
+      leader: playerDeckSplitted.leader,
+      dons: playerDeckSplitted.dons,
+      lives: [],
+      trash: [],
+      stage: null,
+      characters: [],
+      costs: [],
     };
   }
 }

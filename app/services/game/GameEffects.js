@@ -7,7 +7,7 @@ class GameEffects {
   /**
    * @param {GameState} game
    * @param {PlayerState} playerState
-   * @returns
+   * @returns {PlayerState, GameState}
    */
   drawCardByDrawPhase(gameState, playerState) {
     const canDraw = this.gameEffectsRules.drawCardByDrawPhase({
@@ -30,6 +30,11 @@ class GameEffects {
     };
   }
 
+  /**
+   * @param {GameState} game
+   * @param {PlayerState} playerState
+   * @returns {PlayerState, GameState}
+   */
   loadDonFronDonPhase(gameState, playerState) {
     const canDraw = this.gameEffectsRules.loadDonFronDonPhase({
       currentTurnNumber: gameState.currentTurnNumber,

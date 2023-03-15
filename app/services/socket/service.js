@@ -1,6 +1,8 @@
+const Game = require('../game/GameCore');
+const RockPaperScissors = require('../rockPaperScissor');
+
 module.exports = (ioObjects) => {
-  const { ioServer, ioState, ioEvents, ioConstants, ioMethods, database } =
-    ioObjects;
+  const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
 
   ioServer.on('connection', (socket) => {
     console.log('Client connected');
@@ -12,20 +14,24 @@ module.exports = (ioObjects) => {
   });
 
   ioServer.of('/duel').on('connection', (socket) => {
-    if (!ioMethods.waiterExist(ioState, socket)) {
-      ioMethods.setWaiter(ioState, socket);
+    if (!Game.playerIsWaiting({ playerId: socket.id })) {
+      Game.setPlayerToWait({ clientSocket: socket });
     }
 
     /************************************************/
     // LISTENERS
     /************************************************/
-
-    socket.on('disconnect', () => {
-      // ioMethods.removePlayerFromRoom(socket);
-    });
-
-    socket.on(ioConstants.GAME_DECK_SELECTED, (data) => {
-      ioEvents.onDeckSelected(socket, data, ioState);
+    socket.on(ioConstants.GAME_DECK_SELECTED, (payload) => {
+      ioEvents.onDeckSelected({
+        payload,
+        clientSocket: socket,
+        callback: (id, deckId) => {
+          Game.setDeckIdToConnectedPlayer({
+            playerId: id,
+            deckId: deckId,
+          });
+        },
+      });
     });
 
     socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
@@ -82,6 +88,14 @@ module.exports = (ioObjects) => {
       });
     });
 
+    socket.on('disconnect', () => {
+      // ioMethods.removePlayerFromRoom(socket);
+    });
+
+    // if (!ioMethods.waiterExist(ioState, socket)) {
+    //   ioMethods.setWaiter(ioState, socket);
+    // }
+
     /************************************************/
     // EMMITS
     /************************************************/
@@ -107,9 +121,10 @@ module.exports = (ioObjects) => {
   // CHECK PLAYERS
   /************************************************/
   const checkPlayers = () => {
-    let notPlaying = ioState.notPlayingArr;
-    console.log('Players connected:', ioState.connectedCount);
-    console.log('Players Playing:', ioState.playingCount);
+    const notPlaying = Game.avaiblesToPlay;
+
+    console.log('Players connected:', Game.connectedCount);
+    console.log('Players Playing:', Game.playingCount);
 
     while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
       const [playerA, playerB] = notPlaying.splice(0, 2);
@@ -117,18 +132,15 @@ module.exports = (ioObjects) => {
       const roomName = ioMethods.setPlayersInRoom({
         playerA,
         playerB,
-        ioState,
       });
 
       ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
 
-      ioMethods.preparePlayerState({
-        playerA,
-        playerB,
-        ioState,
-        database,
-        roomName,
-        callback: async () => {
+      Game.initNewGame({
+        boardId: roomName,
+        playerAId: playerA.id,
+        playerBId: playerB.id,
+        callback: () => {
           ioEvents.emitDuelInitRockPaperScissors(ioServer, {
             room: roomName,
           });
@@ -140,7 +152,6 @@ module.exports = (ioObjects) => {
   };
 
   const callTimeOut = (callback, time) => {
-    console.log('callTimeOut');
     setTimeout(() => {
       callback();
     }, time);

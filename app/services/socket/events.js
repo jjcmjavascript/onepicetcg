@@ -99,9 +99,10 @@ const onRockPaperScissorsChoise = (socket, clientSocket, payload, ioState) => {
   }
 };
 
-const onDeckSelected = (socket, payload, ioState) => {
-  console.log(constants.GAME_DECK_SELECTED, payload);
-  ioState.connected[socket.id].deckId = payload.deckId;
+const onDeckSelected = ({ clientSocket, payload, callback: setPlayerId }) => {
+  console.log(constants.GAME_DECK_SELECTED);
+
+  setPlayerId(clientSocket.id, payload.deckId);
 };
 
 const emitMulliganPhase = ({ socket, payload }) => {
