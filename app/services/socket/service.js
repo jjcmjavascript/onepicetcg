@@ -22,20 +22,64 @@ module.exports = (ioObjects) => {
     // LISTENERS
     /************************************************/
     socket.on(ioConstants.GAME_DECK_SELECTED, (payload) => {
-      ioEvents.onDeckSelected({
-        payload,
-        clientSocket: socket,
-        callback: (id, deckId) => {
-          Game.setDeckIdToConnectedPlayer({
-            playerId: id,
-            deckId: deckId,
-          });
-        },
+      ioEvents.onDeckSelected();
+
+      Game.setDeckIdToConnectedPlayer({
+        playerId: socket.id,
+        deckId: payload.deckId,
       });
     });
 
     socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
-      ioEvents.onRockPaperScissorsChoise(ioServer, socket, payload, ioState);
+      ioEvents.onRockPaperScissorsChoise();
+
+      const board = Game.getBoardById({ id: payload.room });
+      const playerA = board.playerA;
+      const playerB = board.playerB;
+
+      RockPaperScissors.init({
+        playerA,
+        playerB,
+        roomId: payload.room,
+      });
+
+      RockPaperScissors.setChoise({
+        choise: payload.choice,
+        roomId: payload.room,
+        playerId: socket.id,
+      });
+
+      const avaibleToEval = RockPaperScissors.avaibleToEval({
+        roomId: payload.room,
+      });
+
+      if (avaibleToEval) {
+        const result = RockPaperScissors.evaluate({
+          currentPlayerId: socket.id,
+          roomId: payload.room,
+        });
+
+        ioEvents.emitDuelRockPaperScissorsResult(socket, {
+          room: payload.room,
+          result: result ? result.id : null,
+        });
+
+        if (!result) {
+          RockPaperScissors.clearChoise({ roomId: payload.room });
+        } else {
+          ioEvents.emitInitialBoardState({ socket, payload, ioState });
+          ioEvents.emitGameState({ socket, payload, ioState });
+          ioEvents.emitMulliganPhase({ socket, payload });
+
+          RockPaperScissors.destroy({ roomId: payload.room });
+
+          // methods.setWinnerInGameState({
+          //   ioState,
+          //   roomName: payload.room,
+          //   winner,
+          // });
+        }
+      }
     });
 
     socket.on(ioConstants.GAME_MULLIGAN, (payload) => {

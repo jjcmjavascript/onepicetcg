@@ -64,45 +64,12 @@ const emitGameState = ({ socket, payload, ioState }) => {
   });
 };
 
-const onRockPaperScissorsChoise = (socket, clientSocket, payload, ioState) => {
-  console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE, payload);
-
-  const [playerA, playerB] = methods.getPlayerChoise({
-    clientSocket,
-    payload,
-    ioState,
-  });
-
-  if (playerA.rockPaperScissorChoice && playerB.rockPaperScissorChoice) {
-    const result = methods.evaluateRockPaperScissors(playerA, playerB);
-
-    const winner = result ? result.socket.id : null;
-
-    methods.setWinnerInGameState({
-      ioState,
-      roomName: payload.room,
-      winner,
-    });
-
-    emitDuelRockPaperScissorsResult(socket, {
-      room: payload.room,
-      result: winner,
-    });
-
-    if (winner) {
-      emitInitialBoardState({ socket, payload, ioState });
-      emitGameState({ socket, payload, ioState });
-      emitMulliganPhase({ socket, payload });
-    }
-
-    methods.clearPlayerChoiseFromResult({ result, playerA, playerB });
-  }
+const onRockPaperScissorsChoise = ({}) => {
+  console.log(constants.GAME_ROCK_PAPER_SCISSORS_CHOISE);
 };
 
-const onDeckSelected = ({ clientSocket, payload, callback: setPlayerId }) => {
+const onDeckSelected = ({}) => {
   console.log(constants.GAME_DECK_SELECTED);
-
-  setPlayerId(clientSocket.id, payload.deckId);
 };
 
 const emitMulliganPhase = ({ socket, payload }) => {
@@ -202,4 +169,5 @@ module.exports = {
   emitRivalMulligan,
   emitPhaseDon,
   emitRivalPhaseDon,
+  emitGameState,
 };

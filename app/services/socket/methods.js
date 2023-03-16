@@ -57,36 +57,6 @@ const removeWaiter = (ioState, socket) => {
   delete ioState.connected[socket.id];
 };
 
-/**
- * @param {Object SocketClient} clientSocket
- * @param {Object { room, choice }} payload
- * @param {Object ioState } state
- * @returns {Array} [playerA, playerB]
- */
-const getPlayerChoise = ({ clientSocket, payload, ioState }) => {
-  const room = ioState.rooms[payload.room];
-  const [playerA, playerB] = Object.values(room);
-  const currentPlayer = room[clientSocket.id];
-
-  if (!currentPlayer.rockPaperScissorChoice) {
-    currentPlayer.rockPaperScissorChoice = payload.choice;
-  }
-
-  return [playerA, playerB];
-};
-
-/**
- * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerA
- * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerB
- * @return {undefined}
- */
-const clearPlayerChoiseFromResult = ({ result, playerA, playerB }) => {
-  if (!result) {
-    playerA.rockPaperScissorChoice = null;
-    playerB.rockPaperScissorChoice = null;
-  }
-};
-
 const setWinnerInGameState = ({ ioState, roomName, winner }) => {
   const room = ioState.rooms[roomName];
 
@@ -298,8 +268,6 @@ module.exports = {
   removePlayerFromRoom,
   setPlayersInRoom,
   removeWaiter,
-  getPlayerChoise,
-  clearPlayerChoiseFromResult,
   setWinnerInGameState,
   mulligan,
   checkMulliganEnd,
