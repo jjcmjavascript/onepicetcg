@@ -23,25 +23,21 @@ class PaperRockScissors {
       this.rooms[roomId] = {
         playerA,
         playerB,
-        winner: null,
       };
     }
   }
 
-  setChoise({ roomId, playerId, choice }) {
+  setChoice({ roomId, playerId, choice }) {
     const room = this.rooms[roomId];
 
     if (room.playerA.id === playerId && !room.playerA.rockPaperScissorChoice) {
       room.playerA.rockPaperScissorChoice = choice;
-    } else if (
-      room.playerB.id === playerId &&
-      !room.playerB.rockPaperScissorChoice
-    ) {
+    } else if ( room.playerB.id === playerId && !room.playerB.rockPaperScissorChoice) {
       room.playerB.rockPaperScissorChoice = choice;
     }
   }
 
-  clearChoise({ roomId }) {
+  clearChoice({ roomId }) {
     const room = this.rooms[roomId];
 
     room.playerA.rockPaperScissorChoice = null;

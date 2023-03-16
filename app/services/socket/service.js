@@ -30,10 +30,10 @@ module.exports = (ioObjects) => {
       });
     });
 
-    socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOISE, (payload) => {
-      ioEvents.onRockPaperScissorsChoise();
+    socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOICE, (payload) => {
+      ioEvents.onRockPaperScissorsChoice();
 
-      const board = Game.getBoardById({ id: payload.room });
+      const board = Game.getBoardById({ roomId: payload.room });
       const playerA = board.playerA;
       const playerB = board.playerB;
 
@@ -43,12 +43,13 @@ module.exports = (ioObjects) => {
         roomId: payload.room,
       });
 
-      RockPaperScissors.setChoise({
-        choise: payload.choice,
+      RockPaperScissors.setChoice({
+        choice: payload.choice,
         roomId: payload.room,
         playerId: socket.id,
       });
 
+      console.log(payload);
       const avaibleToEval = RockPaperScissors.avaibleToEval({
         roomId: payload.room,
       });
@@ -64,20 +65,22 @@ module.exports = (ioObjects) => {
           result: result ? result.id : null,
         });
 
-        if (!result) {
-          RockPaperScissors.clearChoise({ roomId: payload.room });
-        } else {
-          ioEvents.emitInitialBoardState({ socket, payload, ioState });
-          ioEvents.emitGameState({ socket, payload, ioState });
+        !result && RockPaperScissors.clearChoice({ roomId: payload.room });
+
+        if (result) {
+          room.setWinner(result.id);
+
+          ioEvents.emitInitialBoardState({
+            socket,
+            payload,
+            players: [playerA, playerB],
+          });
+
+          ioEvents.emitGameState({ socket, payload, game: room.game });
+
           ioEvents.emitMulliganPhase({ socket, payload });
 
           RockPaperScissors.destroy({ roomId: payload.room });
-
-          // methods.setWinnerInGameState({
-          //   ioState,
-          //   roomName: payload.room,
-          //   winner,
-          // });
         }
       }
     });

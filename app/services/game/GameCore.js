@@ -77,8 +77,8 @@ class GameCore {
     callback && callback();
   }
 
-  getBoardById(id) {
-    return this.games[id];
+  getBoardById({ roomId }) {
+    return this.games[roomId];
   }
 
   getPlayerBoardById({ id, playerId }) {

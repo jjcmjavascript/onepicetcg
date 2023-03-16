@@ -57,13 +57,6 @@ const removeWaiter = (ioState, socket) => {
   delete ioState.connected[socket.id];
 };
 
-const setWinnerInGameState = ({ ioState, roomName, winner }) => {
-  const room = ioState.rooms[roomName];
-
-  room.game.rockPaperScissorWinner = winner;
-  room.game.currentTurnPlayerId = winner;
-};
-
 const mulligan = ({
   socket,
   clientSocket,
@@ -268,7 +261,6 @@ module.exports = {
   removePlayerFromRoom,
   setPlayersInRoom,
   removeWaiter,
-  setWinnerInGameState,
   mulligan,
   checkMulliganEnd,
   getCurrentPlayerAndRivalId,
