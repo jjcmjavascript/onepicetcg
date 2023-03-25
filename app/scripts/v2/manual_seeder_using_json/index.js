@@ -143,7 +143,7 @@ const {
     if (result.length === 0) {
       const result_1 = await files.create({
         name: cardUrlName,
-        route: `https://nakamadecks.com/imgs/cards/little/${cardUrlName}.png`,
+        route: `https://nakamadecks.com/imgs/cards/little/${cardUrlName}.jpg`,
       });
 
       const result_2 = await files.create({
