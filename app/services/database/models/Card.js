@@ -214,7 +214,7 @@ module.exports = (db, DataTypes) => {
       },
     };
   };
-
+  
   // Scopes
   card.addScope('filterById', filterById);
   card.addScope('filterByName', filterByName);

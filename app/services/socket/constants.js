@@ -29,7 +29,7 @@ const GAME_RIVAL_PHASES_MAIN = 'game:rivalPhasesMain';
 const GAME_RIVAL_PHASES_END = 'game:rivalPhasesEnd';
 
 // LISTENERS
-const GAME_ROCK_PAPER_SCISSORS_CHOISE = 'game:rockPaperScissorsChoise';
+const GAME_ROCK_PAPER_SCISSORS_CHOICE = 'game:rockPaperScissorsChoice';
 const GAME_DECK_SELECTED = 'game:deckSelected';
 const GAME_MULLIGAN = 'game:mulligan';
 
@@ -37,7 +37,7 @@ module.exports = {
   DUEL_JOIN,
   GAME_ROOM_JOIN,
   GAME_ROCK_SCISSORS_PAPER_START,
-  GAME_ROCK_PAPER_SCISSORS_CHOISE,
+  GAME_ROCK_PAPER_SCISSORS_CHOICE,
   GAME_ROCK_SCISSORS_PAPER_RESULT,
   GAME_ROOM_CANCEL,
   GAME_DECK_SELECTED,

@@ -1,10 +1,11 @@
+const { v4: idGenerator } = require('uuid');
+
 /**
  * @param {DeckModel} deck
- * @param {Function} idGenerator
  * @param {Object} types
  * @returns
  */
-function formatCardsForDeck({ deck, idGenerator, types }) {
+function formatCardsForDeck({ deck, types }) {
   const don = deck._cards.find((card) => card.type_id === types.DON);
   const cards = [];
 
