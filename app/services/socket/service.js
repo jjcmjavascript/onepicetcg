@@ -49,7 +49,6 @@ module.exports = (ioObjects) => {
         playerId: socket.id,
       });
 
-      console.log(payload);
       const avaibleToEval = RockPaperScissors.avaibleToEval({
         roomId: payload.room,
       });
