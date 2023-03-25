@@ -7,10 +7,10 @@ const GameDbBrige = require('./GameDbBridgeService');
 
 class GameCore {
   constructor() {
+    this.db = new GameDbBrige();
     this.effects = new GameEffects(new Effects(), new GameEffectsRules());
     this.games = {};
     this.connected = {};
-    this.db = GameDbBrige;
   }
 
   get connectedArr() {
@@ -81,8 +81,8 @@ class GameCore {
     return this.games[roomId];
   }
 
-  getPlayerBoardById({ id, playerId }) {
-    const board = this.getBoardById(id);
+  getPlayerBoardById({ roomId, playerId }) {
+    const board = this.getBoardById(roomId);
 
     return board.getPlayerById(playerId);
   }
@@ -97,6 +97,12 @@ class GameCore {
 
   setDeckIdToConnectedPlayer({ playerId, deckId }) {
     this.connected[playerId].deckId = deckId;
+  }
+
+  setPlayerWinnerFromSelectorTurnGame({ roomId, playerId }) {
+    const board = this.getBoardById({ roomId });
+
+    board.setWinner(playerId);
   }
 
   getConnectedSchema({ clientSocket }) {

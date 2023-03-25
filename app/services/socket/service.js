@@ -5,11 +5,10 @@ module.exports = (ioObjects) => {
   const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
 
   ioServer.on('connection', (socket) => {
-    console.log('Client connected');
+    console.log('Client connected:', socket.id);
 
-    socket.on('disconnect', (a) => {
-      console.log('Client disconnected');
-      delete ioState.connected[socket.id];
+    socket.on('disconnect', (socket) => {
+      console.log('Client disconnected:', socket.id);
     });
   });
 
@@ -17,6 +16,10 @@ module.exports = (ioObjects) => {
     if (!Game.playerIsWaiting({ playerId: socket.id })) {
       Game.setPlayerToWait({ clientSocket: socket });
     }
+
+    socket.on('disconnect', (socket) => {
+      console.log('Client disconnected:', socket);
+    });
 
     /************************************************/
     // LISTENERS
@@ -37,12 +40,6 @@ module.exports = (ioObjects) => {
       const playerA = board.playerA;
       const playerB = board.playerB;
 
-      RockPaperScissors.init({
-        playerA,
-        playerB,
-        roomId: payload.room,
-      });
-
       RockPaperScissors.setChoice({
         choice: payload.choice,
         roomId: payload.room,
@@ -59,29 +56,45 @@ module.exports = (ioObjects) => {
           roomId: payload.room,
         });
 
-        ioEvents.emitDuelRockPaperScissorsResult(socket, {
-          room: payload.room,
-          result: result ? result.id : null,
+        ioEvents.emitDuelRockPaperScissorsResult({
+          socket: ioServer,
+          payload: {
+            room: payload.room,
+            result: result ? result.id : null,
+          },
         });
 
         !result && RockPaperScissors.clearChoice({ roomId: payload.room });
 
         if (result) {
-          room.setWinner(result.id);
-
-          ioEvents.emitInitialBoardState({
-            socket,
-            payload,
-            players: [playerA, playerB],
+          Game.setPlayerWinnerFromSelectorTurnGame({
+            roomId: payload.room,
+            playerId: result.id,
           });
 
-          ioEvents.emitGameState({ socket, payload, game: room.game });
-
-          ioEvents.emitMulliganPhase({ socket, payload });
-
-          RockPaperScissors.destroy({ roomId: payload.room });
+          ioEvents.emitTurnSelectionInit({
+            socket: ioServer,
+            payload: {
+              room: payload.room,
+              playerId: result.id,
+            },
+          });
         }
       }
+    });
+
+    socket.on(ioConstants.GAME_TURN_SELECTION_CHOICE, (payload) => {
+      ioEvents.emitInitialBoardState({
+        socket,
+        payload,
+        players: [playerA, playerB],
+      });
+
+      ioEvents.emitGameState({ socket, payload, game: room.game });
+
+      ioEvents.emitMulliganPhase({ socket, payload });
+
+      RockPaperScissors.destroy({ roomId: payload.room });
     });
 
     socket.on(ioConstants.GAME_MULLIGAN, (payload) => {
@@ -146,7 +159,7 @@ module.exports = (ioObjects) => {
     // EMMITS
     /************************************************/
 
-    ioEvents.emitDuelJoin(ioServer);
+    ioEvents.emitDuelJoin({ socket: ioServer });
 
     // CHECK GAME CANCELED
     // setInterval(() => {
@@ -155,9 +168,9 @@ module.exports = (ioObjects) => {
     //     if (!playerA.socket.connected || !playerB.socket.connected) {
     //       ioMethods.removePlayerFromRoom(playerA.socket, ioState);
 
-    //       ioEvents.emitDuelCanceled(ioServer, {
+    //       ioEvents.emitDuelCanceled({socket: ioServer, payload: {
     //         players: [playerA.socket.id, playerB.socket.id],
-    //       });
+    //       }});
     //     }
     //   });
     // }, 10000);
@@ -175,20 +188,36 @@ module.exports = (ioObjects) => {
     while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
       const [playerA, playerB] = notPlaying.splice(0, 2);
 
-      const roomName = ioMethods.setPlayersInRoom({
+      const roomId = ioMethods.setPlayersInRoom({
         playerA,
         playerB,
       });
 
-      ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
+      ioEvents.emitDuelRoomJoin({
+        socket: ioServer,
+        payload: { room: roomId },
+      });
 
       Game.initNewGame({
-        boardId: roomName,
+        boardId: roomId,
         playerAId: playerA.id,
         playerBId: playerB.id,
         callback: () => {
-          ioEvents.emitDuelInitRockPaperScissors(ioServer, {
-            room: roomName,
+          ioEvents.emitDuelInitRockPaperScissors({
+            socket: ioServer,
+            payload: {
+              room: roomId,
+            },
+          });
+
+          const board = Game.getBoardById({ roomId });
+          const playerA = board.playerA;
+          const playerB = board.playerB;
+
+          RockPaperScissors.init({
+            playerA,
+            playerB,
+            roomId,
           });
         },
       });

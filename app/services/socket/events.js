@@ -1,24 +1,24 @@
 const constants = require('./constants');
 const methods = require('./methods');
 
-const emitDuelJoin = (socket, payload = {}) => {
+const emitDuelJoin = ({ socket, payload }) => {
   console.log(constants.DUEL_JOIN);
   socket.emit(constants.DUEL_JOIN, payload);
 };
-const emitDuelRoomJoin = (socket, payload) => {
+const emitDuelRoomJoin = ({ socket, payload }) => {
   console.log(constants.GAME_ROOM_JOIN, payload.room);
   socket.of('/duel').to(payload.room).emit(constants.GAME_ROOM_JOIN, payload);
 };
 
-const emitDuelInitRockPaperScissors = (socket, payload) => {
-  console.log(constants.GAME_ROCK_SCISSORS_PAPER_START);
+const emitDuelInitRockPaperScissors = ({ socket, payload }) => {
+  console.log(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
   socket
     .of('/duel')
     .to(payload.room)
     .emit(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
 };
 
-const emitDuelRockPaperScissorsResult = (socket, payload) => {
+const emitDuelRockPaperScissorsResult = ({ socket, payload }) => {
   console.log(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
   socket
     .of('/duel')
@@ -26,7 +26,7 @@ const emitDuelRockPaperScissorsResult = (socket, payload) => {
     .emit(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
 };
 
-const emitDuelCanceled = (socket, payload) => {
+const emitDuelCanceled = ({ socket, payload }) => {
   console.log(constants.GAME_ROOM_CANCEL);
   socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
 };
@@ -143,14 +143,25 @@ const emitRivalPhaseDon = ({ socket, playerId, payload }) => {
   });
 };
 
+const emitTurnSelectionInit = ({ socket, payload }) => {
+  console.log(constants.GAME_TURN_SELECTION_INIT);
+
+  socket.of('/duel').to(payload.room).emit(constants.GAME_TURN_SELECTION_INIT, {
+    room: payload.room,
+    playerId: payload.playerId,
+  });
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
   emitDuelInitRockPaperScissors,
   emitDuelRockPaperScissorsResult,
-  emitDuelCanceled,
   onRockPaperScissorsChoice,
   onDeckSelected,
+  emitTurnSelectionInit,
+
+  emitDuelCanceled,
   emitInitialBoardState,
   emitMulligan,
   emitGameRefreshPhase,

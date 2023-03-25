@@ -14,4 +14,4 @@ class GameDbBrige {
   }
 }
 
-module.exports = new GameDbBrige();
+module.exports = GameDbBrige;
