@@ -9,9 +9,9 @@ module.exports = function (passport) {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: process.env.JWT_SECRET,
   };
-
   passport.use(
     new StrategyJwt(opts, function (jwt_payload, callback) {
+      console.log(jwt_payload);
       db.users
         .findAll({
           where: {

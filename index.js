@@ -30,7 +30,7 @@ require('./app/config/passport')(passport);
     );
     server.use(passport.initialize());
 
-    server.use(manualValidationPassport);
+    // server.use(manualValidationPassport);
 
     server.use('/public', express.static(path.join(__dirname, 'public')));
     server.use('/v1', v1);

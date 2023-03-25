@@ -2,30 +2,8 @@ const { v4: idGenerator } = require('uuid');
 const types = require('../../helpers/cardTypes');
 const { shuffle, deckDivider, formatCardsForDeck } = require('../../helpers');
 const { getConnectedSchema, getRoomSchema } = require('./schemas');
-const gameEffects = require('./effects');
 
-const evaluateRockPaperScissors = (playerA, playerB) => {
-  const results = [
-    { name: 'rock', beats: 'scissors' },
-    { name: 'paper', beats: 'rock' },
-    { name: 'scissors', beats: 'paper' },
-  ];
-
-  const playerAResult = results.find(
-    (result) => result.name === playerA.rockPaperScissorChoice
-  );
-  const playerBResult = results.find(
-    (result) => result.name === playerB.rockPaperScissorChoice
-  );
-
-  if (playerAResult.beats === playerBResult.name) {
-    return playerA;
-  } else if (playerBResult.beats === playerAResult.name) {
-    return playerB;
-  }
-
-  return null;
-};
+const Game = require('../game/GameCore');
 
 const getCurrentPlayerAndRivalId = ({ room, ioState }) => {
   const { currentTurnPlayerId, playerAId, playerBId } =
@@ -63,9 +41,8 @@ const removePlayerFromRoom = (socket, ioState) => {
   }
 };
 
-const setPlayersInRoom = ({ playerA, playerB, ioState }) => {
+const setPlayersInRoom = ({ playerA, playerB }) => {
   const roomName = idGenerator();
-  ioState.rooms[roomName] = getRoomSchema(playerA, playerB);
 
   playerA.isPlaying = true;
   playerB.isPlaying = true;
@@ -76,125 +53,8 @@ const setPlayersInRoom = ({ playerA, playerB, ioState }) => {
   return roomName;
 };
 
-const preparePlayerState = async ({
-  playerA,
-  playerB,
-  ioState,
-  database,
-  roomName,
-  callback,
-}) => {
-  let decks = await database.decks.scope(['structureForDeck']).findAll({
-    where: {
-      id: [playerA.deckId, playerB.deckId],
-    },
-  });
-
-  decks = decks.map((deck) => deck.toJSON());
-
-  const playerADeck = decks.find((deck) => deck.id === playerA.deckId);
-  const playerBDeck = decks.find((deck) => deck.id === playerB.deckId);
-
-  // prepare player A state
-  const playerADeckStructure = formatCardsForDeck({
-    deck: playerADeck,
-    idGenerator,
-    types,
-  });
-  const playerADeckSplitted = deckDivider({
-    deck: playerADeckStructure,
-    types,
-  });
-  const playerADeckShuffled = shuffle(playerADeckSplitted.characters);
-  const handA = playerADeckShuffled.splice(0, 5);
-
-  // prepare player B state
-  const playerBDeckStructure = formatCardsForDeck({
-    deck: playerBDeck,
-    idGenerator,
-    types,
-  });
-  const playerBDeckSplitted = deckDivider({
-    deck: playerBDeckStructure,
-    types,
-  });
-  const playerBDeckShuffled = shuffle(playerBDeckSplitted.characters);
-  const handB = playerBDeckShuffled.splice(0, 5);
-
-  // find player A/B state
-  const playerAState = ioState.rooms[roomName][playerA.id];
-  const playerBState = ioState.rooms[roomName][playerB.id];
-
-  playerAState.board = {
-    ...playerAState.board,
-    don: playerADeckSplitted.don,
-    leader: playerADeckSplitted.leader,
-    deck: playerADeckShuffled,
-    dons: playerADeckSplitted.dons,
-    lives: [],
-    hand: handA,
-  };
-
-  playerBState.board = {
-    ...playerBState.board,
-    don: playerBDeckSplitted.don,
-    leader: playerBDeckSplitted.leader,
-    deck: playerBDeckShuffled,
-    dons: playerBDeckSplitted.dons,
-    lives: [],
-    hand: handB,
-  };
-
-  callback();
-};
-
 const removeWaiter = (ioState, socket) => {
   delete ioState.connected[socket.id];
-};
-
-const waiterExist = (ioState, socket) => {
-  return ioState.connected[socket.id];
-};
-
-const setWaiter = (ioState, socket) => {
-  ioState.connected[socket.id] = getConnectedSchema(socket);
-};
-
-/**
- * @param {Object SocketClient} clientSocket
- * @param {Object { room, choice }} payload
- * @param {Object ioState } state
- * @returns {Array} [playerA, playerB]
- */
-const getPlayerChoise = ({ clientSocket, payload, ioState }) => {
-  const room = ioState.rooms[payload.room];
-  const [playerA, playerB] = Object.values(room);
-  const currentPlayer = room[clientSocket.id];
-
-  if (!currentPlayer.rockPaperScissorChoice) {
-    currentPlayer.rockPaperScissorChoice = payload.choice;
-  }
-
-  return [playerA, playerB];
-};
-
-/**
- * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerA
- * @param {Object { socket, board, rockPaperScissorChoice, deckId}} PlayerB
- * @return {undefined}
- */
-const clearPlayerChoiseFromResult = ({ result, playerA, playerB }) => {
-  if (!result) {
-    playerA.rockPaperScissorChoice = null;
-    playerB.rockPaperScissorChoice = null;
-  }
-};
-
-const setWinnerInGameState = ({ ioState, roomName, winner }) => {
-  const room = ioState.rooms[roomName];
-
-  room.game.rockPaperScissorWinner = winner;
-  room.game.currentTurnPlayerId = winner;
 };
 
 const mulligan = ({
@@ -312,10 +172,8 @@ const drawPhase = ({
   });
 
   const game = ioState.rooms[payload.room].game;
-  const board = gameEffects.draw(
-    currentBoard,
-    game.currentTurnNumber == 1 ? 0 : 1
-  );
+
+  const board = Game.effects.drawCardByDrawPhase(currentBoard);
 
   setNewBoardToClientSocket({
     clientSocket,
@@ -363,7 +221,7 @@ const donPhase = ({
     ioState,
   });
 
-  const board = gameEffects.drawDon(
+  const board = Game.effects.loadDonFronDonPhase(
     currentBoard,
     game.currentTurnNumber == 1 ? 1 : 2
   );
@@ -400,16 +258,9 @@ const donPhase = ({
 };
 
 module.exports = {
-  evaluateRockPaperScissors,
   removePlayerFromRoom,
   setPlayersInRoom,
-  preparePlayerState,
   removeWaiter,
-  waiterExist,
-  setWaiter,
-  getPlayerChoise,
-  clearPlayerChoiseFromResult,
-  setWinnerInGameState,
   mulligan,
   checkMulliganEnd,
   getCurrentPlayerAndRivalId,
