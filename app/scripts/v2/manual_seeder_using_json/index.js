@@ -147,7 +147,7 @@ const {
 
       const result_2 = await files.create({
         name: cardUrlName,
-        route: `https://nakamadecks.com/imgs/cards/full/${cardUrlName}.png`,
+        route: `https://nakamadecks.com/imgs/cards/full/${cardUrlName}.jpg`,
       });
 
       dbFiles = [...dbFiles, result_1, result_2];
