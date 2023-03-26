@@ -152,6 +152,18 @@ const emitTurnSelectionInit = ({ socket, payload }) => {
   });
 };
 
+const onTurnSelectionChoice = () => {
+  console.log(constants.GAME_TURN_SELECTION_CHOICE);
+};
+
+const emitTurnSelectionEnd = ({ socket, payload }) => {
+  console.log(constants.GAME_TURN_SELECTION_END);
+
+  socket.of('/duel').to(payload.room).emit(constants.GAME_TURN_SELECTION_END, {
+    room: payload.room,
+  });
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
@@ -160,6 +172,10 @@ module.exports = {
   onRockPaperScissorsChoice,
   onDeckSelected,
   emitTurnSelectionInit,
+  onTurnSelectionChoice,
+  emitTurnSelectionEnd,
+  emitGameState,
+  emitMulliganPhase,
 
   emitDuelCanceled,
   emitInitialBoardState,
@@ -171,6 +187,4 @@ module.exports = {
   emitRivalMulligan,
   emitPhaseDon,
   emitRivalPhaseDon,
-  emitGameState,
-  emitMulliganPhase,
 };

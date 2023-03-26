@@ -105,8 +105,18 @@ module.exports = {
         allowNull: true,
       },
       attack_type: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
+      },
+      eu_usable: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: 0,
+      },
+      asia_usable: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,

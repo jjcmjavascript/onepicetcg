@@ -8,7 +8,6 @@ const {
   cards,
   categories,
   colors,
-  effects,
   files,
   packs,
   types,
@@ -203,6 +202,7 @@ const {
 
         const card = await cards.create({
           ...currentJson,
+          trigger: currentJson.trigger ? parseInt(currentJson.trigger) : 0,
           card_text: currentJson.hability,
           pack_id: packResult.id,
           type_id: typeResult.id,

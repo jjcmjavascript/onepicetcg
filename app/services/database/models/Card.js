@@ -124,7 +124,15 @@ module.exports = (db, DataTypes) => {
         allowNull: true,
       },
       attack_type: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      eu_usable: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
+      asia_usable: {
+        type: DataTypes.BOOLEAN,
         allowNull: true,
       },
     },
@@ -214,7 +222,7 @@ module.exports = (db, DataTypes) => {
       },
     };
   };
-  
+
   // Scopes
   card.addScope('filterById', filterById);
   card.addScope('filterByName', filterByName);

@@ -4,14 +4,16 @@ const RockPaperScissors = require('../rockPaperScissor');
 module.exports = (ioObjects) => {
   const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
 
+  /************************************************/
+  // NAMESPACE: DEFAULT
+  /************************************************/
   ioServer.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
-
-    socket.on('disconnect', (socket) => {
-      console.log('Client disconnected:', socket.id);
-    });
   });
 
+  /************************************************/
+  // NAMESPACE: DUEL
+  /************************************************/
   ioServer.of('/duel').on('connection', (socket) => {
     if (!Game.playerIsWaiting({ playerId: socket.id })) {
       Game.setPlayerToWait({ clientSocket: socket });
@@ -35,10 +37,6 @@ module.exports = (ioObjects) => {
 
     socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOICE, (payload) => {
       ioEvents.onRockPaperScissorsChoice();
-
-      const board = Game.getBoardById({ roomId: payload.room });
-      const playerA = board.playerA;
-      const playerB = board.playerB;
 
       RockPaperScissors.setChoice({
         choice: payload.choice,
@@ -84,15 +82,26 @@ module.exports = (ioObjects) => {
     });
 
     socket.on(ioConstants.GAME_TURN_SELECTION_CHOICE, (payload) => {
+      ioEvents.onTurnSelectionChoice();
+
+      ioEvents.emitTurnSelectionEnd({
+        socket: ioServer,
+        payload,
+      });
+
+      const board = Game.getBoardById({ roomId: payload.room });
+      const playerA = board.playerA;
+      const playerB = board.playerB;
+
       ioEvents.emitInitialBoardState({
-        socket,
+        socket: ioServer,
         payload,
         players: [playerA, playerB],
       });
 
-      ioEvents.emitGameState({ socket, payload, game: room.game });
+      ioEvents.emitGameState({ socket: ioServer, payload, game: board.game });
 
-      ioEvents.emitMulliganPhase({ socket, payload });
+      ioEvents.emitMulliganPhase({ socket: ioServer, payload });
 
       RockPaperScissors.destroy({ roomId: payload.room });
     });
@@ -147,33 +156,10 @@ module.exports = (ioObjects) => {
       });
     });
 
-    socket.on('disconnect', () => {
-      // ioMethods.removePlayerFromRoom(socket);
-    });
-
-    // if (!ioMethods.waiterExist(ioState, socket)) {
-    //   ioMethods.setWaiter(ioState, socket);
-    // }
-
     /************************************************/
     // EMMITS
     /************************************************/
-
     ioEvents.emitDuelJoin({ socket: ioServer });
-
-    // CHECK GAME CANCELED
-    // setInterval(() => {
-    //   Object.values(ioState.rooms).map((room) => {
-    //     const [playerA, playerB] = Object.values(room);
-    //     if (!playerA.socket.connected || !playerB.socket.connected) {
-    //       ioMethods.removePlayerFromRoom(playerA.socket, ioState);
-
-    //       ioEvents.emitDuelCanceled({socket: ioServer, payload: {
-    //         players: [playerA.socket.id, playerB.socket.id],
-    //       }});
-    //     }
-    //   });
-    // }, 10000);
   });
 
   /************************************************/
