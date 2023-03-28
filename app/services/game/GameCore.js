@@ -120,7 +120,6 @@ class GameCore {
     const state = this.getStateById({ stateId });
     const player = state.getPlayerById({ playerId });
 
-    console.log("didMulligan", didMulligan)
     if (didMulligan) {
       const deck = this.effects.shuffle([...player.deck, ...player.hand]);
       player.setHand(deck.splice(0, 5));
