@@ -1,3 +1,5 @@
+const { shuffle } = require('../../helpers');
+
 class GameEffects {
   constructor(effects, gameEffectsRules) {
     this.effects = effects;
@@ -9,7 +11,10 @@ class GameEffects {
    * @param {PlayerState} playerState
    * @returns {PlayerState, GameState}
    */
-  drawCardByDrawPhase(gameState, playerState) {
+  drawCardByDrawPhase({ gameState, playerState }) {
+    let newHand = [];
+    let newDeck = [];
+
     const canDraw = this.gameEffectsRules.drawCardByDrawPhase({
       currentTurnNumber: gameState.currentTurnNumber,
       hand: playerState.hand,
@@ -19,14 +24,13 @@ class GameEffects {
 
     if (canDraw) {
       const { result, changed } = this.effects.drawFromTop(playerState.deck, 1);
-
-      playerState.hand = playerState.hand.concat(result);
-      playerState.deck = changed;
+      newHand = result;
+      newDeck = changed;
     }
 
     return {
-      playerState,
-      gameState,
+      hand: newHand,
+      deck: newDeck,
     };
   }
 
@@ -53,6 +57,10 @@ class GameEffects {
       playerState,
       gameState,
     };
+  }
+
+  shuffle(arr) {
+    return shuffle(arr);
   }
 }
 

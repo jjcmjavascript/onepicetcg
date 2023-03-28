@@ -1,3 +1,5 @@
+const types = require('../../helpers/cardTypes');
+
 const Effects = require('./Effects');
 const GameEffects = require('./GameEffects');
 const GameEffectsRules = require('./GameEffectsRules');
@@ -46,7 +48,7 @@ class GameCore {
    * @param {id} playerAId usually the socket id
    * @param {id} PlayerBId usually the socket id
    */
-  async initNewGame({ boardId, playerAId, playerBId, callback }) {
+  async initNewGame({ stateId, playerAId, playerBId, callback }) {
     const playerA = {
       id: playerAId,
       deckId: this.connected[playerAId].deckId,
@@ -72,19 +74,19 @@ class GameCore {
     PlayerA.setDeckFromDeckModel(playerADeck);
     PlayerB.setDeckFromDeckModel(playerBDeck);
 
-    this.games[boardId] = new GameState(PlayerA, PlayerB);
+    this.games[stateId] = new GameState(PlayerA, PlayerB);
 
     callback && callback();
   }
 
-  getBoardById({ roomId }) {
-    return this.games[roomId];
+  getStateById({ stateId }) {
+    return this.games[stateId];
   }
 
-  getPlayerBoardById({ roomId, playerId }) {
-    const board = this.getBoardById(roomId);
+  getPlayerBoardById({ stateId, playerId }) {
+    const state = this.getStateById(stateId);
 
-    return board.getPlayerById(playerId);
+    return state.getPlayerById(playerId);
   }
 
   playerIsWaiting(playerId) {
@@ -99,10 +101,10 @@ class GameCore {
     this.connected[playerId].deckId = deckId;
   }
 
-  setPlayerWinnerFromSelectorTurnGame({ roomId, playerId }) {
-    const board = this.getBoardById({ roomId });
+  setPlayerWinnerFromSelectorTurnGame({ stateId, playerId }) {
+    const state = this.getStateById({ stateId });
 
-    board.setWinner(playerId);
+    state.setWinner({ playerId });
   }
 
   getConnectedSchema({ clientSocket }) {
@@ -112,6 +114,41 @@ class GameCore {
       deckId: null,
       socket: clientSocket,
     };
+  }
+
+  mulliganPhase({ didMulligan, stateId, playerId }) {
+    const state = this.getStateById({ stateId });
+    const player = state.getPlayerById({ playerId });
+
+    console.log("didMulligan", didMulligan)
+    if (didMulligan) {
+      const deck = this.effects.shuffle([...player.deck, ...player.hand]);
+      player.setHand(deck.splice(0, 5));
+      player.setDeck(deck);
+    }
+
+    player.setLives(player.deck.splice(0, player.leader.lives));
+
+    player.setMulligan(didMulligan);
+  }
+
+  isMulliganAvailable({ stateId }) {
+    const state = this.getStateById({ stateId });
+
+    return state.players.some((player) => player.mulliganAvailable);
+  }
+
+  drawPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+
+    const { hand, deck } = this.effects.drawCardByDrawPhase({
+      gameState,
+      playerState,
+    });
+
+    playerState.setHand(hand);
+    playerState.setDeck(deck);
   }
 }
 

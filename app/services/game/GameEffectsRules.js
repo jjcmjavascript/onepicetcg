@@ -1,8 +1,6 @@
 class GameEffectsRules {
   constructor() {
     this.id = 1;
-
-    console.log('GameEffectsRules');
   }
 
   drawCardByDrawPhase({
@@ -12,7 +10,7 @@ class GameEffectsRules {
     quantity: quantityToDraw,
   }) {
     return (
-      currentTurnNumber != 1 && hand.length < 7 && deck.length >= quantityToDraw
+      currentTurnNumber > 1 && hand.length < 7 && deck.length >= quantityToDraw
     );
   }
 

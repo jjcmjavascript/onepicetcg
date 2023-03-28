@@ -176,15 +176,15 @@ module.exports = {
   emitTurnSelectionEnd,
   emitGameState,
   emitMulliganPhase,
-
-  emitDuelCanceled,
-  emitInitialBoardState,
+  emitRivalMulligan,
   emitMulligan,
   emitGameRefreshPhase,
   emitGameRivalRefreshPhase,
+
+  emitDuelCanceled,
+  emitInitialBoardState,
   emitPhaseDraw,
   emitRivalPhaseDraw,
-  emitRivalMulligan,
   emitPhaseDon,
   emitRivalPhaseDon,
 };

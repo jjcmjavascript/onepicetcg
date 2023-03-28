@@ -13,6 +13,8 @@ class GameState {
 
     this.playerA = playerA;
     this.playerB = playerB;
+
+    this.plays = [];
   }
 
   /**
@@ -20,10 +22,6 @@ class GameState {
    */
   get players() {
     return [this.playerA, this.playerB];
-  }
-
-  getPlayerById(id) {
-    return this.players.find((player) => player.id === id);
   }
 
   get game() {
@@ -35,9 +33,28 @@ class GameState {
     };
   }
 
-  setWinner(id) {
-    this.rockPaperScissorWinner = id;
-    this.currentTurnPlayerId = id;
+  setWinner({ playerId }) {
+    this.rockPaperScissorWinner = playerId;
+    this.currentTurnPlayerId = playerId;
+  }
+
+  getCurrentPlayerAndOpponent({ playerId }) {
+    const player = this.getPlayerById({ playerId });
+    const opponent = this.players.find((player) => player.id !== playerId);
+
+    return [player, opponent];
+  }
+
+  getPlayerOnTurn() {
+    return this.getPlayerById({ playerId: this.currentTurnPlayerId });
+  }
+
+  getPlayerById({ playerId }) {
+    return this.players.find((player) => player.id === playerId);
+  }
+
+  getOtherPlayerById({ playerId }) {
+    return this.players.find((player) => player.id !== playerId);
   }
 }
 

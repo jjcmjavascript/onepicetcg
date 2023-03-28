@@ -9,6 +9,8 @@ class Player {
     this.id = player.id;
     this.deckId = player.deckId;
     this.rockPaperScissorChoice = player.rockPaperScissorChoice || null;
+    this.didMulligan = player.didMulligan || false;
+    this.mulliganAvailable = player.mulliganAvailable || true;
     this.leader = player.leader || null;
     this.don = player.don || null;
     this.stage = player.stage || null;
@@ -88,6 +90,23 @@ class Player {
       characters: [],
       costs: [],
     };
+  }
+
+  setHand(hand) {
+    this.hand = hand;
+  }
+
+  setDeck(deck) {
+    this.deck = deck;
+  }
+
+  setLives(lives) {
+    this.lives = lives;
+  }
+
+  setMulligan(didMulligan) {
+    this.didMulligan = didMulligan;
+    this.mulliganAvailable = false;
   }
 }
 
