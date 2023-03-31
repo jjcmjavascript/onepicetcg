@@ -2,21 +2,26 @@ const Game = require('../game/GameCore');
 const RockPaperScissors = require('../rockPaperScissor');
 
 module.exports = (ioObjects) => {
-  const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
+  const { ioServer, ioEvents, ioConstants, ioMethods } = ioObjects;
 
+  /************************************************/
+  // NAMESPACE: DEFAULT
+  /************************************************/
   ioServer.on('connection', (socket) => {
-    console.log('Client connected');
-
-    socket.on('disconnect', (a) => {
-      console.log('Client disconnected');
-      delete ioState.connected[socket.id];
-    });
+    console.log('Client connected:', socket.id);
   });
 
+  /************************************************/
+  // NAMESPACE: DUEL
+  /************************************************/
   ioServer.of('/duel').on('connection', (socket) => {
     if (!Game.playerIsWaiting({ playerId: socket.id })) {
       Game.setPlayerToWait({ clientSocket: socket });
     }
+
+    socket.on('disconnect', (socket) => {
+      console.log('Client disconnected:', socket);
+    });
 
     /************************************************/
     // LISTENERS
@@ -32,16 +37,6 @@ module.exports = (ioObjects) => {
 
     socket.on(ioConstants.GAME_ROCK_PAPER_SCISSORS_CHOICE, (payload) => {
       ioEvents.onRockPaperScissorsChoice();
-
-      const board = Game.getBoardById({ roomId: payload.room });
-      const playerA = board.playerA;
-      const playerB = board.playerB;
-
-      RockPaperScissors.init({
-        playerA,
-        playerB,
-        roomId: payload.room,
-      });
 
       RockPaperScissors.setChoice({
         choice: payload.choice,
@@ -59,108 +54,199 @@ module.exports = (ioObjects) => {
           roomId: payload.room,
         });
 
-        ioEvents.emitDuelRockPaperScissorsResult(socket, {
-          room: payload.room,
-          result: result ? result.id : null,
+        ioEvents.emitDuelRockPaperScissorsResult({
+          socket: ioServer,
+          payload: {
+            room: payload.room,
+            result: result ? result.id : null,
+          },
         });
 
         !result && RockPaperScissors.clearChoice({ roomId: payload.room });
 
         if (result) {
-          room.setWinner(result.id);
-
-          ioEvents.emitInitialBoardState({
-            socket,
-            payload,
-            players: [playerA, playerB],
+          Game.setPlayerWinnerFromSelectorTurnGame({
+            stateId: payload.room,
+            playerId: result.id,
           });
 
-          ioEvents.emitGameState({ socket, payload, game: room.game });
-
-          ioEvents.emitMulliganPhase({ socket, payload });
-
-          RockPaperScissors.destroy({ roomId: payload.room });
+          ioEvents.emitTurnSelectionInit({
+            socket: ioServer,
+            payload: {
+              room: payload.room,
+              playerId: result.id,
+            },
+          });
         }
       }
     });
 
-    socket.on(ioConstants.GAME_MULLIGAN, (payload) => {
-      ioMethods.mulligan({
+    socket.on(ioConstants.GAME_TURN_SELECTION_CHOICE, (payload) => {
+      ioEvents.onTurnSelectionChoice();
+
+      ioEvents.emitTurnSelectionEnd({
         socket: ioServer,
-        clientSocket: socket,
         payload,
-        ioState,
-        callbacks: {
-          emitMulligan: ioEvents.emitMulligan,
-          emitRivalMulligan: ioEvents.emitRivalMulligan,
-        },
       });
 
-      ioMethods.checkMulliganEnd({
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerA = state.playerA;
+      const playerB = state.playerB;
+
+      ioEvents.emitInitialBoardState({
         socket: ioServer,
-        clientSocket: socket,
         payload,
-        ioState,
-        callbacks: {
-          emitGameRefreshPhase: ioEvents.emitGameRefreshPhase,
-          emitGameRivalRefreshPhase: ioEvents.emitGameRivalRefreshPhase,
-        },
+        players: [playerA, playerB],
       });
+
+      ioEvents.emitGameState({ socket: ioServer, payload, game: state.game });
+
+      RockPaperScissors.destroy({ roomId: payload.room });
+
+      ioEvents.emitMulliganPhase({ socket: ioServer, payload });
+    });
+
+    socket.on(ioConstants.GAME_MULLIGAN, (payload) => {
+      Game.mulliganPhase({
+        stateId: payload.room,
+        playerId: socket.id,
+        didMulligan: payload.mulligan,
+      });
+
+      const state = Game.getStateById({ stateId: payload.room });
+      const [player, opponent] = state.getCurrentPlayerAndOpponent({
+        playerId: socket.id,
+      });
+
+      const _payload = {
+        room: payload.room,
+        board: player.board,
+      };
+
+      ioEvents.emitMulligan({
+        socket: ioServer,
+        playerId: player.id,
+        payload: _payload,
+      });
+
+      ioEvents.emitRivalMulligan({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: _payload,
+      });
+
+      const isAvailable = Game.isMulliganAvailable({
+        stateId: payload.room,
+      });
+
+      if (!isAvailable) {
+        const playerOnTurn = state.getPlayerOnTurn();
+        const opponent = state.getOtherPlayerById({
+          playerId: playerOnTurn.id,
+        });
+
+        ioEvents.emitGameRefreshPhase({
+          socket: ioServer,
+          playerId: playerOnTurn.id,
+          payload: {
+            room: payload.room,
+            board: playerOnTurn.board,
+          },
+        });
+
+        ioEvents.emitGameRivalRefreshPhase({
+          socket: ioServer,
+          playerId: opponent.id,
+          payload: {
+            room: payload.room,
+            board: playerOnTurn.board,
+          },
+        });
+      }
     });
 
     socket.on(ioConstants.GAME_PHASES_REFRESH_END, (payload) => {
-      ioMethods.drawPhase({
+      Game.drawPhase({ stateId: payload.room });
+
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
+
+      ioEvents.emitPhaseDraw({
         socket: ioServer,
-        clientSocket: socket,
-        payload,
-        ioState,
-        callbacks: {
-          emitPhaseDraw: ioEvents.emitPhaseDraw,
-          emitRivalPhaseDraw: ioEvents.emitRivalPhaseDraw,
+        playerId: playerOnTurn.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
+
+      ioEvents.emitRivalPhaseDraw({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
         },
       });
     });
 
     socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
-      ioMethods.donPhase({
+      Game.donPhase({ stateId: payload.room });
+
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
+
+      ioEvents.emitPhaseDon({
         socket: ioServer,
-        clientSocket: socket,
-        payload,
-        ioState,
-        callbacks: {
-          emitPhaseDon: ioEvents.emitPhaseDon,
-          emitRivalPhaseDon: ioEvents.emitRivalPhaseDon,
+        playerId: playerOnTurn.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
+
+      ioEvents.emitRivalPhaseDon({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
         },
       });
     });
 
-    socket.on('disconnect', () => {
-      // ioMethods.removePlayerFromRoom(socket);
-    });
+    socket.on(ioConstants.GAME_PHASES_DON_END, (payload) => {
+      Game.mainPhase({ stateId: payload.room });
 
-    // if (!ioMethods.waiterExist(ioState, socket)) {
-    //   ioMethods.setWaiter(ioState, socket);
-    // }
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
+
+      ioEvents.emitPhaseMain({
+        socket: ioServer,
+        playerId: playerOnTurn.id,
+        payload,
+      });
+
+      ioEvents.emitPhaseMainRival({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload,
+      });
+    });
 
     /************************************************/
     // EMMITS
     /************************************************/
-
-    ioEvents.emitDuelJoin(ioServer);
-
-    // CHECK GAME CANCELED
-    // setInterval(() => {
-    //   Object.values(ioState.rooms).map((room) => {
-    //     const [playerA, playerB] = Object.values(room);
-    //     if (!playerA.socket.connected || !playerB.socket.connected) {
-    //       ioMethods.removePlayerFromRoom(playerA.socket, ioState);
-
-    //       ioEvents.emitDuelCanceled(ioServer, {
-    //         players: [playerA.socket.id, playerB.socket.id],
-    //       });
-    //     }
-    //   });
-    // }, 10000);
+    ioEvents.emitDuelJoin({ socket: ioServer });
   });
 
   /************************************************/
@@ -175,20 +261,36 @@ module.exports = (ioObjects) => {
     while (notPlaying.length !== 0 && notPlaying.length % 2 === 0) {
       const [playerA, playerB] = notPlaying.splice(0, 2);
 
-      const roomName = ioMethods.setPlayersInRoom({
+      const roomId = ioMethods.setPlayersInRoom({
         playerA,
         playerB,
       });
 
-      ioEvents.emitDuelRoomJoin(ioServer, { room: roomName });
+      ioEvents.emitDuelRoomJoin({
+        socket: ioServer,
+        payload: { room: roomId },
+      });
 
       Game.initNewGame({
-        boardId: roomName,
+        stateId: roomId,
         playerAId: playerA.id,
         playerBId: playerB.id,
         callback: () => {
-          ioEvents.emitDuelInitRockPaperScissors(ioServer, {
-            room: roomName,
+          ioEvents.emitDuelInitRockPaperScissors({
+            socket: ioServer,
+            payload: {
+              room: roomId,
+            },
+          });
+
+          const state = Game.getStateById({ stateId: roomId });
+          const playerA = state.playerA;
+          const playerB = state.playerB;
+
+          RockPaperScissors.init({
+            playerA,
+            playerB,
+            roomId,
           });
         },
       });

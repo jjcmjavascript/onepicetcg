@@ -1,24 +1,24 @@
 const constants = require('./constants');
 const methods = require('./methods');
 
-const emitDuelJoin = (socket, payload = {}) => {
+const emitDuelJoin = ({ socket, payload }) => {
   console.log(constants.DUEL_JOIN);
   socket.emit(constants.DUEL_JOIN, payload);
 };
-const emitDuelRoomJoin = (socket, payload) => {
+const emitDuelRoomJoin = ({ socket, payload }) => {
   console.log(constants.GAME_ROOM_JOIN, payload.room);
   socket.of('/duel').to(payload.room).emit(constants.GAME_ROOM_JOIN, payload);
 };
 
-const emitDuelInitRockPaperScissors = (socket, payload) => {
-  console.log(constants.GAME_ROCK_SCISSORS_PAPER_START);
+const emitDuelInitRockPaperScissors = ({ socket, payload }) => {
+  console.log(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
   socket
     .of('/duel')
     .to(payload.room)
     .emit(constants.GAME_ROCK_SCISSORS_PAPER_START, payload);
 };
 
-const emitDuelRockPaperScissorsResult = (socket, payload) => {
+const emitDuelRockPaperScissorsResult = ({ socket, payload }) => {
   console.log(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
   socket
     .of('/duel')
@@ -26,7 +26,7 @@ const emitDuelRockPaperScissorsResult = (socket, payload) => {
     .emit(constants.GAME_ROCK_SCISSORS_PAPER_RESULT, payload);
 };
 
-const emitDuelCanceled = (socket, payload) => {
+const emitDuelCanceled = ({ socket, payload }) => {
   console.log(constants.GAME_ROOM_CANCEL);
   socket.of('/duel').emit(constants.GAME_ROOM_CANCEL, payload);
 };
@@ -119,7 +119,7 @@ const emitPhaseDraw = ({ socket, playerId, payload }) => {
 const emitRivalPhaseDraw = ({ socket, playerId, payload }) => {
   console.log(constants.GAME_RIVAL_PHASES_DRAW);
 
-  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_REFRESH, {
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_DRAW, {
     room: payload.room,
     board: payload.board,
   });
@@ -143,23 +143,65 @@ const emitRivalPhaseDon = ({ socket, playerId, payload }) => {
   });
 };
 
+const emitTurnSelectionInit = ({ socket, payload }) => {
+  console.log(constants.GAME_TURN_SELECTION_INIT);
+
+  socket.of('/duel').to(payload.room).emit(constants.GAME_TURN_SELECTION_INIT, {
+    room: payload.room,
+    playerId: payload.playerId,
+  });
+};
+
+const onTurnSelectionChoice = () => {
+  console.log(constants.GAME_TURN_SELECTION_CHOICE);
+};
+
+const emitTurnSelectionEnd = ({ socket, payload }) => {
+  console.log(constants.GAME_TURN_SELECTION_END);
+
+  socket.of('/duel').to(payload.room).emit(constants.GAME_TURN_SELECTION_END, {
+    room: payload.room,
+  });
+};
+
+const emitPhaseMain = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_PHASES_MAIN);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_MAIN, {
+    room: payload.room,
+  });
+};
+
+const emitPhaseMainRival = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_RIVAL_PHASES_MAIN);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_MAIN, {
+    room: payload.room,
+  });
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
   emitDuelInitRockPaperScissors,
   emitDuelRockPaperScissorsResult,
-  emitDuelCanceled,
   onRockPaperScissorsChoice,
   onDeckSelected,
-  emitInitialBoardState,
+  emitTurnSelectionInit,
+  onTurnSelectionChoice,
+  emitTurnSelectionEnd,
+  emitGameState,
+  emitMulliganPhase,
+  emitRivalMulligan,
   emitMulligan,
   emitGameRefreshPhase,
   emitGameRivalRefreshPhase,
+  emitDuelCanceled,
+  emitInitialBoardState,
   emitPhaseDraw,
   emitRivalPhaseDraw,
-  emitRivalMulligan,
   emitPhaseDon,
   emitRivalPhaseDon,
-  emitGameState,
-  emitMulliganPhase,
+  emitPhaseMain,
+  emitPhaseMainRival,
 };

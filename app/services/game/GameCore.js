@@ -1,16 +1,20 @@
+const types = require('../../helpers/cardTypes');
+
 const Effects = require('./Effects');
 const GameEffects = require('./GameEffects');
 const GameEffectsRules = require('./GameEffectsRules');
 const GameState = require('./GameState');
 const Player = require('./Player');
 const GameDbBrige = require('./GameDbBridgeService');
+const GamePhases = require('./GamePhases');
 
 class GameCore {
   constructor() {
+    this.db = new GameDbBrige();
     this.effects = new GameEffects(new Effects(), new GameEffectsRules());
+    this.phases = new GamePhases();
     this.games = {};
     this.connected = {};
-    this.db = GameDbBrige;
   }
 
   get connectedArr() {
@@ -46,7 +50,7 @@ class GameCore {
    * @param {id} playerAId usually the socket id
    * @param {id} PlayerBId usually the socket id
    */
-  async initNewGame({ boardId, playerAId, playerBId, callback }) {
+  async initNewGame({ stateId, playerAId, playerBId, callback }) {
     const playerA = {
       id: playerAId,
       deckId: this.connected[playerAId].deckId,
@@ -72,19 +76,19 @@ class GameCore {
     PlayerA.setDeckFromDeckModel(playerADeck);
     PlayerB.setDeckFromDeckModel(playerBDeck);
 
-    this.games[boardId] = new GameState(PlayerA, PlayerB);
+    this.games[stateId] = new GameState(PlayerA, PlayerB);
 
     callback && callback();
   }
 
-  getBoardById({ roomId }) {
-    return this.games[roomId];
+  getStateById({ stateId }) {
+    return this.games[stateId];
   }
 
-  getPlayerBoardById({ id, playerId }) {
-    const board = this.getBoardById(id);
+  getPlayerBoardById({ stateId, playerId }) {
+    const state = this.getStateById(stateId);
 
-    return board.getPlayerById(playerId);
+    return state.getPlayerById(playerId);
   }
 
   playerIsWaiting(playerId) {
@@ -99,6 +103,12 @@ class GameCore {
     this.connected[playerId].deckId = deckId;
   }
 
+  setPlayerWinnerFromSelectorTurnGame({ stateId, playerId }) {
+    const state = this.getStateById({ stateId });
+
+    state.setWinner({ playerId });
+  }
+
   getConnectedSchema({ clientSocket }) {
     return {
       id: clientSocket.id,
@@ -106,6 +116,64 @@ class GameCore {
       deckId: null,
       socket: clientSocket,
     };
+  }
+
+  mulliganPhase({ didMulligan, stateId, playerId }) {
+    const gameState = this.getStateById({ stateId });
+    const player = gameState.getPlayerById({ playerId });
+
+    if (didMulligan) {
+      const deck = this.effects.shuffle([...player.deck, ...player.hand]);
+      player.setHand(deck.splice(0, 5));
+      player.setDeck(deck);
+    }
+
+    player.setLives(player.deck.splice(0, player.leader.lives));
+    player.setMulligan(didMulligan);
+
+    gameState.setPhase(this.phases.MULLIGAN);
+  }
+
+  isMulliganAvailable({ stateId }) {
+    const state = this.getStateById({ stateId });
+
+    return state.players.some((player) => player.mulliganAvailable);
+  }
+
+  drawPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+
+    const { hand, deck } = this.effects.drawCardByDrawPhase({
+      gameState,
+      playerState,
+    });
+
+    playerState.setHand(hand);
+    playerState.setDeck(deck);
+
+    gameState.setPhase(this.phases.DRAW);
+  }
+
+  donPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+
+    const { costs, dons } = this.effects.loadDonFronDonPhase({
+      gameState,
+      playerState,
+    });
+
+    playerState.setCosts(costs);
+    playerState.setDons(dons);
+
+    gameState.setPhase(this.phases.DON);
+  }
+
+  mainPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+
+    gameState.setPhase(this.phases.MAIN);
   }
 }
 

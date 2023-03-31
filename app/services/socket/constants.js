@@ -6,6 +6,10 @@ const GAME_ROCK_SCISSORS_PAPER_START = 'game:initRockPaperScissors';
 const GAME_ROCK_SCISSORS_PAPER_RESULT = 'game:rockScissorsPaperResult';
 const GAME_INITIAL_BOARD_STATE = 'game:boardState';
 const GAME_STATE = 'game:gameState';
+const GAME_TURN_SELECTION_INIT = 'game:turnSelectionInit';
+const GAME_TURN_SELECTION_CHOICE = 'game:turnSelectionChoice';
+const GAME_TURN_SELECTION_END = 'game:turnSelectionEnd';
+
 //hybrid
 const GAME_TURN_START = 'game:turnStart';
 const GAME_TURN_WAIT = 'game:turnWait';
@@ -59,8 +63,12 @@ module.exports = {
   GAME_RIVAL_PHASES_DON,
   GAME_PHASES_DON_END,
   GAME_PHASES_MAIN,
+
   GAME_PHASES_MAIN_END,
   GAME_PHASE_END,
   GAME_RIVAL_PHASES_MAIN,
   GAME_RIVAL_PHASES_END,
+  GAME_TURN_SELECTION_INIT,
+  GAME_TURN_SELECTION_CHOICE,
+  GAME_TURN_SELECTION_END,
 };

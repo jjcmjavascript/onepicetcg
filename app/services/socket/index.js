@@ -1,6 +1,5 @@
 const { Server } = require('socket.io');
 const ioConfig = require('./config');
-const ioState = require('./state');
 const ioEvents = require('./events');
 const ioConstants = require('./constants');
 const ioMethods = require('./methods');
@@ -12,7 +11,6 @@ module.exports = ({ httpServer, database }) => {
     httpServer,
     ioConfig,
     ioServer,
-    ioState,
     ioEvents,
     ioConstants,
     ioMethods,
