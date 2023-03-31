@@ -108,6 +108,14 @@ class Player {
     this.didMulligan = didMulligan;
     this.mulliganAvailable = false;
   }
+
+  setCosts(costs) {
+    this.costs = costs;
+  }
+
+  setDons(dons) {
+    this.dons = dons;
+  }
 }
 
 module.exports = Player;

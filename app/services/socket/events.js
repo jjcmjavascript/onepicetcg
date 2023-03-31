@@ -119,7 +119,7 @@ const emitPhaseDraw = ({ socket, playerId, payload }) => {
 const emitRivalPhaseDraw = ({ socket, playerId, payload }) => {
   console.log(constants.GAME_RIVAL_PHASES_DRAW);
 
-  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_REFRESH, {
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_DRAW, {
     room: payload.room,
     board: payload.board,
   });
@@ -164,6 +164,22 @@ const emitTurnSelectionEnd = ({ socket, payload }) => {
   });
 };
 
+const emitPhaseMain = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_PHASES_MAIN);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_PHASES_MAIN, {
+    room: payload.room,
+  });
+};
+
+const emitPhaseMainRival = ({ socket, playerId, payload }) => {
+  console.log(constants.GAME_RIVAL_PHASES_MAIN);
+
+  socket.of('/duel').to(playerId).emit(constants.GAME_RIVAL_PHASES_MAIN, {
+    room: payload.room,
+  });
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
@@ -180,11 +196,12 @@ module.exports = {
   emitMulligan,
   emitGameRefreshPhase,
   emitGameRivalRefreshPhase,
-
   emitDuelCanceled,
   emitInitialBoardState,
   emitPhaseDraw,
   emitRivalPhaseDraw,
   emitPhaseDon,
   emitRivalPhaseDon,
+  emitPhaseMain,
+  emitPhaseMainRival,
 };

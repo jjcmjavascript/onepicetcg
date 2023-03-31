@@ -2,7 +2,7 @@ const Game = require('../game/GameCore');
 const RockPaperScissors = require('../rockPaperScissor');
 
 module.exports = (ioObjects) => {
-  const { ioServer, ioState, ioEvents, ioConstants, ioMethods } = ioObjects;
+  const { ioServer, ioEvents, ioConstants, ioMethods } = ioObjects;
 
   /************************************************/
   // NAMESPACE: DEFAULT
@@ -165,48 +165,83 @@ module.exports = (ioObjects) => {
       }
     });
 
-    // socket.on(ioConstants.GAME_PHASES_REFRESH_END, (payload) => {
-    //   Game.drawPhase({ stateId: payload.room });
+    socket.on(ioConstants.GAME_PHASES_REFRESH_END, (payload) => {
+      Game.drawPhase({ stateId: payload.room });
 
-    //   const state = Game.getStateById({ stateId: payload.room });
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
 
-    //   const playerOnTurn = state.getPlayerOnTurn();
+      ioEvents.emitPhaseDraw({
+        socket: ioServer,
+        playerId: playerOnTurn.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
 
-    //   const rivalPlayerId = state.getOtherPlayerById({
-    //     playerId: playerOnTurn.id,
-    //   }).id;
+      ioEvents.emitRivalPhaseDraw({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
+    });
 
-    //   ioEvents.emitPhaseDraw({
-    //     socket: ioServer,
-    //     playerId: playerOnTurn.id,
-    //     payload: {
-    //       room: payload.room,
-    //       board: playerOnTurn.board,
-    //     },
-    //   });
+    socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
+      Game.donPhase({ stateId: payload.room });
 
-    //   ioEvents.emitRivalPhaseDraw({
-    //     socket: ioServer,
-    //     playerId: rivalPlayerId,
-    //     payload: {
-    //       room: payload.room,
-    //       board: playerOnTurn.board,
-    //     },
-    //   });
-    // });
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
 
-    // socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
-    //   ioMethods.donPhase({
-    //     socket: ioServer,
-    //     clientSocket: socket,
-    //     payload,
-    //     ioState,
-    //     callbacks: {
-    //       emitPhaseDon: ioEvents.emitPhaseDon,
-    //       emitRivalPhaseDon: ioEvents.emitRivalPhaseDon,
-    //     },
-    //   });
-    // });
+      ioEvents.emitPhaseDon({
+        socket: ioServer,
+        playerId: playerOnTurn.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
+
+      ioEvents.emitRivalPhaseDon({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn.board,
+        },
+      });
+    });
+
+    socket.on(ioConstants.GAME_PHASES_DON_END, (payload) => {
+      Game.mainPhase({ stateId: payload.room });
+
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
+
+      ioEvents.emitPhaseMain({
+        socket: ioServer,
+        playerId: playerOnTurn.id,
+        payload,
+      });
+
+      ioEvents.emitPhaseMainRival({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload,
+      });
+    });
 
     /************************************************/
     // EMMITS

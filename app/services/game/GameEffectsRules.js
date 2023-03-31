@@ -6,20 +6,10 @@ class GameEffectsRules {
   drawCardByDrawPhase({
     currentTurnNumber,
     hand,
-    deck,
-    quantity: quantityToDraw,
   }) {
     return (
-      currentTurnNumber > 1 && hand.length < 7 && deck.length >= quantityToDraw
+      currentTurnNumber > 1 && hand.length < 7
     );
-  }
-
-  loadDonFronDonPhase({
-    currentTurnNumber,
-    dons,
-    quantity: quantityToDraw,
-  }) {
-    return currentTurnNumber != 1 && dons.length >= quantityToDraw;
   }
 }
 

@@ -56,6 +56,14 @@ class GameState {
   getOtherPlayerById({ playerId }) {
     return this.players.find((player) => player.id !== playerId);
   }
+
+  setTurnPlayerId(playerId) {
+    this.currentTurnPlayerId = playerId;
+  }
+
+  setPhase(phase) {
+    this.currentPhase = phase;
+  }
 }
 
 module.exports = GameState;

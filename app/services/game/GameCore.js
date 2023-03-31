@@ -6,11 +6,13 @@ const GameEffectsRules = require('./GameEffectsRules');
 const GameState = require('./GameState');
 const Player = require('./Player');
 const GameDbBrige = require('./GameDbBridgeService');
+const GamePhases = require('./GamePhases');
 
 class GameCore {
   constructor() {
     this.db = new GameDbBrige();
     this.effects = new GameEffects(new Effects(), new GameEffectsRules());
+    this.phases = new GamePhases();
     this.games = {};
     this.connected = {};
   }
@@ -117,8 +119,8 @@ class GameCore {
   }
 
   mulliganPhase({ didMulligan, stateId, playerId }) {
-    const state = this.getStateById({ stateId });
-    const player = state.getPlayerById({ playerId });
+    const gameState = this.getStateById({ stateId });
+    const player = gameState.getPlayerById({ playerId });
 
     if (didMulligan) {
       const deck = this.effects.shuffle([...player.deck, ...player.hand]);
@@ -127,8 +129,9 @@ class GameCore {
     }
 
     player.setLives(player.deck.splice(0, player.leader.lives));
-
     player.setMulligan(didMulligan);
+
+    gameState.setPhase(this.phases.MULLIGAN);
   }
 
   isMulliganAvailable({ stateId }) {
@@ -148,6 +151,29 @@ class GameCore {
 
     playerState.setHand(hand);
     playerState.setDeck(deck);
+
+    gameState.setPhase(this.phases.DRAW);
+  }
+
+  donPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+
+    const { costs, dons } = this.effects.loadDonFronDonPhase({
+      gameState,
+      playerState,
+    });
+
+    playerState.setCosts(costs);
+    playerState.setDons(dons);
+
+    gameState.setPhase(this.phases.DON);
+  }
+
+  mainPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+
+    gameState.setPhase(this.phases.MAIN);
   }
 }
 

@@ -12,19 +12,18 @@ class GameEffects {
    * @returns {PlayerState, GameState}
    */
   drawCardByDrawPhase({ gameState, playerState }) {
-    let newHand = [];
-    let newDeck = [];
+    let newHand = playerState.hand;
+    let newDeck = playerState.deck;
 
     const canDraw = this.gameEffectsRules.drawCardByDrawPhase({
       currentTurnNumber: gameState.currentTurnNumber,
-      hand: playerState.hand,
-      deck: playerState.deck,
-      quantity: 1,
+      hand: newHand,
     });
 
     if (canDraw) {
-      const { result, changed } = this.effects.drawFromTop(playerState.deck, 1);
-      newHand = result;
+      const { result, changed } = this.effects.drawFromTop(newDeck, 1);
+
+      newHand = [...result, ...newHand];
       newDeck = changed;
     }
 
@@ -39,26 +38,22 @@ class GameEffects {
    * @param {PlayerState} playerState
    * @returns {PlayerState, GameState}
    */
-  loadDonFronDonPhase(gameState, playerState) {
-    const canDraw = this.gameEffectsRules.loadDonFronDonPhase({
-      currentTurnNumber: gameState.currentTurnNumber,
-      dons: playerState.dons,
-      quantity: 1,
-    });
-
-    if (canDraw) {
-      const { result, changed } = this.effects.drawFromTop(playerState.dons, 1);
-
-      playerState.costs = playerState.hand.concat(result);
-      playerState.dons = changed;
-    }
+  loadDonFronDonPhase({ gameState, playerState }) {
+    const { result, changed } = this.effects.drawFromTop(
+      playerState.dons,
+      gameState.currentTurnNumber > 1 ? 2 : 1
+    );
 
     return {
-      playerState,
-      gameState,
+      costs: [...result, ...playerState.costs],
+      dons: changed,
     };
   }
 
+  /**
+   * @param {Array} game
+   * @returns {Array}
+   */
   shuffle(arr) {
     return shuffle(arr);
   }
