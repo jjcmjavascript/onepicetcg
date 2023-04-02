@@ -17,6 +17,7 @@ function formatCardsForDeck({ deck, types }) {
         uuid: idGenerator(),
         underCardId: null,
         overCardId: null,
+        rested: false,
       });
     }
   });
@@ -27,6 +28,7 @@ function formatCardsForDeck({ deck, types }) {
       uuid: idGenerator(),
       underCardId: null,
       overCardId: null,
+      rested: false,
     });
   }
 

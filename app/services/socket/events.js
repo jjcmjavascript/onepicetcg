@@ -46,12 +46,12 @@ const emitInitialBoardState = ({ socket, payload, players }) => {
   });
 };
 
-const emitGameState = ({ socket, payload, gameState }) => {
+const emitGameState = ({ socket, payload }) => {
   console.log(constants.GAME_STATE);
 
   socket.of('/duel').to(payload.room).emit(constants.GAME_STATE, {
     room: payload.room,
-    game: gameState,
+    game: payload.game,
   });
 };
 

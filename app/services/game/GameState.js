@@ -8,8 +8,9 @@ class GameState {
   constructor(playerA, playerB) {
     this.currentTurnPlayerId = 0;
     this.currentPhase = 'mulligan';
-    this.currentTurnNumber = 1;
+    this.turnNumber = 1;
     this.rockPaperScissorWinner = null;
+    this.playerTurnChoice = null;
 
     this.playerA = playerA;
     this.playerB = playerB;
@@ -28,8 +29,9 @@ class GameState {
     return {
       currentTurnPlayerId: this.currentTurnPlayerId,
       currentPhase: this.currentPhase,
-      currentTurnNumber: this.currentTurnNumber,
+      turnNumber: this.turnNumber,
       rockPaperScissorWinner: this.rockPaperScissorWinner,
+      playerTurnChoice: this.playerTurnChoice,
     };
   }
 
@@ -63,6 +65,19 @@ class GameState {
 
   setPhase(phase) {
     this.currentPhase = phase;
+  }
+
+  setPlayerTurnFromPlayerChoice({ playerId, choice }) {
+    const player = this.getPlayerById({ playerId });
+    const opponent = this.getOtherPlayerById({ playerId });
+
+    this.playerTurnChoice = choice;
+
+    if (player.choice === 'first') {
+      this.setTurnPlayerId(playerId);
+    } else {
+      this.setTurnPlayerId(opponent.id);
+    }
   }
 }
 

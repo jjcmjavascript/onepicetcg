@@ -4,11 +4,11 @@ class GameEffectsRules {
   }
 
   drawCardByDrawPhase({
-    currentTurnNumber,
+    turnNumber,
     hand,
   }) {
     return (
-      currentTurnNumber > 1 && hand.length < 7
+      turnNumber > 1 && hand.length < 7
     );
   }
 }

@@ -16,7 +16,7 @@ class GameEffects {
     let newDeck = playerState.deck;
 
     const canDraw = this.gameEffectsRules.drawCardByDrawPhase({
-      currentTurnNumber: gameState.currentTurnNumber,
+      turnNumber: gameState.turnNumber,
       hand: newHand,
     });
 
@@ -41,7 +41,7 @@ class GameEffects {
   loadDonFronDonPhase({ gameState, playerState }) {
     const { result, changed } = this.effects.drawFromTop(
       playerState.dons,
-      gameState.currentTurnNumber > 1 ? 2 : 1
+      gameState.turnNumber > 1 ? 2 : 1
     );
 
     return {
@@ -56,6 +56,10 @@ class GameEffects {
    */
   shuffle(arr) {
     return shuffle(arr);
+  }
+
+  refreshCard(arr, quantity = 0) {
+    return this.effects.refresh(arr, quantity);
   }
 }
 

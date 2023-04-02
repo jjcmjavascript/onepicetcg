@@ -140,6 +140,13 @@ class GameCore {
     return state.players.some((player) => player.mulliganAvailable);
   }
 
+  refreshPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+
+    gameState.setPhase(this.phases.REFRESH);
+  }
+
   drawPhase({ stateId }) {
     const gameState = this.getStateById({ stateId });
     const playerState = gameState.getPlayerOnTurn();

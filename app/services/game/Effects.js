@@ -8,6 +8,17 @@ class Effects {
       changed: currentArray,
     };
   }
+
+  refresh(arr) {
+    const currentArray = [...arr];
+
+    currentArray.forEach((card) => {
+      card.rested = false;
+      card.underCardId = null;
+    });
+
+    return currentArray;
+  }
 }
 
 module.exports = Effects;

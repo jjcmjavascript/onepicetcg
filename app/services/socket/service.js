@@ -84,22 +84,33 @@ module.exports = (ioObjects) => {
     socket.on(ioConstants.GAME_TURN_SELECTION_CHOICE, (payload) => {
       ioEvents.onTurnSelectionChoice();
 
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerA = state.playerA;
+      const playerB = state.playerB;
+
+      state.setPlayerTurnFromPlayerChoice({
+        playerId: socket.id,
+        choice: payload.choice,
+      });
+
       ioEvents.emitTurnSelectionEnd({
         socket: ioServer,
         payload,
       });
 
-      const state = Game.getStateById({ stateId: payload.room });
-      const playerA = state.playerA;
-      const playerB = state.playerB;
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
 
       ioEvents.emitInitialBoardState({
         socket: ioServer,
         payload,
         players: [playerA, playerB],
       });
-
-      ioEvents.emitGameState({ socket: ioServer, payload, game: state.game });
 
       RockPaperScissors.destroy({ roomId: payload.room });
 
@@ -140,9 +151,19 @@ module.exports = (ioObjects) => {
       });
 
       if (!isAvailable) {
+        Game.refreshPhase({ stateId: payload.room });
+
         const playerOnTurn = state.getPlayerOnTurn();
         const opponent = state.getOtherPlayerById({
           playerId: playerOnTurn.id,
+        });
+
+        ioEvents.emitGameState({
+          socket: ioServer,
+          payload: {
+            room: payload.room,
+            game: state.game,
+          },
         });
 
         ioEvents.emitGameRefreshPhase({
