@@ -264,6 +264,26 @@ module.exports = (ioObjects) => {
       });
     });
 
+    // MAIN PHASE
+    socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
+      const state = Game.getStateById({ stateId: payload.room });
+
+      state.setLockedMode({ locked: true });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
+
+      state.donPlus({
+        donUuid: payload.donUuid,
+        cardUuid: payload.cardUuid,
+      });
+    });
+
     /************************************************/
     // EMMITS
     /************************************************/

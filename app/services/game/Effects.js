@@ -19,6 +19,25 @@ class Effects {
 
     return currentArray;
   }
+
+  sumAttack({ card, mount = 1000 }) {
+    const newCard = { ...card };
+    newCard.powerAdded.push(mount);
+
+    return {
+      result: newCard,
+    };
+  }
+
+  pushUnder({ card, underCard }) {
+    const newCard = { ...card, overCards: [...card.overCards, underCard.uuid] };
+    const newUnderCard = { ...underCard, underCardId: newCard.uuid };
+
+    return {
+      card: newCard,
+      underCard: newUnderCard,
+    };
+  }
 }
 
 module.exports = Effects;

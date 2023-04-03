@@ -61,6 +61,31 @@ class GameEffects {
   refreshCard(arr, quantity = 0) {
     return this.effects.refresh(arr, quantity);
   }
+
+  donPlus({ don, card }) {
+    let newDon = don;
+    let newCard = card;
+
+    if (this.gameEffectsRules.donPlus({ don })) {
+      const { result: cardWithNewAttack } = this.effects.sumAttack({
+        card,
+        mount: 1000,
+      });
+
+      const { card: cardWithUnderCard, underCard } = this.effects.pushUnder({
+        card: cardWithNewAttack,
+        underCard: don,
+      });
+
+      newCard = cardWithUnderCard;
+      newDon = underCard;
+    }
+
+    return {
+      card: newCard,
+      don: newDon,
+    };
+  }
 }
 
 module.exports = GameEffects;

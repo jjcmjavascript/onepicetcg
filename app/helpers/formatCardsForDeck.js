@@ -27,8 +27,9 @@ function formatCardsForDeck({ deck, types }) {
       ...don,
       uuid: idGenerator(),
       underCardId: null,
-      overCardId: null,
+      overCards: [],
       rested: false,
+      powerAdded: [],
     });
   }
 

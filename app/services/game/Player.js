@@ -116,6 +116,29 @@ class Player {
   setDons(dons) {
     this.dons = dons;
   }
+
+  mergeCharacter(card) {
+    const characters = this.characters.map((character) => {
+      if (character.uuid === card.uuid) {
+        return card;
+      }
+      return character;
+    });
+
+    this.characters = characters;
+    º;
+  }
+
+  mergeCost(card) {
+    const costs = this.costs.map((cost) => {
+      if (cost.uuid === card.uuid) {
+        return card;
+      }
+      return cost;
+    });
+
+    this.costs = costs;
+  }
 }
 
 module.exports = Player;

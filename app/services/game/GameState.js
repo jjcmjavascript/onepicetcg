@@ -11,6 +11,8 @@ class GameState {
     this.turnNumber = 1;
     this.rockPaperScissorWinner = null;
     this.playerTurnChoice = null;
+    this.locked = gameState.locked;
+    this.selectionMode = gameState.selectionMode;
 
     this.playerA = playerA;
     this.playerB = playerB;
@@ -32,6 +34,8 @@ class GameState {
       turnNumber: this.turnNumber,
       rockPaperScissorWinner: this.rockPaperScissorWinner,
       playerTurnChoice: this.playerTurnChoice,
+      locked: this.locked,
+      selectionMode: this.selectionMode,
     };
   }
 
@@ -45,6 +49,10 @@ class GameState {
     const opponent = this.players.find((player) => player.id !== playerId);
 
     return [player, opponent];
+  }
+
+  setLockedMode({ locked }) {
+    this.locked = locked;
   }
 
   getPlayerOnTurn() {
@@ -78,6 +86,17 @@ class GameState {
     } else {
       this.setTurnPlayerId(opponent.id);
     }
+  }
+
+  donPlus({ donUuid, cardUuid }) {
+    const player = this.getPlayerOnTurn();
+    const don = player.costs.find((don) => don.uuid === donUuid);
+    const card = player.characters.find((card) => card.uuid === cardUuid);
+
+    const { don: newDon, card: newCard } = player.donPlus({ don, card });
+
+    player.mergeCharacter({ card: newCard });
+    player.mergeCost({ cost: newDon });
   }
 }
 
