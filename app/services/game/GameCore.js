@@ -81,6 +81,24 @@ class GameCore {
     callback && callback();
   }
 
+  createFakeGame({ stateId, playerBoard, gameState, playerAId, playerBId }) {
+    const playerA = Player.factoryFromObject({
+      id: playerAId,
+      ...playerBoard,
+    });
+
+    const playerB = new Player({
+      id: '123456789',
+      deckId: '123456789',
+      ...playerBoard,
+    });
+
+    this.games[stateId] = new GameState(playerA, playerB);
+    this.games[stateId].setGameState(gameState);
+
+    return this.games[stateId];
+  }
+
   getStateById({ stateId }) {
     return this.games[stateId];
   }
@@ -184,4 +202,4 @@ class GameCore {
   }
 }
 
-module.exports = new GameCore();
+module.exports = GameCore;

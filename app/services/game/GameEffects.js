@@ -74,7 +74,7 @@ class GameEffects {
 
       const { card: cardWithUnderCard, underCard } = this.effects.pushUnder({
         card: cardWithNewAttack,
-        underCard: don,
+        underCard: newDon,
       });
 
       newCard = cardWithUnderCard;
@@ -82,8 +82,8 @@ class GameEffects {
     }
 
     return {
-      card: newCard,
       don: newDon,
+      card: newCard,
     };
   }
 }

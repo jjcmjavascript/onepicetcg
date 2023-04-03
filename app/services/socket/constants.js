@@ -1,3 +1,6 @@
+const GAME_FAKE_STATE_CREATE = 'game:fakeStateCreate';
+const GAME_FAKE_STATE_CREATED = 'game:fakeStateCreated';
+
 // EMMITS
 const DUEL_JOIN = 'duel:join';
 const GAME_ROOM_JOIN = 'game:room_join';
@@ -35,13 +38,15 @@ const GAME_RIVAL_PHASES_MAIN = 'game:rivalPhasesMain';
 const GAME_RIVAL_PHASES_END = 'game:rivalPhasesEnd';
 const GAME_RIVAL_DON_PLUS = 'game:rivalDonPlus';
 
-
 // LISTENERS
 const GAME_ROCK_PAPER_SCISSORS_CHOICE = 'game:rockPaperScissorsChoice';
 const GAME_DECK_SELECTED = 'game:deckSelected';
 const GAME_MULLIGAN = 'game:mulligan';
 
 module.exports = {
+  GAME_FAKE_STATE_CREATE,
+  GAME_FAKE_STATE_CREATED,
+
   DUEL_JOIN,
   GAME_ROOM_JOIN,
   GAME_ROCK_SCISSORS_PAPER_START,

@@ -1,7 +1,9 @@
-const Game = require('../game/GameCore');
+const GameCore = require('../game/GameCore');
 const RockPaperScissors = require('../rockPaperScissor');
 
 module.exports = (ioObjects) => {
+  const Game = new GameCore();
+
   const { ioServer, ioEvents, ioConstants, ioMethods } = ioObjects;
 
   /************************************************/
@@ -15,6 +17,8 @@ module.exports = (ioObjects) => {
   // NAMESPACE: DUEL
   /************************************************/
   ioServer.of('/duel').on('connection', (socket) => {
+    console.log('Client connected to duel:', socket.id);
+
     if (!Game.playerIsWaiting({ playerId: socket.id })) {
       Game.setPlayerToWait({ clientSocket: socket });
     }
@@ -266,6 +270,7 @@ module.exports = (ioObjects) => {
 
     // MAIN PHASE
     socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
+      console.log(payload);
       const state = Game.getStateById({ stateId: payload.room });
 
       state.setLockedMode({ locked: true });
@@ -288,6 +293,31 @@ module.exports = (ioObjects) => {
     // EMMITS
     /************************************************/
     ioEvents.emitDuelJoin({ socket: ioServer });
+
+    /************************************************/
+    // DANGER FAKE STATE FOR TEST
+    /************************************************/
+    socket.on(ioConstants.GAME_FAKE_STATE_CREATE, (payload) => {
+      if (!process.env.TEST_BOARD) return;
+
+      const notPlaying = Game.connectedArr;
+      const playerA = notPlaying.pop();
+
+      const roomId = ioMethods.setPlayersInRoom({
+        playerA,
+      });
+
+      Game.createFakeGame({
+        stateId: roomId,
+        playerBoard: payload.playerBoard,
+        gameState: payload.gameState,
+        playerAId: playerA.id,
+      });
+
+      socket.emit(ioConstants.GAME_FAKE_STATE_CREATED, {
+        room: roomId,
+      });
+    });
   });
 
   /************************************************/

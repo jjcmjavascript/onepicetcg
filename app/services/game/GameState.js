@@ -6,18 +6,17 @@ class GameState {
    * @param {Player} playerB
    */
   constructor(playerA, playerB) {
+    this.playerA = playerA;
+    this.playerB = playerB;
+    this.plays = [];
+
     this.currentTurnPlayerId = 0;
     this.currentPhase = 'mulligan';
     this.turnNumber = 1;
     this.rockPaperScissorWinner = null;
     this.playerTurnChoice = null;
-    this.locked = gameState.locked;
-    this.selectionMode = gameState.selectionMode;
-
-    this.playerA = playerA;
-    this.playerB = playerB;
-
-    this.plays = [];
+    this.locked = false;
+    this.selectionMode = null;
   }
 
   /**
@@ -37,6 +36,16 @@ class GameState {
       locked: this.locked,
       selectionMode: this.selectionMode,
     };
+  }
+
+  setGameState({ gameState }) {
+    this.currentTurnPlayerId = gameState.currentTurnPlayerId;
+    this.currentPhase = gameState.currentPhase;
+    this.turnNumber = gameState.turnNumber;
+    this.rockPaperScissorWinner = gameState.rockPaperScissorWinner;
+    this.playerTurnChoice = gameState.playerTurnChoice;
+    this.locked = gameState.locked;
+    this.selectionMode = gameState.selectionMode;
   }
 
   setWinner({ playerId }) {

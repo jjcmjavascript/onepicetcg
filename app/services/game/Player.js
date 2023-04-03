@@ -11,6 +11,7 @@ class Player {
     this.rockPaperScissorChoice = player.rockPaperScissorChoice || null;
     this.didMulligan = player.didMulligan || false;
     this.mulliganAvailable = player.mulliganAvailable || true;
+
     this.leader = player.leader || null;
     this.don = player.don || null;
     this.stage = player.stage || null;
