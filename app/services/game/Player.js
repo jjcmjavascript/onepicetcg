@@ -11,6 +11,8 @@ class Player {
     this.rockPaperScissorChoice = player.rockPaperScissorChoice || null;
     this.didMulligan = player.didMulligan || false;
     this.mulliganAvailable = player.mulliganAvailable || true;
+    this.locked = player.locked || false;
+    this.mode = player.mode || null;
 
     this.leader = player.leader || null;
     this.don = player.don || null;
@@ -118,7 +120,7 @@ class Player {
     this.dons = dons;
   }
 
-  mergeCharacter(card) {
+  changeCharacter(card) {
     const characters = this.characters.map((character) => {
       if (character.uuid === card.uuid) {
         return card;
@@ -130,7 +132,7 @@ class Player {
     º;
   }
 
-  mergeCost(card) {
+  changeCost(card) {
     const costs = this.costs.map((cost) => {
       if (cost.uuid === card.uuid) {
         return card;
@@ -139,6 +141,14 @@ class Player {
     });
 
     this.costs = costs;
+  }
+
+  setLock(locked) {
+    this.locked = locked;
+  }
+
+  setSelectionMode(mode) {
+    this.selectionMode = mode;
   }
 }
 

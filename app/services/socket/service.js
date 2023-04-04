@@ -270,22 +270,16 @@ module.exports = (ioObjects) => {
 
     // MAIN PHASE
     socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
-      console.log(payload);
-      const state = Game.getStateById({ stateId: payload.room });
+      console.log(ioConstants.GAME_DON_PLUS, payload);
 
-      state.setLockedMode({ locked: true });
-
-      ioEvents.emitGameState({
-        socket: ioServer,
-        payload: {
-          room: payload.room,
-          game: state.game,
-        },
+      Game.enterToPhaseSumAttackFromDon({
+        stateId: payload.room,
+        donUuid: payload.donUuid,
       });
 
-      state.donPlus({
-        donUuid: payload.donUuid,
-        cardUuid: payload.cardUuid,
+      ioServer.to(payload.room).emit(ioConstants.GAME_DON_PLUS, {
+        room: payload.room,
+
       });
     });
 
@@ -300,23 +294,25 @@ module.exports = (ioObjects) => {
     socket.on(ioConstants.GAME_FAKE_STATE_CREATE, (payload) => {
       if (!process.env.TEST_BOARD) return;
 
-      const notPlaying = Game.connectedArr;
-      const playerA = notPlaying.pop();
-
-      const roomId = ioMethods.setPlayersInRoom({
-        playerA,
-      });
+      socket.join(socket.id);
 
       Game.createFakeGame({
-        stateId: roomId,
+        stateId: socket.id,
         playerBoard: payload.playerBoard,
         gameState: payload.gameState,
-        playerAId: playerA.id,
+        playerAId: socket.id,
       });
 
+      const state = Game.getStateById({ stateId: socket.id });
+      const currentPlayer = state.getPlayerOnTurn();
+
       socket.emit(ioConstants.GAME_FAKE_STATE_CREATED, {
-        room: roomId,
+        room: socket.id,
+        board: currentPlayer,
+        game: state.game,
       });
+
+      console.log('Fake state created');
     });
   });
 

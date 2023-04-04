@@ -15,8 +15,8 @@ class GameState {
     this.turnNumber = 1;
     this.rockPaperScissorWinner = null;
     this.playerTurnChoice = null;
-    this.locked = false;
-    this.selectionMode = null;
+    // this.locked = false;
+    // this.selectionMode = null;
   }
 
   /**
@@ -33,8 +33,8 @@ class GameState {
       turnNumber: this.turnNumber,
       rockPaperScissorWinner: this.rockPaperScissorWinner,
       playerTurnChoice: this.playerTurnChoice,
-      locked: this.locked,
-      selectionMode: this.selectionMode,
+      // locked: this.locked,
+      // selectionMode: this.selectionMode,
     };
   }
 
@@ -44,8 +44,8 @@ class GameState {
     this.turnNumber = gameState.turnNumber;
     this.rockPaperScissorWinner = gameState.rockPaperScissorWinner;
     this.playerTurnChoice = gameState.playerTurnChoice;
-    this.locked = gameState.locked;
-    this.selectionMode = gameState.selectionMode;
+    // this.locked = gameState.locked;
+    // this.selectionMode = gameState.selectionMode;
   }
 
   setWinner({ playerId }) {
@@ -60,9 +60,13 @@ class GameState {
     return [player, opponent];
   }
 
-  setLockedMode({ locked }) {
-    this.locked = locked;
-  }
+  // setLock(locked) {
+  //   this.locked = locked;
+  // }
+
+  // setSelectionMode(mode) {
+  //   this.selectionMode = mode;
+  // }
 
   getPlayerOnTurn() {
     return this.getPlayerById({ playerId: this.currentTurnPlayerId });
@@ -98,14 +102,12 @@ class GameState {
   }
 
   donPlus({ donUuid, cardUuid }) {
-    const player = this.getPlayerOnTurn();
-    const don = player.costs.find((don) => don.uuid === donUuid);
-    const card = player.characters.find((card) => card.uuid === cardUuid);
-
-    const { don: newDon, card: newCard } = player.donPlus({ don, card });
-
-    player.mergeCharacter({ card: newCard });
-    player.mergeCost({ cost: newDon });
+    // const player = this.getPlayerOnTurn();
+    // const don = player.costs.find((don) => don.uuid === donUuid);
+    // const card = player.characters.find((card) => card.uuid === cardUuid);
+    // const { don: newDon, card: newCard } = this.effet.donPlus({ don, card });
+    // player.mergeCharacter({ card: newCard });
+    // player.mergeCost({ cost: newDon });
   }
 }
 

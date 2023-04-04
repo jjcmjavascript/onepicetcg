@@ -7,12 +7,14 @@ const GameState = require('./GameState');
 const Player = require('./Player');
 const GameDbBrige = require('./GameDbBridgeService');
 const GamePhases = require('./GamePhases');
+const GameModes = require('./GameModes');
 
 class GameCore {
   constructor() {
     this.db = new GameDbBrige();
     this.effects = new GameEffects(new Effects(), new GameEffectsRules());
     this.phases = new GamePhases();
+    this.modes = new GameModes();
     this.games = {};
     this.connected = {};
   }
@@ -94,7 +96,9 @@ class GameCore {
     });
 
     this.games[stateId] = new GameState(playerA, playerB);
-    this.games[stateId].setGameState(gameState);
+    this.games[stateId].setGameState({
+      gameState: { ...gameState, currentTurnPlayerId: playerAId },
+    });
 
     return this.games[stateId];
   }
@@ -199,6 +203,22 @@ class GameCore {
     const gameState = this.getStateById({ stateId });
 
     gameState.setPhase(this.phases.MAIN);
+  }
+
+  enterToPhaseSumAttackFromDon({ stateId, donUuid }) {
+    const gameState = this.getStateById({ stateId });
+    const playerState = gameState.getPlayerOnTurn();
+    const don = playerState.dons.find((don) => don.uuid == donUuid);
+
+    const canEnter = this.effects.gameEffectsRules.donPlus({
+      don,
+      characters: playerState.characters,
+    });
+
+    if (canEnter) {
+      playerState.setLock(true);
+      playerState.setSelectionMode('CHARACTER_SELECTION');
+    }
   }
 }
 
