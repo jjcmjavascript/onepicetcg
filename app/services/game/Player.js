@@ -13,6 +13,8 @@ class Player {
     this.mulliganAvailable = player.mulliganAvailable || true;
     this.locked = player.locked || false;
     this.mode = player.mode || null;
+    this.pedingEffects = player.pedingEffects || [];
+    this.continuesEffects = player.continuesEffects || [];
 
     this.leader = player.leader || null;
     this.don = player.don || null;
@@ -149,6 +151,14 @@ class Player {
 
   setSelectionMode(mode) {
     this.selectionMode = mode;
+  }
+
+  setPedingEffects(pedingEffects) {
+    this.pedingEffects = pedingEffects;
+  }
+
+  setContinuesEffects(continuesEffects) {
+    this.continuesEffects = continuesEffects;
   }
 }
 

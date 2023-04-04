@@ -208,7 +208,7 @@ class GameCore {
   enterToPhaseSumAttackFromDon({ stateId, donUuid }) {
     const gameState = this.getStateById({ stateId });
     const playerState = gameState.getPlayerOnTurn();
-    const don = playerState.dons.find((don) => don.uuid == donUuid);
+    const don = playerState.costs.find((don) => don.uuid == donUuid);
 
     const canEnter = this.effects.gameEffectsRules.donPlus({
       don,
@@ -217,7 +217,9 @@ class GameCore {
 
     if (canEnter) {
       playerState.setLock(true);
-      playerState.setSelectionMode('CHARACTER_SELECTION');
+      playerState.setPedingEffects([
+        'SELECT:1:CHARACTER',
+      ]);
     }
   }
 }

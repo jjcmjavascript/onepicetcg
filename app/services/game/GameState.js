@@ -17,6 +17,9 @@ class GameState {
     this.playerTurnChoice = null;
     // this.locked = false;
     // this.selectionMode = null;
+
+    this.pedingEffects = [];
+    this.continuesEffects = [];
   }
 
   /**
@@ -35,6 +38,8 @@ class GameState {
       playerTurnChoice: this.playerTurnChoice,
       // locked: this.locked,
       // selectionMode: this.selectionMode,
+      pendingEffects: this.pendingEffects,
+      continuesEffects: this.continuesEffects,
     };
   }
 
@@ -46,6 +51,8 @@ class GameState {
     this.playerTurnChoice = gameState.playerTurnChoice;
     // this.locked = gameState.locked;
     // this.selectionMode = gameState.selectionMode;
+    this.pendingEffects = gameState.pendingEffects;
+    this.continuesEffects = gameState.continuesEffects;
   }
 
   setWinner({ playerId }) {

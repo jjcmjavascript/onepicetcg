@@ -14,10 +14,14 @@ function formatCardsForDeck({ deck, types }) {
     for (let i = 0; i < quantity; i++) {
       cards.push({
         ...card,
+
         uuid: idGenerator(),
         underCardId: null,
-        overCardId: null,
+        overCards: [],
         rested: false,
+        powerAdded: [],
+        toSelect: false,
+        selected: false,
       });
     }
   });
@@ -25,11 +29,14 @@ function formatCardsForDeck({ deck, types }) {
   for (let i = 0; i < 9; i++) {
     cards.push({
       ...don,
+
       uuid: idGenerator(),
       underCardId: null,
       overCards: [],
       rested: false,
       powerAdded: [],
+      toSelect: false,
+      selected: false,
     });
   }
 

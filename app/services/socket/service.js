@@ -135,7 +135,7 @@ module.exports = (ioObjects) => {
 
       const _payload = {
         room: payload.room,
-        board: player.board,
+        board: player,
       };
 
       ioEvents.emitMulligan({
@@ -175,7 +175,7 @@ module.exports = (ioObjects) => {
           playerId: playerOnTurn.id,
           payload: {
             room: payload.room,
-            board: playerOnTurn.board,
+            board: playerOnTurn,
           },
         });
 
@@ -184,7 +184,7 @@ module.exports = (ioObjects) => {
           playerId: opponent.id,
           payload: {
             room: payload.room,
-            board: playerOnTurn.board,
+            board: playerOnTurn,
           },
         });
       }
@@ -204,7 +204,7 @@ module.exports = (ioObjects) => {
         playerId: playerOnTurn.id,
         payload: {
           room: payload.room,
-          board: playerOnTurn.board,
+          board: playerOnTurn,
         },
       });
 
@@ -213,7 +213,7 @@ module.exports = (ioObjects) => {
         playerId: opponent.id,
         payload: {
           room: payload.room,
-          board: playerOnTurn.board,
+          board: playerOnTurn,
         },
       });
     });
@@ -232,7 +232,7 @@ module.exports = (ioObjects) => {
         playerId: playerOnTurn.id,
         payload: {
           room: payload.room,
-          board: playerOnTurn.board,
+          board: playerOnTurn,
         },
       });
 
@@ -241,7 +241,7 @@ module.exports = (ioObjects) => {
         playerId: opponent.id,
         payload: {
           room: payload.room,
-          board: playerOnTurn.board,
+          board: playerOnTurn,
         },
       });
     });
@@ -277,9 +277,13 @@ module.exports = (ioObjects) => {
         donUuid: payload.donUuid,
       });
 
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+
       ioServer.to(payload.room).emit(ioConstants.GAME_DON_PLUS, {
         room: payload.room,
-
+        board: playerOnTurn,
+        game: state.game,
       });
     });
 

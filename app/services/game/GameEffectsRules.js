@@ -7,7 +7,7 @@ class GameEffectsRules {
     return turnNumber > 1 && hand.length < 7;
   }
 
-  donPlus({ don , characters}) {
+  donPlus({ don, characters }) {
     return !don.rested && characters.length > 0;
   }
 }
