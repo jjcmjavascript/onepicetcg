@@ -38,7 +38,7 @@ class GameEffects {
    * @param {PlayerState} playerState
    * @returns {PlayerState, GameState}
    */
-  loadDonFronDonPhase({ gameState, playerState }) {
+  loadDonFromDonPhase({ gameState, playerState }) {
     const { result, changed } = this.effects.drawFromTop(
       playerState.dons,
       gameState.turnNumber > 1 ? 2 : 1
@@ -56,10 +56,6 @@ class GameEffects {
    */
   shuffle(arr) {
     return shuffle(arr);
-  }
-
-  refreshCard(arr, quantity = 0) {
-    return this.effects.refresh(arr, quantity);
   }
 
   donPlus({ don, card }) {
@@ -84,6 +80,30 @@ class GameEffects {
     return {
       don: newDon,
       card: newCard,
+    };
+  }
+
+  refreshHandByRefreshPhase({ playerState }) {
+    let leader = playerState.leader;
+    let costs = playerState.costs;
+    let characters = playerState.characters;
+
+    if (leader.overCards.length > 0) {
+      costs = [...costs, ...leader.overCards];
+      leader.overCards = [];
+    }
+
+    characters.forEach((character) => {
+      if (character.overCards.length > 0) {
+        costs = [...costs, ...character.overCards];
+        character.overCards = [];
+      }
+    });
+
+    return {
+      leader: this.effects.refresh([leader])[0],
+      costs: this.effects.refresh(costs),
+      characters: this.effects.refresh(characters),
     };
   }
 }

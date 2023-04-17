@@ -166,6 +166,17 @@ class GameCore {
     const gameState = this.getStateById({ stateId });
     const playerState = gameState.getPlayerOnTurn();
 
+    const { leader, costs, characters } =
+      this.effects.refreshHandByRefreshPhase({
+        playerState,
+      });
+
+    playerState.merge({
+      leader,
+      costs,
+      characters,
+    });
+
     gameState.setPhase(this.phases.REFRESH);
   }
 
@@ -188,7 +199,7 @@ class GameCore {
     const gameState = this.getStateById({ stateId });
     const playerState = gameState.getPlayerOnTurn();
 
-    const { costs, dons } = this.effects.loadDonFronDonPhase({
+    const { costs, dons } = this.effects.loadDonFromDonPhase({
       gameState,
       playerState,
     });
@@ -217,9 +228,7 @@ class GameCore {
 
     if (canEnter) {
       playerState.setLock(true);
-      playerState.setPedingEffects([
-        'SELECT:1:CHARACTER',
-      ]);
+      playerState.setPedingEffects(['SELECT:1:CHARACTER']);
     }
   }
 }

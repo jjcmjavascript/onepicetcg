@@ -5,21 +5,22 @@ class GameState {
    * @param {Player} playerA
    * @param {Player} playerB
    */
-  constructor(playerA, playerB) {
+  constructor(playerA, playerB, gameState = {}) {
     this.playerA = playerA;
     this.playerB = playerB;
-    this.plays = [];
+    this.plays = gameState.plays || {
+      1: [],
+    };
 
-    this.currentTurnPlayerId = 0;
-    this.currentPhase = 'mulligan';
-    this.turnNumber = 1;
-    this.rockPaperScissorWinner = null;
-    this.playerTurnChoice = null;
-    // this.locked = false;
-    // this.selectionMode = null;
+    this.currentTurnPlayerId = gameState.currentTurnPlayerId || 0;
+    this.currentPhase = gameState.currentPhase || 'mulligan';
+    this.turnNumber = gameState.turnNumber || 1;
+    this.rockPaperScissorWinner = gameState.rockPaperScissorWinner || null;
+    this.playerTurnChoice = gameState.playerTurnChoice || null;
 
-    this.pedingEffects = [];
-    this.continuesEffects = [];
+    this.mode = gameState.mode || null;
+    this.pendingEffects = gameState.pendingEffects || [];
+    this.continuesEffects = gameState.continuesEffects || [];
   }
 
   /**
@@ -31,26 +32,29 @@ class GameState {
 
   get game() {
     return {
+      plays: this.plays,
+      mode: this.mode,
       currentTurnPlayerId: this.currentTurnPlayerId,
       currentPhase: this.currentPhase,
       turnNumber: this.turnNumber,
       rockPaperScissorWinner: this.rockPaperScissorWinner,
       playerTurnChoice: this.playerTurnChoice,
-      // locked: this.locked,
-      // selectionMode: this.selectionMode,
       pendingEffects: this.pendingEffects,
       continuesEffects: this.continuesEffects,
     };
   }
 
+  get currentPlays() {
+    return this.plays[this.turnNumber] || [];
+  }
+
   setGameState({ gameState }) {
+    this.mode = gameState.mode;
     this.currentTurnPlayerId = gameState.currentTurnPlayerId;
     this.currentPhase = gameState.currentPhase;
     this.turnNumber = gameState.turnNumber;
     this.rockPaperScissorWinner = gameState.rockPaperScissorWinner;
     this.playerTurnChoice = gameState.playerTurnChoice;
-    // this.locked = gameState.locked;
-    // this.selectionMode = gameState.selectionMode;
     this.pendingEffects = gameState.pendingEffects;
     this.continuesEffects = gameState.continuesEffects;
   }
@@ -66,14 +70,6 @@ class GameState {
 
     return [player, opponent];
   }
-
-  // setLock(locked) {
-  //   this.locked = locked;
-  // }
-
-  // setSelectionMode(mode) {
-  //   this.selectionMode = mode;
-  // }
 
   getPlayerOnTurn() {
     return this.getPlayerById({ playerId: this.currentTurnPlayerId });
@@ -96,12 +92,11 @@ class GameState {
   }
 
   setPlayerTurnFromPlayerChoice({ playerId, choice }) {
-    const player = this.getPlayerById({ playerId });
     const opponent = this.getOtherPlayerById({ playerId });
 
     this.playerTurnChoice = choice;
 
-    if (player.choice === 'first') {
+    if (choice === 'first') {
       this.setTurnPlayerId(playerId);
     } else {
       this.setTurnPlayerId(opponent.id);
@@ -115,6 +110,13 @@ class GameState {
     // const { don: newDon, card: newCard } = this.effet.donPlus({ don, card });
     // player.mergeCharacter({ card: newCard });
     // player.mergeCost({ cost: newDon });
+  }
+
+  merge(gameState) {
+    return new GameState(this.playerA, this.playerB, {
+      ...this.game,
+      ...gameState,
+    });
   }
 }
 

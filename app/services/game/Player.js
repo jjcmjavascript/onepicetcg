@@ -160,6 +160,13 @@ class Player {
   setContinuesEffects(continuesEffects) {
     this.continuesEffects = continuesEffects;
   }
+
+  merge(playerState) {
+    return new Player({
+      ...this,
+      ...playerState,
+    });
+  }
 }
 
 module.exports = Player;

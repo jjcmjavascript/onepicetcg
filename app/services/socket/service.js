@@ -216,6 +216,14 @@ module.exports = (ioObjects) => {
           board: playerOnTurn,
         },
       });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
     });
 
     socket.on(ioConstants.GAME_PHASES_DRAW_END, (payload) => {
@@ -244,6 +252,14 @@ module.exports = (ioObjects) => {
           board: playerOnTurn,
         },
       });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
     });
 
     socket.on(ioConstants.GAME_PHASES_DON_END, (payload) => {
@@ -266,26 +282,35 @@ module.exports = (ioObjects) => {
         playerId: opponent.id,
         payload,
       });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
     });
 
     // MAIN PHASE
-    socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
-      console.log(ioConstants.GAME_DON_PLUS, payload);
 
-      Game.enterToPhaseSumAttackFromDon({
-        stateId: payload.room,
-        donUuid: payload.donUuid,
-      });
+    // socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
+    //   console.log(ioConstants.GAME_DON_PLUS, payload);
 
-      const state = Game.getStateById({ stateId: payload.room });
-      const playerOnTurn = state.getPlayerOnTurn();
+    //   Game.enterToPhaseSumAttackFromDon({
+    //     stateId: payload.room,
+    //     donUuid: payload.donUuid,
+    //   });
 
-      ioServer.to(payload.room).emit(ioConstants.GAME_DON_PLUS, {
-        room: payload.room,
-        board: playerOnTurn,
-        game: state.game,
-      });
-    });
+    //   const state = Game.getStateById({ stateId: payload.room });
+    //   const playerOnTurn = state.getPlayerOnTurn();
+
+    //   ioServer.to(payload.room).emit(ioConstants.GAME_DON_PLUS, {
+    //     room: payload.room,
+    //     board: playerOnTurn,
+    //     game: state.game,
+    //   });
+    // });
 
     /************************************************/
     // EMMITS
