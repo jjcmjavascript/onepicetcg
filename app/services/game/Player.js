@@ -1,6 +1,6 @@
 const { formatCardsForDeck, deckDivider, shuffle } = require('../../helpers');
 const types = require('../../helpers/cardTypes');
-
+const GameCard = require('./GameCard');
 class Player {
   /**
    * @param {Object{ id , deckId}} player
@@ -50,8 +50,8 @@ class Player {
     return player;
   }
 
-  setDeckFromDeckModel(deck) {
-    this.setDataFromObject(this.getFormatedDeckFromDeckModel(deck));
+  setBoardFromDeckModel(deck) {
+    this.setDataFromObject(this.getFormatedBoard(deck));
   }
 
   setDataFromObject(schema) {
@@ -69,10 +69,11 @@ class Player {
   /**
    * @param {Array [CardModel]} deck
    */
-  getFormatedDeckFromDeckModel(deck) {
+  getFormatedBoard(deck) {
     const playerDeckStructure = formatCardsForDeck({
       deck,
       types,
+      cardModel: GameCard,
     });
 
     const playerDeckSplitted = deckDivider({

@@ -118,6 +118,17 @@ class GameState {
       ...gameState,
     });
   }
+  changePlayerTurn() {
+    this.currentTurnPlayerId =
+      this.currentTurnPlayerId === this.playerA.id
+        ? this.playerB.id
+        : this.playerA.id;
+  }
+
+  changeTurn() {
+    this.changePlayerTurn();
+    this.turnNumber += 1;
+  }
 }
 
 module.exports = GameState;

@@ -75,8 +75,8 @@ class GameCore {
     const PlayerA = new Player(playerA);
     const PlayerB = new Player(playerB);
 
-    PlayerA.setDeckFromDeckModel(playerADeck);
-    PlayerB.setDeckFromDeckModel(playerBDeck);
+    PlayerA.setBoardFromDeckModel(playerADeck);
+    PlayerB.setBoardFromDeckModel(playerBDeck);
 
     this.games[stateId] = new GameState(PlayerA, PlayerB);
 
@@ -214,6 +214,20 @@ class GameCore {
     const gameState = this.getStateById({ stateId });
 
     gameState.setPhase(this.phases.MAIN);
+  }
+
+  endPhase({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+
+    gameState.setPhase(this.phases.END);
+  }
+
+  changeTurn({ stateId }) {
+    const gameState = this.getStateById({ stateId });
+
+    gameState.changeTurn();
+
+    this.refreshPhase({ stateId });
   }
 
   enterToPhaseSumAttackFromDon({ stateId, donUuid }) {

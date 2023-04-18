@@ -122,6 +122,8 @@ module.exports = (ioObjects) => {
     });
 
     socket.on(ioConstants.GAME_MULLIGAN, (payload) => {
+      ioEvents.onMulligan();
+
       Game.mulliganPhase({
         stateId: payload.room,
         playerId: socket.id,
@@ -311,6 +313,54 @@ module.exports = (ioObjects) => {
     //     game: state.game,
     //   });
     // });
+
+    socket.on(ioConstants.GAME_TURN_END, (payload) => {
+      ioEvents.onGameTurnEnd();
+
+      Game.endPhase({ stateId: payload.room });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: Game.getStateById({ stateId: payload.room }),
+        },
+      });
+
+      Game.changeTurn({ stateId: payload.room });
+
+      const state = Game.getStateById({ stateId: payload.room });
+      const playerOnTurn = state.getPlayerOnTurn();
+      const opponent = state.getOtherPlayerById({
+        playerId: playerOnTurn.id,
+      });
+
+      ioEvents.emitGameState({
+        socket: ioServer,
+        payload: {
+          room: payload.room,
+          game: state.game,
+        },
+      });
+
+      ioEvents.emitGameRefreshPhase({
+        socket: ioServer,
+        playerId: playerOnTurn.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn,
+        },
+      });
+
+      ioEvents.emitGameRivalRefreshPhase({
+        socket: ioServer,
+        playerId: opponent.id,
+        payload: {
+          room: payload.room,
+          board: playerOnTurn,
+        },
+      });
+    });
 
     /************************************************/
     // EMMITS

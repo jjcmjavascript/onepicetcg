@@ -180,6 +180,14 @@ const emitPhaseMainRival = ({ socket, playerId, payload }) => {
   });
 };
 
+const onMulligan = () => {
+  console.log(constants.GAME_MULLIGAN);
+};
+
+const onGameTurnEnd = () => {
+  console.log(constants.GAME_TURN_END);
+};
+
 module.exports = {
   emitDuelJoin,
   emitDuelRoomJoin,
@@ -204,4 +212,6 @@ module.exports = {
   emitRivalPhaseDon,
   emitPhaseMain,
   emitPhaseMainRival,
+  onMulligan,
+  onGameTurnEnd,
 };
