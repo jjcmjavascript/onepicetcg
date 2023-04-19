@@ -22,7 +22,8 @@ class GameCard {
     this.lives = cardObject.lives;
     this.name = cardObject.name;
     this.otherName = cardObject.other_name;
-    this.packId = cardObject.pack_id;
+    // this.packId = cardObject.pack_id;
+    // this._type = cardObject._type;
     this.pivot_decks_cards = cardObject.pivot_decks_cards;
     this.power = cardObject.power;
     this.rush = cardObject.rush;
@@ -30,11 +31,12 @@ class GameCard {
     this.typeId = cardObject.type_id;
     this.updatedAt = cardObject.updatedAt;
     this.uuid = cardObject.uuid;
-    this._categories = cardObject._categories;
+    // this._categories = cardObject._categories;
     this._colors = cardObject._colors;
     this._image = cardObject._image;
     this._image_full = cardObject._image_full;
-    this._type = cardObject._type;
+    this.type = cardObject?._type?.name;
+    this.categories = cardObject?._categories?.map((category) => category.name);
 
     // Game attributes
     this.underCardId = cardObject.underCardId || null;
