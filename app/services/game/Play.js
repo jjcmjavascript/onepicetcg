@@ -1,9 +1,13 @@
 class Play {
-  constructor(object) {
-    this.id = object.id;
-    this.type = object.type;
-    this.description = object.description;
-    this.card = object.card;
+  constructor(play) {
+    this.name = play.name || null;
+    this.card = play.card || null;
+    this.playerId = play.playerId || null;
+    this.inTheirTurn = play.inThemTurn || false;
+  }
+
+  get isCard() {
+    return this.card !== null;
   }
 }
 

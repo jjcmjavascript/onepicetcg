@@ -1,28 +1,39 @@
 const Player = require('./Player');
-
+const Plays = require('./Plays');
 class GameState {
   /**
    * @param {Player} playerA
    * @param {Player} playerB
    */
-  constructor(playerA, playerB, gameState = {}) {
+  constructor(playerA, playerB, gameState) {
     this.playerA = playerA;
     this.playerB = playerB;
-    this.plays = gameState.plays || {
-      1: [],
-    };
+    this.plays = gameState.plays;
 
-    this.currentTurnPlayerId = gameState.currentTurnPlayerId || 0;
-    this.currentPhase = gameState.currentPhase || 'mulligan';
-    this.turnNumber = gameState.turnNumber || 1;
-    this.rockPaperScissorWinner = gameState.rockPaperScissorWinner || null;
-    this.playerTurnChoice = gameState.playerTurnChoice || null;
+    this.currentTurnPlayerId = gameState.currentTurnPlayerId;
+    this.currentPhase = gameState.currentPhase;
+    this.turnNumber = gameState.turnNumber;
+    this.rockPaperScissorWinner = gameState.rockPaperScissorWinner;
+    this.playerTurnChoice = gameState.playerTurnChoice;
 
-    this.mode = gameState.mode || null;
-    this.pendingEffects = gameState.pendingEffects || [];
-    this.continuesEffects = gameState.continuesEffects || [];
+    this.mode = gameState.mode;
+    this.pendingEffects = gameState.pendingEffects;
+    this.continuesEffects = gameState.continuesEffects;
   }
 
+  static getDefault() {
+    return {
+      plays: Plays.getDefault(),
+      currentTurnPlayerId: 0,
+      currentPhase: '',
+      turnNumber: 1,
+      rockPaperScissorWinner: null,
+      playerTurnChoice: null,
+      mode: null,
+      pendingEffects: [],
+      continuesEffects: [],
+    };
+  }
   /**
    * @return {Array[Player]} playerA
    */
@@ -48,7 +59,7 @@ class GameState {
     return this.plays[this.turnNumber] || [];
   }
 
-  setGameState({ gameState }) {
+  setGameState(gameState) {
     this.mode = gameState.mode;
     this.currentTurnPlayerId = gameState.currentTurnPlayerId;
     this.currentPhase = gameState.currentPhase;
@@ -103,21 +114,26 @@ class GameState {
     }
   }
 
-  donPlus({ donUuid, cardUuid }) {
-    // const player = this.getPlayerOnTurn();
-    // const don = player.costs.find((don) => don.uuid === donUuid);
-    // const card = player.characters.find((card) => card.uuid === cardUuid);
-    // const { don: newDon, card: newCard } = this.effet.donPlus({ don, card });
-    // player.mergeCharacter({ card: newCard });
-    // player.mergeCost({ cost: newDon });
-  }
-
   merge(gameState) {
     return new GameState(this.playerA, this.playerB, {
       ...this.game,
       ...gameState,
     });
   }
+
+  mergePlay(play) {
+    return this.merge({
+      plays: this.plays.merge({
+        turnNumber: this.turnNumber,
+        play: {
+          playerId: this.currentTurnPlayerId,
+          inTheirTurn: this.currentTurnPlayerId === play.playerId,
+          ...play,
+        },
+      }),
+    });
+  }
+
   changePlayerTurn() {
     this.currentTurnPlayerId =
       this.currentTurnPlayerId === this.playerA.id

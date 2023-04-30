@@ -295,25 +295,6 @@ module.exports = (ioObjects) => {
     });
 
     // MAIN PHASE
-
-    // socket.on(ioConstants.GAME_DON_PLUS, (payload) => {
-    //   console.log(ioConstants.GAME_DON_PLUS, payload);
-
-    //   Game.enterToPhaseSumAttackFromDon({
-    //     stateId: payload.room,
-    //     donUuid: payload.donUuid,
-    //   });
-
-    //   const state = Game.getStateById({ stateId: payload.room });
-    //   const playerOnTurn = state.getPlayerOnTurn();
-
-    //   ioServer.to(payload.room).emit(ioConstants.GAME_DON_PLUS, {
-    //     room: payload.room,
-    //     board: playerOnTurn,
-    //     game: state.game,
-    //   });
-    // });
-
     socket.on(ioConstants.GAME_TURN_END, (payload) => {
       ioEvents.onGameTurnEnd();
 

@@ -229,22 +229,6 @@ class GameCore {
 
     this.refreshPhase({ stateId });
   }
-
-  enterToPhaseSumAttackFromDon({ stateId, donUuid }) {
-    const gameState = this.getStateById({ stateId });
-    const playerState = gameState.getPlayerOnTurn();
-    const don = playerState.costs.find((don) => don.uuid == donUuid);
-
-    const canEnter = this.effects.gameEffectsRules.donPlus({
-      don,
-      characters: playerState.characters,
-    });
-
-    if (canEnter) {
-      playerState.setLock(true);
-      playerState.setPedingEffects(['SELECT:1:CHARACTER']);
-    }
-  }
 }
 
 module.exports = GameCore;

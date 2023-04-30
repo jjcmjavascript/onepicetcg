@@ -58,31 +58,6 @@ class GameEffects {
     return shuffle(arr);
   }
 
-  donPlus({ don, card }) {
-    let newDon = don;
-    let newCard = card;
-
-    if (this.gameEffectsRules.donPlus({ don })) {
-      const { result: cardWithNewAttack } = this.effects.sumAttack({
-        card,
-        mount: 1000,
-      });
-
-      const { card: cardWithUnderCard, underCard } = this.effects.pushUnder({
-        card: cardWithNewAttack,
-        underCard: newDon,
-      });
-
-      newCard = cardWithUnderCard;
-      newDon = underCard;
-    }
-
-    return {
-      don: newDon,
-      card: newCard,
-    };
-  }
-
   refreshHandByRefreshPhase({ playerState }) {
     let leader = playerState.leader;
     let costs = playerState.costs;

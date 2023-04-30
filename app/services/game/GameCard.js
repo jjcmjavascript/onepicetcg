@@ -47,10 +47,6 @@ class GameCard {
     this.selected = cardObject.selected || false;
   }
 
-  get newId() {
-    return 'my id_' + this.id;
-  }
-
   static create = (cardObject) => {
     return new GameCard(cardObject);
   };
