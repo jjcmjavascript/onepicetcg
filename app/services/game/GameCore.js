@@ -78,7 +78,11 @@ class GameCore {
     PlayerA.setBoardFromDeckModel(playerADeck);
     PlayerB.setBoardFromDeckModel(playerBDeck);
 
-    this.games[stateId] = new GameState(PlayerA, PlayerB);
+    this.games[stateId] = new GameState(
+      PlayerA,
+      PlayerB,
+      GameState.getDefault()
+    );
 
     callback && callback();
   }
@@ -95,7 +99,11 @@ class GameCore {
       ...playerBoard,
     });
 
-    this.games[stateId] = new GameState(playerA, playerB);
+    this.games[stateId] = new GameState(
+      playerA,
+      playerB,
+      GameState.getDefault()
+    );
     this.games[stateId].setGameState({
       gameState: { ...gameState, currentTurnPlayerId: playerAId },
     });

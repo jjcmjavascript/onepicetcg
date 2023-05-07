@@ -32,12 +32,12 @@ class GameCard {
     this.updatedAt = cardObject.updatedAt;
     this.uuid = cardObject.uuid;
     // this._categories = cardObject._categories;
-    this._colors = cardObject._colors;
     this._image = cardObject._image;
     this._image_full = cardObject._image_full;
     this.type = cardObject?._type?.name;
     this.categories = cardObject?._categories?.map((category) => category.name);
-
+    // this._colors = cardObject._colors;
+    this.colors = cardObject?._colors?.map((color) => color.name);
     // Game attributes
     this.underCardId = cardObject.underCardId || null;
     this.overCards = cardObject.overCards || [];
@@ -46,10 +46,6 @@ class GameCard {
     this.toSelect = cardObject.toSelect || false;
     this.selected = cardObject.selected || false;
   }
-
-  static create = (cardObject) => {
-    return new GameCard(cardObject);
-  };
 }
 
 module.exports = GameCard;
