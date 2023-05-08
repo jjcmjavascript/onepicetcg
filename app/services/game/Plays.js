@@ -2,7 +2,7 @@ const Play = require('./Play');
 
 class Plays {
   constructor(plays) {
-    this.plays = plays;
+    this.list = plays;
   }
 
   static getDefault() {
@@ -12,9 +12,9 @@ class Plays {
   }
 
   merge({ turnNumber, play }) {
-    const currentPlays = this.plays[turnNumber] || [];
+    const currentPlays = this.list[turnNumber] || [];
     return new Plays({
-      ...this.plays,
+      ...this.list,
       [turnNumber]: [...currentPlays, new Play(play)],
     });
   }
